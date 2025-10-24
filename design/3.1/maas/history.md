@@ -2,18 +2,26 @@
 
 This file contains information that will be used to populate the History tab of Apollo and provided as context to the AI Assistant to answer questions.
 
+2025-10-23
+- Reviewed MaaS iteration 1 work with Field team
+- Recording: https://drive.google.com/file/d/1qqv2Ja4bT4H23DvKf3w6iSs0o1-34pYT/view
+- Chat: https://drive.google.com/file/d/1GAYii0Bji67Mrd5qNhZrrM2TU41sZqbv/view
+- Gemini notes: https://docs.google.com/document/d/12txTp0Jryo0yzCMhbQ9OLPbZ1PJTlyKmCn0Q0t7jhAQ/edit?tab=t.6ladz7juhizl
+- TODO: synthesize this feedback into prototype updates
+
 2025-10-16
 - Reviewed MaaS iteration 1 work at RHOAI UX Forum
 - Recording 1 focused on Observability: https://drive.google.com/file/d/1Nu-eZtYCARpqEi_VBQjfmlnZKiPKow3P/view
 - Recording 2 focused on MaaS Admin: https://drive.google.com/file/d/16zOf70_oN5sgkPW3bs1bi9ooNMNBuyqd/view
 - We collected feedback from Field-facing teams, need to synthesize this feedback into updates
+- TODO: synthesize this feedback into prototype updates
 
 2025-10-15
 - Reviewed MaaS iteration 1 work at Gen AI Studio UX Stakeholder Sync
 - Recording: https://drive.google.com/file/d/1u6d9W7zFMJMUvXbjiBTPGGuNREt1B42Z/view
 - Chat: https://drive.google.com/file/d/1WlZqQM18p28ehRHP3umBwoIkX-qX-py0/view
 - Gemini Notes: https://docs.google.com/document/d/1jEoMUuy99ei6iVClLttCQYOMDh0IeMM_KjP88TzH5PE/edit?tab=t.qfvlx7uu9b8c
-- We need to synthesize this feedback into prototype updates
+- TODO: synthesize this feedback into prototype updates
 
 2025-10-13
 - Fix the Delete API Key modal to follow PatternFly 6 modal documentation patterns
