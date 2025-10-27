@@ -38,8 +38,6 @@ build:
   artifacts:
     paths:
       - public
-  only:
-    - '3.1'
 
 pages:
   stage: deploy
@@ -48,5 +46,3 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - '3.1'
