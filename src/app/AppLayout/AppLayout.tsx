@@ -401,7 +401,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         <Tooltip
           content={
             <div>
-               This prototype demonstrates the <em>AI hub</em> and <em>Generative AI studio</em> features for 3.0. Not all features and interactions are fully represented and this does not represent a commitment on the part of Red Hat. Features are subject to change.
+               This prototype demonstrates the <em>AI hub</em> and <em>Generative AI studio</em> features of 3.2. Not all features and interactions are fully represented and this does not represent a commitment on the part of Red Hat. Features are subject to change.
             </div>
           }
           position="bottom"
