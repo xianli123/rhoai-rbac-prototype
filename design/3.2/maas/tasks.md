@@ -4,17 +4,28 @@ This file is continuously updated to include suggested and queued tasks.
 
 ## Remaining tasks
 
-- Add the ability to Delete an API key with a caution that this is irreversible and make them type the name again
-- Add the ability to connect an external model provider's API endpoint as an AI Asset potentially
-- Column for "last used" in the API Keys list to show the last time it was used
-- Column for "status" of the key, whether it's active or revoked or suspended or throttled or whatever
-- Add a show/eye icon to reveal the API key, copy icon too
-- Integration of multiple API Keys in the AI Assets area
-- Add baseline Tiers out of the box (e.g. Tier 0, Tier 1)
-- Add "Make available as AI Asset" to the Model Deployments area
+API Keys
+- Add a show/eye icon to reveal the API key, and copy icon too
 - Show quota total remaining for a key
-- Add support for throttling after the quota
-- In the Endpoints popover
+
+Model Deployments
+- Add "Make available as AI Asset" as a right-click option that brings the user to the "Add AI Asset" modal with options pre-filled
+
+Policies
+- Add support for throttling requests after the quota (need to look up APIs)
+- Refine the "Create policy" modal based on feedback, they're technically applied to model endpoints
+- Add baseline Tiers out of the box (e.g. Tier 0, Tier 1)
+
+AI Asset Endpoints
+- The Endpoints popover should support the ability to select between different API Keys that you have available with access to that model, and the model you can access there should support that too
+- Refine the "Add asset" modal
+- Add the ability to connect an external model provider's API endpoint as an AI Asset
+
+Observability
+- Add the latest Observability Dashboard designs (code [here](https://drive.google.com/file/d/1jV19dul_NJJmvfwNTMrYUr82jxmA_urM/view))
+
+
+
 
 ## Tasks from Jira
 
