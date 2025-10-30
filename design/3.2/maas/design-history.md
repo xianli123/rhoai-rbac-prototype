@@ -2,6 +2,10 @@
 
 This file contains information that will be used to populate the History tab of Apollo and provided as context to the AI Assistant to answer questions.
 
+2025-10-30
+- Iteration 2
+- Removed "Limits and Policies" expansion in Create API Key modal; moved Expiration date field to main form for better visibility
+
 2025-10-27
 - Confirmed with MaaS PM that user management and cost-related functionality is out of scope for 3.2/3.3 for now, despite their mention in the 3.0 Jira.
 
