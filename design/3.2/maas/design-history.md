@@ -4,7 +4,8 @@ This file contains information that will be used to populate the History tab of 
 
 2025-10-30
 - Iteration 2
-- Removed "Limits and Policies" expansion in Create API Key modal; moved Expiration date field to main form for better visibility
+- Moved the expiration date in the "Create API Key" modal to the main form, making it more visible since it's likely to be used
+- Removed the "Limits and Policies" expansion from the Create API Key modal; there's a possible use case for an AIE to restrict themselves further than what the default policy imposes, but per stakeholder discussion it probably isn't essential for now. We'll revisit this in the future once we get budget controls available, which is the most likely time that a user would want to self-impose a restriction like this.
 
 2025-10-27
 - Confirmed with MaaS PM that user management and cost-related functionality is out of scope for 3.2/3.3 for now, despite their mention in the 3.0 Jira.
