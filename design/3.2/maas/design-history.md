@@ -2,6 +2,13 @@
 
 This file contains information that will be used to populate the History tab of Apollo and provided as context to the AI Assistant to answer questions.
 
+2025-11-12
+- MaaS Refinement meeting
+- [Recording](https://drive.google.com/file/d/1G3ID8z7sdsqkKIo9bvn_ZjpFWoacqoDc/view)
+- [Chat](https://drive.google.com/file/d/1jHn0SNFiH0hDNN0EFBpnn0z2LdcKP_Y2/view)
+- [Gemini Notes](https://docs.google.com/document/d/1fkBjRRibGlrJTIUmxPIvYicnWpSfAGCnMdadqbfWZmE/edit)
+- [Feature Refinement-RHOAISTRAT-638-MaaS Admin UI](https://docs.google.com/document/d/1ApBP2VcMUELEY0lIx6M5761oHmjEdpKwvMpivIUZD7A/edit?tab=t.3mrf1syv46a)
+
 2025-10-30
 - Iteration 2
 - Moved the expiration date in the "Create API Key" modal to the main form, making it more visible since it's likely to be used
