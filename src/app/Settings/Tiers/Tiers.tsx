@@ -22,7 +22,7 @@ import {
   ActionsColumn,
   IAction,
 } from '@patternfly/react-table';
-import { PlusIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { PlusIcon } from '@patternfly/react-icons';
 import { mockTiers, getGroupById, getModelById } from './mockData';
 import { Tier } from './types';
 
@@ -191,23 +191,6 @@ const Tiers: React.FunctionComponent = () => {
                       >
                         {tier.name}
                       </Button>
-                      {tier.isDefault && (
-                        <Badge 
-                          id={`tier-default-badge-${tier.id}`}
-                          style={{ marginLeft: '0.5rem' }}
-                        >
-                          Default
-                        </Badge>
-                      )}
-                      {tier.isReadOnly && (
-                        <Badge 
-                          id={`tier-readonly-badge-${tier.id}`}
-                          style={{ marginLeft: '0.5rem' }}
-                        >
-                          <ExternalLinkAltIcon style={{ marginRight: '0.25rem', fontSize: '0.75rem' }} />
-                          GitOps
-                        </Badge>
-                      )}
                       {tier.description && (
                         <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                           {tier.description}
