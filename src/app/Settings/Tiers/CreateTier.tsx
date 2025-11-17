@@ -67,7 +67,7 @@ const CreateTier: React.FunctionComponent = () => {
       <PageSection>
         <Content component={ContentVariants.h1}>Create tier</Content>
         <Content component={ContentVariants.p} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-          Create a new tier to control which AI asset models users can access based on their group membership.
+          Create a new tier to control which models users can access based on their group membership.
         </Content>
 
         <div style={{ marginBottom: '1rem' }}>

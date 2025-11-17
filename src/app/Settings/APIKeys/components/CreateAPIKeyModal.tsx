@@ -135,37 +135,6 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
     return formData.name.trim() !== '';
   };
 
-  // If no tier assigned, show empty state
-  if (!userTier) {
-    return (
-      <Modal
-        variant={ModalVariant.medium}
-        title="Create API key"
-        isOpen={isOpen}
-        onClose={onClose}
-        id="create-api-key-modal"
-      >
-        <ModalHeader title="Create API key" />
-        <ModalBody>
-          <EmptyState>
-            <ExclamationTriangleIcon style={{ fontSize: '3rem', color: 'var(--pf-t--global--color--status--warning--default)', marginBottom: '1rem' }} />
-            <Title headingLevel="h4" size="lg">
-              You have no access to MaaS models
-            </Title>
-            <EmptyStateBody>
-              Contact your administrator to be added to a tier and start creating API keys for MaaS model access.
-            </EmptyStateBody>
-          </EmptyState>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="link" onClick={onClose} id="no-tier-close-button">
-            Close
-          </Button>
-        </ModalFooter>
-      </Modal>
-    );
-  }
-
   // If key has been generated, show one-time display
   if (showKeyDisplay) {
     return (
@@ -229,12 +198,14 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
                     <DescriptionListDescription>{formData.description}</DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Tier</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    <Badge isRead>Level {userTier.level}</Badge> {userTier.name}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
+                {userTier && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>Tier</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      <Badge isRead>Level {userTier.level}</Badge> {userTier.name}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
                 {formData.expirationDate && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>Expiration</DescriptionListTerm>
@@ -270,30 +241,32 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
     >
       <ModalHeader title="Create API key" />
       <ModalBody>
-        <Alert
-          variant="info"
-          isInline
-          title="Your tier"
-          style={{ marginBottom: '1rem' }}
-          id="tier-info-alert"
-        >
-          <div style={{ marginBottom: '0.5rem' }}>
-            You are assigned to: <strong>{userTier.name}</strong>{' '}
-            <Badge isRead>Level {userTier.level}</Badge>
-          </div>
-          <div style={{ fontSize: '0.875rem' }}>
-            <strong>Inherited limits:</strong>
-            <ul style={{ marginTop: '0.25rem', marginBottom: '0.25rem' }}>
-              {userTier.limits.tokenLimit && (
-                <li>Token limit: {userTier.limits.tokenLimit.amount.toLocaleString()} tokens per {userTier.limits.tokenLimit.period}</li>
-              )}
-              {userTier.limits.rateLimit && (
-                <li>Rate limit: {userTier.limits.rateLimit.amount.toLocaleString()} requests per {userTier.limits.rateLimit.period}</li>
-              )}
-              <li>Accessible models: {userTier.models.length}</li>
-            </ul>
-          </div>
-        </Alert>
+        {userTier && (
+          <Alert
+            variant="info"
+            isInline
+            title="Your tier"
+            style={{ marginBottom: '1rem' }}
+            id="tier-info-alert"
+          >
+            <div style={{ marginBottom: '0.5rem' }}>
+              You are assigned to: <strong>{userTier.name}</strong>{' '}
+              <Badge isRead>Level {userTier.level}</Badge>
+            </div>
+            <div style={{ fontSize: '0.875rem' }}>
+              <strong>Inherited limits:</strong>
+              <ul style={{ marginTop: '0.25rem', marginBottom: '0.25rem' }}>
+                {userTier.limits.tokenLimit && (
+                  <li>Token limit: {userTier.limits.tokenLimit.amount.toLocaleString()} tokens per {userTier.limits.tokenLimit.period}</li>
+                )}
+                {userTier.limits.rateLimit && (
+                  <li>Rate limit: {userTier.limits.rateLimit.amount.toLocaleString()} requests per {userTier.limits.rateLimit.period}</li>
+                )}
+                <li>Accessible models: {userTier.models.length}</li>
+              </ul>
+            </div>
+          </Alert>
+        )}
 
         <Form id="create-api-key-form">
           <FormGroup label="Name" isRequired fieldId="api-key-name">
@@ -337,7 +310,7 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
             <FormHelperText>
               <HelperText>
                 <HelperTextItem>
-                  {userTier.limits.apiKeyExpirationDays
+                  {userTier?.limits.apiKeyExpirationDays
                     ? `Default: ${userTier.limits.apiKeyExpirationDays} days from today ${userTier.limits.apiKeyExpirationDays === 0 ? '(Never expires)' : ''}`
                     : 'Optional expiration date for this API key'}
                 </HelperTextItem>
