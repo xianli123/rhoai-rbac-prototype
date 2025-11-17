@@ -1,6 +1,8 @@
-## Design History
+# Design History
 
 This file contains information that will be used to populate the History tab of Apollo and provided as context to the AI Assistant to answer questions.
+
+## History
 
 2025-11-17
 - Iteration 3 of design, incorporating some of the recently-discussed changes around focusing management on Tiers rather than Policies (which are lower-level) and Keys (which we may not be able to list our in 3.2/3.3)
@@ -8,7 +10,6 @@ This file contains information that will be used to populate the History tab of 
 - The default expiration date for keys is currently 4 hours and not configurable
 - All keys can be cleared from the AI Assets page, but we may not be able to list them
 - Added "At risk" badges to the API Keys and Policies nav items since we might not show them in 3.2/3.3
-
 
 2025-11-12
 - Title: MaaS "10k Foot High" Sync
@@ -137,5 +138,6 @@ This file contains information that will be used to populate the History tab of 
 - AI Engineering All Hands demo of Citi Bank's AI-related needs, including items around MaaS, Carl Mes walked through many topics
 
 2025-09-24
+- Iteration 1 created
 - Created the first iteration of this design using the blank PatternFly starter codebase.
 - During the MaaS Stakeholder meeting we discussed whether API Keys should really be found within the Settings nav item, and folks wondered whether the "Gen AI Studio" as a whole should really even be in RHOAI to begin with. Andy moved API Keys into the Gen AI Studio section for now to see what people think of it there. Even though keys can be used for Admin-ey actions, they can also be used by AIEs who want to easily find and manage their keys for their various apps and services. The ability to see which Assets are available to a key, and easily accessing the endpoints for every Asset from within the Key Details page, also seems to be valuable and what alternatives like LiteLLM focus on. This area feels worth moving outside of Settings for those reasons.

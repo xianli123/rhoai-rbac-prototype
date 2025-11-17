@@ -2,10 +2,17 @@
 
 The sources below contain information about MaaS that are useful on an ongoing basis.
 
+NOTE: in the future we likely need to automatically grab the creation date and date last modified of each document/source, since the information in older docs is less relevant than newer ones. Need to figure out a good way of tracking this and gradually de-emphasizing older docs to the AI model.
+
 ### Notebooks
 
 source: https://notebooklm.google.com/notebook/7c5d493a-85b8-438d-b1d9-aeab507c63a7
 - description: UXD Orientation NotebookLM for Models-as-a-Service (MaaS)
+
+Miro
+
+source: https://miro.com/app/board/uXjVIgQDVWw=/
+- description: Journey map of the MaaS end user experience, from 3.0 to 3.2/3.3
 
 ### Slack
 
@@ -40,6 +47,9 @@ source: https://docs.google.com/document/d/1ZZiSG58daRtUGcsofDU-Q5n8c-FzqxUXVx05
 source: https://docs.google.com/document/d/1iXOtTwmXhm582L3nYpFdaMXyZN8EEL_xMmCcgwpkGxk/edit?tab=t.0
 - title: PRD Gen AI Studio - API Key UI
 - description: Includes problem statement, user narrative, and an outline of features for the API Key area of the UI
+source: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGOEtVwjBw/edit?tab=t.0
+- title: UXD MaaS Orientation doc
+- description: A UXD-oriented intruction to MaaS, likely to be deprecated by AI in the future with continuosly-updated information
 
 ### Decks
 

@@ -1,9 +1,7 @@
-# Models-as-a-Service (MaaS)
+# Models-as-a-Service (MaaS) Tasks
 
+Iteration 1
 Target version: 3.1
-UXD Orientation doc: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGOEtVwjBw/edit?tab=t.0
-NotebookLM: https://notebooklm.google.com/notebook/7c5d493a-85b8-438d-b1d9-aeab507c63a7
-Journey map: https://miro.com/app/board/uXjVIgQDVWw=/
 
 ## PRD
 

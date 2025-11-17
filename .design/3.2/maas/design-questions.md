@@ -1,6 +1,6 @@
 # Open Questions
 
-This file contains open questions that still need answers in order to inform the design.
+This file contains a running list of questions, either added manually or derived from discussion in Apollo. Any discussions in Apollo (detected via a ? mark) should be checked against this list and if there's a directly-relevant answer the AI should suggest a possible answer for them. More to figure out.
 
 ## Questions
 
