@@ -8,9 +8,17 @@ import {
   ToolbarItem,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   Badge,
   Flex,
   FlexItem,
+  InputGroup,
+  InputGroupItem,
+  SearchInput,
+  Dropdown,
+  MenuToggle,
+  DropdownList,
+  DropdownItem,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -22,12 +30,15 @@ import {
   ActionsColumn,
   IAction,
 } from '@patternfly/react-table';
-import { PlusIcon } from '@patternfly/react-icons';
+import { PlusIcon, FilterIcon } from '@patternfly/react-icons';
 import { mockTiers, getGroupById, getModelById } from './mockData';
 import { Tier } from './types';
 
 const Tiers: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const [filterDropdownOpen, setFilterDropdownOpen] = React.useState(false);
+  const [filterAttribute, setFilterAttribute] = React.useState<'keyword'>('keyword');
+  const [filterInput, setFilterInput] = React.useState('');
 
   const getGroupsSummary = (tier: Tier): React.ReactNode => {
     if (tier.groups.length === 0) {
@@ -48,12 +59,25 @@ const Tiers: React.FunctionComponent = () => {
   const getLimitsSummary = (tier: Tier): React.ReactNode => {
     const limits: string[] = [];
     
+    const formatPeriod = (period: string): string => {
+      switch (period) {
+        case 'minute':
+          return 'min';
+        case 'hour':
+          return 'hr';
+        case 'day':
+          return 'day';
+        default:
+          return period;
+      }
+    };
+    
     if (tier.limits.tokenLimit) {
-      limits.push(`${tier.limits.tokenLimit.amount.toLocaleString()} tokens/${tier.limits.tokenLimit.period}`);
+      limits.push(`${tier.limits.tokenLimit.amount.toLocaleString()} tokens/${formatPeriod(tier.limits.tokenLimit.period)}`);
     }
     
     if (tier.limits.rateLimit) {
-      limits.push(`${tier.limits.rateLimit.amount.toLocaleString()} reqs/${tier.limits.rateLimit.period}`);
+      limits.push(`${tier.limits.rateLimit.amount.toLocaleString()} requests/${formatPeriod(tier.limits.rateLimit.period)}`);
     }
 
     if (limits.length === 0) {
@@ -92,25 +116,96 @@ const Tiers: React.FunctionComponent = () => {
     navigate(`/settings/tiers/${tier.id}`);
   };
 
+  const getFilteredTiers = () => {
+    if (!filterInput.trim()) {
+      return mockTiers;
+    }
+
+    const searchTerm = filterInput.toLowerCase();
+    return mockTiers.filter(tier => {
+      return tier.name.toLowerCase().includes(searchTerm) ||
+             (tier.description && tier.description.toLowerCase().includes(searchTerm));
+    });
+  };
+
+  const filteredTiers = getFilteredTiers();
+
   return (
     <PageSection>
       <Content component={ContentVariants.h1}>Tiers</Content>
       <Content component={ContentVariants.p}>
-        Tiers control which AI asset endpoints/models that users can access based on their group membership.
+        Tiers control which AI asset model endpoints users can access based on their group membership.
       </Content>
       
       <Toolbar id="tiers-toolbar" style={{ marginTop: '1rem' }}>
         <ToolbarContent>
-          <ToolbarItem>
-            <Button 
-              variant="primary" 
-              icon={<PlusIcon />}
-              onClick={handleCreateTier}
-              id="create-tier-button"
-            >
-              Create tier
-            </Button>
-          </ToolbarItem>
+          <ToolbarGroup>
+            <ToolbarItem>
+              <InputGroup>
+                <InputGroupItem>
+                  <Dropdown
+                    isOpen={filterDropdownOpen}
+                    onSelect={() => setFilterDropdownOpen(false)}
+                    onOpenChange={(isOpen: boolean) => setFilterDropdownOpen(isOpen)}
+                    toggle={(toggleRef: React.Ref<HTMLButtonElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                        isExpanded={filterDropdownOpen}
+                        id="tier-filter-toggle"
+                        style={{
+                          minWidth: '120px',
+                          backgroundColor: '#f0f0f0',
+                          borderRight: 'none',
+                          borderTopRightRadius: 0,
+                          borderBottomRightRadius: 0
+                        }}
+                      >
+                        <FilterIcon style={{ marginRight: '0.5rem' }} />
+                        Keyword
+                      </MenuToggle>
+                    )}
+                  >
+                    <DropdownList>
+                      <DropdownItem 
+                        key="keyword"
+                        onClick={() => {
+                          setFilterAttribute('keyword');
+                          setFilterInput('');
+                        }}
+                      >
+                        Keyword
+                      </DropdownItem>
+                    </DropdownList>
+                  </Dropdown>
+                </InputGroupItem>
+                <InputGroupItem isFill>
+                  <SearchInput
+                    placeholder="Filter by name or description"
+                    value={filterInput}
+                    onChange={(_event, value) => setFilterInput(value)}
+                    onClear={() => setFilterInput('')}
+                    id="tier-search-input"
+                    style={{ 
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      minWidth: '300px'
+                    }}
+                  />
+                </InputGroupItem>
+              </InputGroup>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button 
+                variant="primary" 
+                icon={<PlusIcon />}
+                onClick={handleCreateTier}
+                id="create-tier-button"
+              >
+                Create tier
+              </Button>
+            </ToolbarItem>
+          </ToolbarGroup>
         </ToolbarContent>
       </Toolbar>
 
@@ -126,7 +221,7 @@ const Tiers: React.FunctionComponent = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {mockTiers.map((tier) => (
+              {filteredTiers.map((tier) => (
                 <Tr key={tier.id}>
                   <Td dataLabel="Name">
                     <div>

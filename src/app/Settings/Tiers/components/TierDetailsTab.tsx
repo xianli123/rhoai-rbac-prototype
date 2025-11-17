@@ -69,16 +69,29 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
       return <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>No limits configured</span>;
     }
 
+    const formatPeriod = (period: string): string => {
+      switch (period) {
+        case 'minute':
+          return 'min';
+        case 'hour':
+          return 'hr';
+        case 'day':
+          return 'day';
+        default:
+          return period;
+      }
+    };
+
     return (
       <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
         {tier.limits.tokenLimit && (
           <FlexItem>
-            <strong>Token limit:</strong> {tier.limits.tokenLimit.amount.toLocaleString()} tokens per {tier.limits.tokenLimit.period}
+            <strong>Token limit:</strong> {tier.limits.tokenLimit.amount.toLocaleString()} tokens/{formatPeriod(tier.limits.tokenLimit.period)}
           </FlexItem>
         )}
         {tier.limits.rateLimit && (
           <FlexItem>
-            <strong>Rate limit:</strong> {tier.limits.rateLimit.amount.toLocaleString()} requests per {tier.limits.rateLimit.period}
+            <strong>Rate limit:</strong> {tier.limits.rateLimit.amount.toLocaleString()} requests/{formatPeriod(tier.limits.rateLimit.period)}
           </FlexItem>
         )}
         {tier.limits.apiKeyExpirationDays !== undefined && (
