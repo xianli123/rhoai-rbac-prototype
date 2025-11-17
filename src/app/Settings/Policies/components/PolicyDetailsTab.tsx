@@ -4,8 +4,6 @@ import {
   DescriptionListTerm,
   DescriptionListGroup,
   DescriptionListDescription,
-  Card,
-  CardBody,
   PageSection,
   Badge,
   Flex,
@@ -23,10 +21,7 @@ import {
   Radio,
   NumberInput,
   DatePicker,
-  Select,
-  SelectList,
-  SelectOption,
-  MenuToggle,
+  Divider,
 } from '@patternfly/react-core';
 import { Policy } from '../types';
 import { getGroupById, getUserById, getServiceAccountById } from '../mockData';
@@ -168,179 +163,181 @@ const PolicyDetailsTab: React.FunctionComponent<PolicyDetailsTabProps> = ({ poli
         </Alert>
       )}
 
-      <Card>
-        <CardBody>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Name</DescriptionListTerm>
-              <DescriptionListDescription>{policy.name}</DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="policy-details-heading" style={{ marginTop: '1rem' }}>
+        Policy details
+      </Content>
+      <DescriptionList columnModifier={{ default: '2Col' }}>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Name</DescriptionListTerm>
+          <DescriptionListDescription>{policy.name}</DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Type</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Badge id="policy-type-badge" isRead>{policy.type}</Badge>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Type</DescriptionListTerm>
+          <DescriptionListDescription>
+            <Badge id="policy-type-badge" isRead>{policy.type}</Badge>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Description</DescriptionListTerm>
-              <DescriptionListDescription>
-                {policy.description || 'No description provided'}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Description</DescriptionListTerm>
+          <DescriptionListDescription>
+            {policy.description || 'No description provided'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Status</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Badge isRead={policy.status === 'Inactive'}>
-                  {policy.status}
-                </Badge>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Status</DescriptionListTerm>
+          <DescriptionListDescription>
+            <Badge isRead={policy.status === 'Inactive'}>
+              {policy.status}
+            </Badge>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            {policy.gitSource && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Git source</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <a href={policy.gitSource} target="_blank" rel="noopener noreferrer" id="git-source-link">
-                    {policy.gitSource}
-                  </a>
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
+        {policy.gitSource && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Git source</DescriptionListTerm>
+            <DescriptionListDescription>
+              <a href={policy.gitSource} target="_blank" rel="noopener noreferrer" id="git-source-link">
+                {policy.gitSource}
+              </a>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
 
-            {!policy.gitSource && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Git source</DescriptionListTerm>
-                <DescriptionListDescription>None</DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
+        {!policy.gitSource && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Git source</DescriptionListTerm>
+            <DescriptionListDescription>None</DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Applied to keys</DescriptionListTerm>
-              <DescriptionListDescription id="applied-keys-count">
-                {appliedKeysCount} {appliedKeysCount === 1 ? 'key' : 'keys'}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Applied to keys</DescriptionListTerm>
+          <DescriptionListDescription id="applied-keys-count">
+            {appliedKeysCount} {appliedKeysCount === 1 ? 'key' : 'keys'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Date created</DescriptionListTerm>
-              <DescriptionListDescription>
-                {formatDate(policy.dateCreated)}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Date created</DescriptionListTerm>
+          <DescriptionListDescription>
+            {formatDate(policy.dateCreated)}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Created by</DescriptionListTerm>
-              <DescriptionListDescription>
-                {policy.createdBy}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-        </CardBody>
-      </Card>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Created by</DescriptionListTerm>
+          <DescriptionListDescription>
+            {policy.createdBy}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
+
+      <Divider style={{ marginTop: '2rem', marginBottom: '2rem' }} />
 
       {/* Available Assets Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Available assets
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Models</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderAssetsList(policy.availableAssets.models, getModelById, 'models')}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-        </CardBody>
-      </Card>
+      <Content component={ContentVariants.h2} id="available-assets-heading">
+        Available assets
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        These AI asset models are available under this policy.
+      </div>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Models</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderAssetsList(policy.availableAssets.models, getModelById, 'models')}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
+
+      <Divider style={{ marginTop: '2rem', marginBottom: '2rem' }} />
 
       {/* Limits Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Limits
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Configured limits</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderLimits()}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="limits-heading">
+        Limits
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        These limits apply to all API keys targeted by this policy.
+      </div>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Configured limits</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderLimits()}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            {isRateLimitPolicy && policy.limits.quotaRenewalSchedule && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Quota renewal schedule</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span id="quota-renewal-schedule">
-                      {policy.limits.quotaRenewalSchedule.startTime === 'dateCreated' 
-                        ? 'Starts from date created' 
-                        : `Starts ${formatDate(policy.limits.quotaRenewalSchedule.startTime as Date)}`}
-                    </span>
-                    <Button variant="link" isInline onClick={() => setIsQuotaRenewalModalOpen(true)} id="edit-quota-renewal-button">
-                      Edit
-                    </Button>
-                  </div>
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
+        {isRateLimitPolicy && policy.limits.quotaRenewalSchedule && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Quota renewal schedule</DescriptionListTerm>
+            <DescriptionListDescription>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span id="quota-renewal-schedule">
+                  {policy.limits.quotaRenewalSchedule.startTime === 'dateCreated' 
+                    ? 'Starts from date created' 
+                    : `Starts ${formatDate(policy.limits.quotaRenewalSchedule.startTime as Date)}`}
+                </span>
+                <Button variant="link" isInline onClick={() => setIsQuotaRenewalModalOpen(true)} id="edit-quota-renewal-button">
+                  Edit
+                </Button>
+              </div>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
 
-            {isRateLimitPolicy && policy.limits.overLimitBehavior && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Over-limit behavior</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span id="over-limit-behavior">
-                      {policy.limits.overLimitBehavior === 'hard' 
-                        ? 'Hard (No additional tokens allowed)' 
-                        : `Soft (Throttled to ${policy.limits.softThrottlePercentage}% of normal rate)`}
-                    </span>
-                    <Button variant="link" isInline onClick={() => setIsOverLimitModalOpen(true)} id="edit-over-limit-button">
-                      Edit
-                    </Button>
-                  </div>
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
-          </DescriptionList>
-        </CardBody>
-      </Card>
+        {isRateLimitPolicy && policy.limits.overLimitBehavior && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Over-limit behavior</DescriptionListTerm>
+            <DescriptionListDescription>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span id="over-limit-behavior">
+                  {policy.limits.overLimitBehavior === 'hard' 
+                    ? 'Hard (No additional tokens allowed)' 
+                    : `Soft (Throttled to ${policy.limits.softThrottlePercentage}% of normal rate)`}
+                </span>
+                <Button variant="link" isInline onClick={() => setIsOverLimitModalOpen(true)} id="edit-over-limit-button">
+                  Edit
+                </Button>
+              </div>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
+      </DescriptionList>
+
+      <Divider style={{ marginTop: '2rem', marginBottom: '2rem' }} />
 
       {/* Targets Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Targets
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Groups</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderTargetsList(policy.targets.groups, getGroupById, 'groups')}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="targets-heading">
+        Targets
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        This policy applies to the following groups, users, and service accounts.
+      </div>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Groups</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderTargetsList(policy.targets.groups, getGroupById, 'groups')}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Users</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderTargetsList(policy.targets.users, getUserById, 'users')}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Users</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderTargetsList(policy.targets.users, getUserById, 'users')}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Service Accounts</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderTargetsList(policy.targets.serviceAccounts, getServiceAccountById, 'service accounts')}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-        </CardBody>
-      </Card>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Service Accounts</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderTargetsList(policy.targets.serviceAccounts, getServiceAccountById, 'service accounts')}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
 
       {/* Quota Renewal Schedule Modal */}
       <Modal

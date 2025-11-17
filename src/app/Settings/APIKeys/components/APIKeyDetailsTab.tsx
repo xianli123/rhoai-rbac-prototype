@@ -5,10 +5,10 @@ import {
   DescriptionListGroup,
   DescriptionListDescription,
   ClipboardCopy,
-  Card,
-  CardBody,
   PageSection,
-  Title,
+  Content,
+  ContentVariants,
+  Divider,
   CodeBlock,
   CodeBlockCode,
 } from '@patternfly/react-core';
@@ -35,76 +35,78 @@ const APIKeyDetailsTab: React.FunctionComponent<APIKeyDetailsTabProps> = ({ apiK
 
   return (
     <PageSection>
-      <Card style={{ marginBottom: '1rem', marginTop: '0.5rem' }}>
-        <CardBody>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Name</DescriptionListTerm>
-              <DescriptionListDescription>{apiKey.name}</DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="api-key-details-heading" style={{ marginTop: '1rem' }}>
+        API key details
+      </Content>
+      <DescriptionList columnModifier={{ default: '2Col' }}>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Name</DescriptionListTerm>
+          <DescriptionListDescription>{apiKey.name}</DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Description</DescriptionListTerm>
-              <DescriptionListDescription>
-                {apiKey.description || 'No description provided'}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Description</DescriptionListTerm>
+          <DescriptionListDescription>
+            {apiKey.description || 'No description provided'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>API key</DescriptionListTerm>
-              <DescriptionListDescription>
-                <ClipboardCopy
-                  hoverTip="Copy"
-                  clickTip="Copied"
-                  variant="inline-compact"
-                  isReadOnly
-                >
-                  {formatAPIKey(apiKey.apiKey)}
-                </ClipboardCopy>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>API key</DescriptionListTerm>
+          <DescriptionListDescription>
+            <ClipboardCopy
+              hoverTip="Copy"
+              clickTip="Copied"
+              variant="inline-compact"
+              isReadOnly
+              id="api-key-clipboard"
+            >
+              {formatAPIKey(apiKey.apiKey)}
+            </ClipboardCopy>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Owner</DescriptionListTerm>
-              <DescriptionListDescription>
-                {apiKey.owner.name} ({apiKey.owner.type})
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Owner</DescriptionListTerm>
+          <DescriptionListDescription>
+            {apiKey.owner.name} ({apiKey.owner.type})
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Date created</DescriptionListTerm>
-              <DescriptionListDescription>
-                {formatDate(apiKey.dateCreated)}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Date created</DescriptionListTerm>
+          <DescriptionListDescription>
+            {formatDate(apiKey.dateCreated)}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Date last used</DescriptionListTerm>
-              <DescriptionListDescription>
-                {apiKey.dateLastUsed ? formatDate(apiKey.dateLastUsed) : 'Never used'}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Date last used</DescriptionListTerm>
+          <DescriptionListDescription>
+            {apiKey.dateLastUsed ? formatDate(apiKey.dateLastUsed) : 'Never used'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            {apiKey.limits?.expirationDate && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Expiration date</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {formatDate(apiKey.limits.expirationDate)}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
-          </DescriptionList>
-        </CardBody>
-      </Card>
+        {apiKey.limits?.expirationDate && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Expiration date</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formatDate(apiKey.limits.expirationDate)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
+      </DescriptionList>
 
-      <Card>
-        <CardBody>
-          <Title headingLevel="h3" size="lg" id="usage-example-title">Usage Example</Title>
-          <p style={{ marginBottom: '1rem', marginTop: '0.5rem' }}>
-            Use this API key to authenticate requests to the chat completions endpoint:
-          </p>
-          <CodeBlock id="usage-example-code">
-            <CodeBlockCode>
+      <Divider style={{ marginTop: '2rem', marginBottom: '2rem' }} />
+
+      <Content component={ContentVariants.h2} id="usage-example-heading">
+        Usage example
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        Use this API key to authenticate requests to the chat completions endpoint:
+      </div>
+      <CodeBlock id="usage-example-code">
+        <CodeBlockCode>
 {`curl -X POST https://api.example.com/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer ${apiKey.apiKey}" \\
@@ -119,10 +121,8 @@ const APIKeyDetailsTab: React.FunctionComponent<APIKeyDetailsTabProps> = ({ apiK
     "temperature": 0.7,
     "max_tokens": 150
   }'`}
-            </CodeBlockCode>
-          </CodeBlock>
-        </CardBody>
-      </Card>
+        </CodeBlockCode>
+      </CodeBlock>
     </PageSection>
   );
 };

@@ -284,7 +284,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
             )}
             {(route as any).tbd && (
               <Tooltip 
-                content="This feature might not be included in RHOAI 3.2/3.3"
+                content="This page might not be included in RHOAI 3.2/3.3"
                 position="right"
               >
                 <Badge 

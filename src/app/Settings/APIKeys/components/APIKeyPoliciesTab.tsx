@@ -4,8 +4,8 @@ import {
   EmptyStateBody,
   Title,
   PageSection,
-  Card,
-  CardBody,
+  Content,
+  ContentVariants,
   Label,
 } from '@patternfly/react-core';
 import {
@@ -41,53 +41,51 @@ const APIKeyPoliciesTab: React.FunctionComponent<APIKeyPoliciesTabProps> = ({ ke
   if (policies.length === 0) {
     return (
       <PageSection>
-        <Card>
-          <CardBody>
-            <EmptyState>
-              <ExclamationTriangleIcon />
-              <Title headingLevel="h4" size="lg">
-                No policies applied
-              </Title>
-              <EmptyStateBody>
-                This API key does not have any policies applied. Contact your platform administrator to apply policies.
-              </EmptyStateBody>
-            </EmptyState>
-          </CardBody>
-        </Card>
+        <EmptyState id="no-policies-empty-state">
+          <ExclamationTriangleIcon />
+          <Title headingLevel="h4" size="lg">
+            No policies applied
+          </Title>
+          <EmptyStateBody>
+            This API key does not have any policies applied. Contact your platform administrator to apply policies.
+          </EmptyStateBody>
+        </EmptyState>
       </PageSection>
     );
   }
 
   return (
     <PageSection>
-      <Card>
-        <CardBody>
-          <Table aria-label="Policies table">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Type</Th>
-                <Th>ID</Th>
-                <Th>Description</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {policies.map((policy) => (
-                <Tr key={policy.id}>
-                  <Td dataLabel="Name">{policy.name}</Td>
-                  <Td dataLabel="Type">
-                    {getPolicyTypeLabel(policy.type)}
-                  </Td>
-                  <Td dataLabel="ID">
-                    <code>{policy.id}</code>
-                  </Td>
-                  <Td dataLabel="Description">{policy.description}</Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </CardBody>
-      </Card>
+      <Content component={ContentVariants.h2} id="policies-heading" style={{ marginTop: '1rem' }}>
+        Policies
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        These policies are applied to this API key.
+      </div>
+      <Table aria-label="Policies table" id="policies-table">
+        <Thead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>Type</Th>
+            <Th>ID</Th>
+            <Th>Description</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {policies.map((policy) => (
+            <Tr key={policy.id}>
+              <Td dataLabel="Name">{policy.name}</Td>
+              <Td dataLabel="Type">
+                {getPolicyTypeLabel(policy.type)}
+              </Td>
+              <Td dataLabel="ID">
+                <code>{policy.id}</code>
+              </Td>
+              <Td dataLabel="Description">{policy.description}</Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
     </PageSection>
   );
 };

@@ -3,10 +3,9 @@ import {
   Flex,
   FlexItem,
   ExpandableSection,
-  Badge,
   PageSection,
-  Card,
-  CardBody,
+  Content,
+  ContentVariants,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -64,56 +63,59 @@ const APIKeyAssetsTab: React.FunctionComponent<APIKeyAssetsTabProps> = ({ apiKey
 
   return (
     <PageSection>
-      <Card>
-        <CardBody>
-          <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsLg' }}>
-            {/* Models Section */}
-            <FlexItem>
-              <ExpandableSection
-                toggleText={`Models (${apiKey.assets.modelEndpoints.length})`}
-                isExpanded={expandedSections.models}
-                onToggle={() => toggleSection('models')}
-              >
-                {apiKey.assets.modelEndpoints.length > 0 ? (
-                  <Table aria-label="Models table">
-                    <Thead>
-                      <Tr>
-                        <Th>Name</Th>
-                        <Th>ID</Th>
-                        <Th>Endpoint URL</Th>
-                        <Th></Th>
+      <Content component={ContentVariants.h2} id="models-heading" style={{ marginTop: '1rem' }}>
+        Models
+      </Content>
+      <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
+        These AI asset models are available for use with this API key.
+      </div>
+      <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsLg' }}>
+        {/* Models Section */}
+        <FlexItem>
+          <ExpandableSection
+            toggleText={`Models (${apiKey.assets.modelEndpoints.length})`}
+            isExpanded={expandedSections.models}
+            onToggle={() => toggleSection('models')}
+            id="models-expandable-section"
+          >
+            {apiKey.assets.modelEndpoints.length > 0 ? (
+              <Table aria-label="Models table" id="models-table">
+                <Thead>
+                  <Tr>
+                    <Th>Name</Th>
+                    <Th>ID</Th>
+                    <Th>Endpoint URL</Th>
+                    <Th></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {apiKey.assets.modelEndpoints.map((modelId) => {
+                    const model = getModelById(modelId);
+                    return model ? (
+                      <Tr key={model.id}>
+                        <Td dataLabel="Name">
+                          {model.name}
+                        </Td>
+                        <Td dataLabel="ID">
+                          <code>{model.id}</code>
+                        </Td>
+                        <Td dataLabel="Endpoint">
+                          <code>{model.endpoint}</code>
+                        </Td>
+                        <Td isActionCell>
+                          <ActionsColumn items={getModelActions(model.id)} />
+                        </Td>
                       </Tr>
-                    </Thead>
-                    <Tbody>
-                      {apiKey.assets.modelEndpoints.map((modelId) => {
-                        const model = getModelById(modelId);
-                        return model ? (
-                          <Tr key={model.id}>
-                            <Td dataLabel="Name">
-                              {model.name}
-                            </Td>
-                            <Td dataLabel="ID">
-                              <code>{model.id}</code>
-                            </Td>
-                            <Td dataLabel="Endpoint">
-                              <code>{model.endpoint}</code>
-                            </Td>
-                            <Td isActionCell>
-                              <ActionsColumn items={getModelActions(model.id)} />
-                            </Td>
-                          </Tr>
-                        ) : null;
-                      })}
-                    </Tbody>
-                  </Table>
-                ) : (
-                  <div>No models assigned to this API key</div>
-                )}
-              </ExpandableSection>
-            </FlexItem>
-          </Flex>
-        </CardBody>
-      </Card>
+                    ) : null;
+                  })}
+                </Tbody>
+              </Table>
+            ) : (
+              <div style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>No models assigned to this API key</div>
+            )}
+          </ExpandableSection>
+        </FlexItem>
+      </Flex>
     </PageSection>
   );
 };
