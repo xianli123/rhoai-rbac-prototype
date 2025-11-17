@@ -7,8 +7,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageBreadcrumb,
-  Card,
-  CardBody,
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
@@ -25,7 +23,7 @@ const CreateTier: React.FunctionComponent = () => {
   const [formData, setFormData] = React.useState<CreateTierForm>({
     name: '',
     description: '',
-    level: 100,
+    level: 1,
     groups: [],
     models: [],
     limits: {},
@@ -67,10 +65,10 @@ const CreateTier: React.FunctionComponent = () => {
       <PageSection>
         <Content component={ContentVariants.h1}>Create tier</Content>
         <Content component={ContentVariants.p} style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-          Create a new tier to control which MaaS models users can access based on their group membership.
+          Create a new tier to control which AI asset models users can access based on their group membership.
         </Content>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <ToggleGroup aria-label="View mode">
             <ToggleGroupItem
               text="Form"
@@ -87,25 +85,21 @@ const CreateTier: React.FunctionComponent = () => {
           </ToggleGroup>
         </div>
 
-        <Card>
-          <CardBody>
-            {viewMode === 'form' ? (
-              <TierForm
-                formData={formData}
-                onChange={handleFormDataChange}
-                onSubmit={handleSubmit}
-                onCancel={handleCancel}
-              />
-            ) : (
-              <TierYAMLEditor
-                formData={formData}
-                onChange={handleFormDataChange}
-                onSubmit={handleSubmit}
-                onCancel={handleCancel}
-              />
-            )}
-          </CardBody>
-        </Card>
+        {viewMode === 'form' ? (
+          <TierForm
+            formData={formData}
+            onChange={handleFormDataChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        ) : (
+          <TierYAMLEditor
+            formData={formData}
+            onChange={handleFormDataChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        )}
       </PageSection>
     </>
   );

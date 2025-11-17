@@ -18,6 +18,7 @@ import {
   MenuToggleElement,
   Flex,
   FlexItem,
+  Badge,
 } from '@patternfly/react-core';
 import { CreateTierForm } from '../types';
 import { mockGroups, mockMaaSModels } from '../mockData';
@@ -131,22 +132,24 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
     }
   };
 
-  const handleGroupSelect = (_event: React.MouseEvent | undefined, selection: string | number | undefined) => {
-    if (!selection) return;
-    const groupId = selection as string;
-    const newGroups = formData.groups.includes(groupId)
-      ? formData.groups.filter(g => g !== groupId)
-      : [...formData.groups, groupId];
-    handleInputChange('groups', newGroups);
+  const handleGroupSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+    if (!value) return;
+    const groupId = value as string;
+    if (formData.groups.includes(groupId)) {
+      handleInputChange('groups', formData.groups.filter((id) => id !== groupId));
+    } else {
+      handleInputChange('groups', [...formData.groups, groupId]);
+    }
   };
 
-  const handleModelSelect = (_event: React.MouseEvent | undefined, selection: string | number | undefined) => {
-    if (!selection) return;
-    const modelId = selection as string;
-    const newModels = formData.models.includes(modelId)
-      ? formData.models.filter(m => m !== modelId)
-      : [...formData.models, modelId];
-    handleInputChange('models', newModels);
+  const handleModelSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+    if (!value) return;
+    const modelId = value as string;
+    if (formData.models.includes(modelId)) {
+      handleInputChange('models', formData.models.filter((id) => id !== modelId));
+    } else {
+      handleInputChange('models', [...formData.models, modelId]);
+    }
   };
 
   const isFormValid = () => {
@@ -158,26 +161,8 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
     );
   };
 
-  const getSelectedGroupsText = () => {
-    if (formData.groups.length === 0) return 'Select groups';
-    if (formData.groups.length === 1) {
-      const group = mockGroups.find(g => g.id === formData.groups[0]);
-      return group?.name || formData.groups[0];
-    }
-    return `${formData.groups.length} groups selected`;
-  };
-
-  const getSelectedModelsText = () => {
-    if (formData.models.length === 0) return 'Select models';
-    if (formData.models.length === 1) {
-      const model = mockMaaSModels.find(m => m.id === formData.models[0]);
-      return model?.name || formData.models[0];
-    }
-    return `${formData.models.length} models selected`;
-  };
-
   return (
-    <Form id="create-tier-form">
+    <Form id="create-tier-form" isWidthLimited>
       <FormGroup label="Name" isRequired fieldId="tier-name">
         <TextInput
           isRequired
@@ -210,31 +195,23 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
       </FormGroup>
 
       <FormGroup label="Level" isRequired fieldId="tier-level">
-        <NumberInput
+        <TextInput
+          isRequired
+          type="number"
+          id="tier-level"
+          name="tier-level"
           value={formData.level}
-          min={1}
-          max={9999}
-          onMinus={() => handleInputChange('level', Math.max(1, formData.level - 100))}
-          onChange={(event) => {
-            const value = Number((event.target as HTMLInputElement).value);
-            if (!isNaN(value) && value >= 1) {
-              handleInputChange('level', value);
+          onChange={(_event, value) => {
+            const numValue = Number(value);
+            if (!isNaN(numValue) && numValue >= 1) {
+              handleInputChange('level', numValue);
             }
           }}
-          onPlus={() => handleInputChange('level', formData.level + 100)}
-          inputName="tier-level"
-          inputAriaLabel="Tier level"
-          minusBtnAriaLabel="Decrease level"
-          plusBtnAriaLabel="Increase level"
-          id="tier-level"
-          widthChars={6}
         />
         <FormHelperText>
           <HelperText>
             <HelperTextItem>
               Higher numbers indicate higher priority. Users in multiple tiers will use the highest level.
-              <br />
-              Example values: 100 (Standard), 200 (Premium), 300 (Enterprise)
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
@@ -242,11 +219,12 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
 
       <FormGroup label="Groups" isRequired fieldId="tier-groups">
         <Select
+          role="menu"
           id="tier-groups"
           isOpen={isGroupsOpen}
           selected={formData.groups}
           onSelect={handleGroupSelect}
-          onOpenChange={(isOpen) => setIsGroupsOpen(isOpen)}
+          onOpenChange={(nextOpen: boolean) => setIsGroupsOpen(nextOpen)}
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <MenuToggle
               ref={toggleRef}
@@ -254,7 +232,8 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
               isExpanded={isGroupsOpen}
               id="tier-groups-toggle"
             >
-              {getSelectedGroupsText()}
+              Select groups
+              {formData.groups.length > 0 && <Badge isRead>{formData.groups.length}</Badge>}
             </MenuToggle>
           )}
         >
@@ -280,11 +259,12 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
 
       <FormGroup label="Models" isRequired fieldId="tier-models">
         <Select
+          role="menu"
           id="tier-models"
           isOpen={isModelsOpen}
           selected={formData.models}
           onSelect={handleModelSelect}
-          onOpenChange={(isOpen) => setIsModelsOpen(isOpen)}
+          onOpenChange={(nextOpen: boolean) => setIsModelsOpen(nextOpen)}
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <MenuToggle
               ref={toggleRef}
@@ -292,7 +272,8 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
               isExpanded={isModelsOpen}
               id="tier-models-toggle"
             >
-              {getSelectedModelsText()}
+              Select models
+              {formData.models.length > 0 && <Badge isRead>{formData.models.length}</Badge>}
             </MenuToggle>
           )}
         >
@@ -328,200 +309,178 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
         </FormHelperText>
       </FormGroup>
 
-      <FormGroup label="Token limit" fieldId="tier-token-limit">
-        <Checkbox
-          id="enable-token-limit"
-          label="Enable token limit"
-          isChecked={tokenLimitEnabled}
-          onChange={(_event, checked) => handleTokenLimitToggle(checked)}
-        />
-        {tokenLimitEnabled && (
-          <Flex style={{ marginTop: '0.5rem' }}>
-            <FlexItem>
-              <NumberInput
-                value={formData.limits.tokenLimit?.amount || 0}
-                min={1}
-                onMinus={() =>
-                  handleLimitChange('tokenLimit', 'amount', Math.max(1, (formData.limits.tokenLimit?.amount || 0) - 1000))
+      <Checkbox
+        id="enable-token-limit"
+        label="Token limit"
+        description="Example: 50,000 tokens per hour for standard tier"
+        isChecked={tokenLimitEnabled}
+        onChange={(_event, checked) => handleTokenLimitToggle(checked)}
+      />
+      {tokenLimitEnabled && (
+        <Flex style={{ marginTop: '0.5rem', marginLeft: '1.5rem', marginBottom: '1rem' }}>
+          <FlexItem>
+            <NumberInput
+              value={formData.limits.tokenLimit?.amount || 0}
+              min={1}
+              onMinus={() =>
+                handleLimitChange('tokenLimit', 'amount', Math.max(1, (formData.limits.tokenLimit?.amount || 0) - 1000))
+              }
+              onChange={(event) => {
+                const value = Number((event.target as HTMLInputElement).value);
+                if (!isNaN(value) && value >= 1) {
+                  handleLimitChange('tokenLimit', 'amount', value);
                 }
-                onChange={(event) => {
-                  const value = Number((event.target as HTMLInputElement).value);
-                  if (!isNaN(value) && value >= 1) {
-                    handleLimitChange('tokenLimit', 'amount', value);
-                  }
-                }}
-                onPlus={() =>
-                  handleLimitChange('tokenLimit', 'amount', (formData.limits.tokenLimit?.amount || 0) + 1000)
-                }
-                inputName="token-limit-amount"
-                inputAriaLabel="Token limit amount"
-                minusBtnAriaLabel="Decrease tokens"
-                plusBtnAriaLabel="Increase tokens"
-                id="token-limit-amount"
-                widthChars={8}
-              />
-            </FlexItem>
-            <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}>
-              per
-            </FlexItem>
-            <FlexItem>
-              <Select
-                id="token-limit-period"
-                isOpen={isPeriodSelectOpen['token'] || false}
-                selected={formData.limits.tokenLimit?.period || 'hour'}
-                onSelect={(_event, selection) => {
-                  handleLimitChange('tokenLimit', 'period', selection as string);
-                  setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: false });
-                }}
-                onOpenChange={(isOpen) => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: isOpen })}
-                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                  <MenuToggle
-                    ref={toggleRef}
-                    onClick={() => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: !isPeriodSelectOpen['token'] })}
-                    isExpanded={isPeriodSelectOpen['token'] || false}
-                    id="token-period-toggle"
-                  >
-                    {formData.limits.tokenLimit?.period || 'hour'}
-                  </MenuToggle>
-                )}
-              >
-                <SelectList>
-                  <SelectOption value="minute">minute</SelectOption>
-                  <SelectOption value="hour">hour</SelectOption>
-                  <SelectOption value="day">day</SelectOption>
-                </SelectList>
-              </Select>
-            </FlexItem>
-          </Flex>
-        )}
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem>Example: 50,000 tokens per hour for standard tier</HelperTextItem>
-          </HelperText>
-        </FormHelperText>
-      </FormGroup>
+              }}
+              onPlus={() =>
+                handleLimitChange('tokenLimit', 'amount', (formData.limits.tokenLimit?.amount || 0) + 1000)
+              }
+              inputName="token-limit-amount"
+              inputAriaLabel="Token limit amount"
+              minusBtnAriaLabel="Decrease tokens"
+              plusBtnAriaLabel="Increase tokens"
+              id="token-limit-amount"
+              widthChars={8}
+            />
+          </FlexItem>
+          <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}>
+            per
+          </FlexItem>
+          <FlexItem>
+            <Select
+              id="token-limit-period"
+              isOpen={isPeriodSelectOpen['token'] || false}
+              selected={formData.limits.tokenLimit?.period || 'hour'}
+              onSelect={(_event, selection) => {
+                handleLimitChange('tokenLimit', 'period', selection as string);
+                setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: false });
+              }}
+              onOpenChange={(isOpen) => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: isOpen })}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, token: !isPeriodSelectOpen['token'] })}
+                  isExpanded={isPeriodSelectOpen['token'] || false}
+                  id="token-period-toggle"
+                >
+                  {formData.limits.tokenLimit?.period || 'hour'}
+                </MenuToggle>
+              )}
+            >
+              <SelectList>
+                <SelectOption value="minute">minute</SelectOption>
+                <SelectOption value="hour">hour</SelectOption>
+                <SelectOption value="day">day</SelectOption>
+              </SelectList>
+            </Select>
+          </FlexItem>
+        </Flex>
+      )}
 
-      <FormGroup label="Rate limit" fieldId="tier-rate-limit">
-        <Checkbox
-          id="enable-rate-limit"
-          label="Enable rate limit"
-          isChecked={rateLimitEnabled}
-          onChange={(_event, checked) => handleRateLimitToggle(checked)}
-        />
-        {rateLimitEnabled && (
-          <Flex style={{ marginTop: '0.5rem' }}>
-            <FlexItem>
-              <NumberInput
-                value={formData.limits.rateLimit?.amount || 0}
-                min={1}
-                onMinus={() =>
-                  handleLimitChange('rateLimit', 'amount', Math.max(1, (formData.limits.rateLimit?.amount || 0) - 100))
+      <Checkbox
+        id="enable-rate-limit"
+        label="Rate limit"
+        description="Example: 1,000 requests per minute for standard tier"
+        isChecked={rateLimitEnabled}
+        onChange={(_event, checked) => handleRateLimitToggle(checked)}
+      />
+      {rateLimitEnabled && (
+        <Flex style={{ marginTop: '0.5rem', marginLeft: '1.5rem', marginBottom: '1rem' }}>
+          <FlexItem>
+            <NumberInput
+              value={formData.limits.rateLimit?.amount || 0}
+              min={1}
+              onMinus={() =>
+                handleLimitChange('rateLimit', 'amount', Math.max(1, (formData.limits.rateLimit?.amount || 0) - 100))
+              }
+              onChange={(event) => {
+                const value = Number((event.target as HTMLInputElement).value);
+                if (!isNaN(value) && value >= 1) {
+                  handleLimitChange('rateLimit', 'amount', value);
                 }
-                onChange={(event) => {
-                  const value = Number((event.target as HTMLInputElement).value);
-                  if (!isNaN(value) && value >= 1) {
-                    handleLimitChange('rateLimit', 'amount', value);
-                  }
-                }}
-                onPlus={() =>
-                  handleLimitChange('rateLimit', 'amount', (formData.limits.rateLimit?.amount || 0) + 100)
-                }
-                inputName="rate-limit-amount"
-                inputAriaLabel="Rate limit amount"
-                minusBtnAriaLabel="Decrease requests"
-                plusBtnAriaLabel="Increase requests"
-                id="rate-limit-amount"
-                widthChars={8}
-              />
-            </FlexItem>
-            <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}>
-              requests per
-            </FlexItem>
-            <FlexItem>
-              <Select
-                id="rate-limit-period"
-                isOpen={isPeriodSelectOpen['rate'] || false}
-                selected={formData.limits.rateLimit?.period || 'minute'}
-                onSelect={(_event, selection) => {
-                  handleLimitChange('rateLimit', 'period', selection as string);
-                  setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: false });
-                }}
-                onOpenChange={(isOpen) => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: isOpen })}
-                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                  <MenuToggle
-                    ref={toggleRef}
-                    onClick={() => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: !isPeriodSelectOpen['rate'] })}
-                    isExpanded={isPeriodSelectOpen['rate'] || false}
-                    id="rate-period-toggle"
-                  >
-                    {formData.limits.rateLimit?.period || 'minute'}
-                  </MenuToggle>
-                )}
-              >
-                <SelectList>
-                  <SelectOption value="minute">minute</SelectOption>
-                  <SelectOption value="hour">hour</SelectOption>
-                  <SelectOption value="day">day</SelectOption>
-                </SelectList>
-              </Select>
-            </FlexItem>
-          </Flex>
-        )}
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem>Example: 1,000 requests per minute for standard tier</HelperTextItem>
-          </HelperText>
-        </FormHelperText>
-      </FormGroup>
+              }}
+              onPlus={() =>
+                handleLimitChange('rateLimit', 'amount', (formData.limits.rateLimit?.amount || 0) + 100)
+              }
+              inputName="rate-limit-amount"
+              inputAriaLabel="Rate limit amount"
+              minusBtnAriaLabel="Decrease requests"
+              plusBtnAriaLabel="Increase requests"
+              id="rate-limit-amount"
+              widthChars={8}
+            />
+          </FlexItem>
+          <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}>
+            requests per
+          </FlexItem>
+          <FlexItem>
+            <Select
+              id="rate-limit-period"
+              isOpen={isPeriodSelectOpen['rate'] || false}
+              selected={formData.limits.rateLimit?.period || 'minute'}
+              onSelect={(_event, selection) => {
+                handleLimitChange('rateLimit', 'period', selection as string);
+                setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: false });
+              }}
+              onOpenChange={(isOpen) => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: isOpen })}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, rate: !isPeriodSelectOpen['rate'] })}
+                  isExpanded={isPeriodSelectOpen['rate'] || false}
+                  id="rate-period-toggle"
+                >
+                  {formData.limits.rateLimit?.period || 'minute'}
+                </MenuToggle>
+              )}
+            >
+              <SelectList>
+                <SelectOption value="minute">minute</SelectOption>
+                <SelectOption value="hour">hour</SelectOption>
+                <SelectOption value="day">day</SelectOption>
+              </SelectList>
+            </Select>
+          </FlexItem>
+        </Flex>
+      )}
 
-      <FormGroup label="API key expiration" fieldId="tier-api-key-expiration">
-        <Checkbox
-          id="enable-api-key-expiration"
-          label="Enable API key expiration"
-          isChecked={apiKeyExpirationEnabled}
-          onChange={(_event, checked) => handleApiKeyExpirationToggle(checked)}
-        />
-        {apiKeyExpirationEnabled && (
-          <Flex style={{ marginTop: '0.5rem' }}>
-            <FlexItem>
-              <NumberInput
-                value={formData.limits.apiKeyExpirationDays || 0}
-                min={0}
-                onMinus={() =>
-                  handleApiKeyExpirationChange(Math.max(0, (formData.limits.apiKeyExpirationDays || 0) - 30))
+      <Checkbox
+        id="enable-api-key-expiration"
+        label="API key expiration"
+        description="API keys created by users in this tier will expire after this period. Set to 0 for no expiration. Default: 90 days"
+        isChecked={apiKeyExpirationEnabled}
+        onChange={(_event, checked) => handleApiKeyExpirationToggle(checked)}
+      />
+      {apiKeyExpirationEnabled && (
+        <Flex style={{ marginTop: '0.5rem', marginLeft: '1.5rem', marginBottom: '1rem' }}>
+          <FlexItem>
+            <NumberInput
+              value={formData.limits.apiKeyExpirationDays || 0}
+              min={0}
+              onMinus={() =>
+                handleApiKeyExpirationChange(Math.max(0, (formData.limits.apiKeyExpirationDays || 0) - 30))
+              }
+              onChange={(event) => {
+                const value = Number((event.target as HTMLInputElement).value);
+                if (!isNaN(value) && value >= 0) {
+                  handleApiKeyExpirationChange(value);
                 }
-                onChange={(event) => {
-                  const value = Number((event.target as HTMLInputElement).value);
-                  if (!isNaN(value) && value >= 0) {
-                    handleApiKeyExpirationChange(value);
-                  }
-                }}
-                onPlus={() =>
-                  handleApiKeyExpirationChange((formData.limits.apiKeyExpirationDays || 0) + 30)
-                }
-                inputName="api-key-expiration-days"
-                inputAriaLabel="API key expiration days"
-                minusBtnAriaLabel="Decrease days"
-                plusBtnAriaLabel="Increase days"
-                id="api-key-expiration-days"
-                widthChars={6}
-              />
-            </FlexItem>
-            <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem' }}>
-              days {formData.limits.apiKeyExpirationDays === 0 && '(Never expires)'}
-            </FlexItem>
-          </Flex>
-        )}
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem>
-              API keys created by users in this tier will expire after this period. Set to 0 for no expiration.
-              <br />
-              Default: 90 days
-            </HelperTextItem>
-          </HelperText>
-        </FormHelperText>
-      </FormGroup>
+              }}
+              onPlus={() =>
+                handleApiKeyExpirationChange((formData.limits.apiKeyExpirationDays || 0) + 30)
+              }
+              inputName="api-key-expiration-days"
+              inputAriaLabel="API key expiration days"
+              minusBtnAriaLabel="Decrease days"
+              plusBtnAriaLabel="Increase days"
+              id="api-key-expiration-days"
+              widthChars={6}
+            />
+          </FlexItem>
+          <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem' }}>
+            days {formData.limits.apiKeyExpirationDays === 0 && '(Never expires)'}
+          </FlexItem>
+        </Flex>
+      )}
 
       <ActionGroup>
         <Button variant="primary" onClick={onSubmit} isDisabled={!isFormValid()} id="create-tier-submit">
