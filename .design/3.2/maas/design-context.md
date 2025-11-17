@@ -25,6 +25,8 @@ source: https://redhat.enterprise.slack.com/archives/C094HF5KD6E
 
 ### Docs
 
+source: https://docs.google.com/document/d/142X3mx_SIdSWMvgf3ppSW83J__ZtQ4EDmOiF0IKZYJc/edit?pli=1&tab=t.grnrd6dljv81
+- title: Models-as-a-Service Worksheet North Star
 source: https://docs.google.com/document/d/1aKyE3KC29v1ndWFqLfAp533eb04JPCYkBL8iHShV08E/edit?tab=t.0
 - title: MaaS Coordination doc for 3.2/3.3
 source: https://docs.google.com/document/d/1ApBP2VcMUELEY0lIx6M5761oHmjEdpKwvMpivIUZD7A/edit?tab=t.3mrf1syv46a
@@ -36,8 +38,6 @@ source: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGO
 source: https://docs.google.com/document/d/1JhZ7jcBJH71nzvYWYCHk_EXEtxMFKkSyvkblmDL_KtU/edit
 - title: Refinement - RHOAISTRAT-639
 - description: contains a bunch of details for what's in and out of scope for 3.0, some of which is likely 3.2/3.3
-source: https://docs.google.com/document/d/142X3mx_SIdSWMvgf3ppSW83J__ZtQ4EDmOiF0IKZYJc/edit?pli=1&tab=t.grnrd6dljv81
-- title: Models-as-a-Service Worksheet
 - description: Contains PM's source of truth for MaaS roadmap items, requirements, and more.
 source: https://docs.google.com/document/d/12oZzzPyfrxiajvgfUsc4xPMwZFckGwC9Qqoi7u4DKK8/edit?tab=t.0#heading=h.djbgpzpj5t69
 - title: Notes - llm-d in RHOAI model deployment wizard
