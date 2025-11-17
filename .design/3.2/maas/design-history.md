@@ -55,6 +55,14 @@ This file contains information that will be used to populate the History tab of 
 - Discussed admins creating 'tiers' that define models and rate limits (token limit and rate limit), which are then associated with groups of users (Kubernetes groups) (00:12:14). A single tier's rate limit applies across all users and models within that tier (00:13:24). Even though Tiers are associated with groups, each user within that group is assigned an individual quota (e.g., 10,000 tokens) (00:15:43).
 - Andrew Ballantyne and Rob Greenberg confirmed that the tier defines the business logic and policy, while the Kubernetes group serves as the mechanism connecting the policy (tier) to the user (00:17:27). A user can belong to multiple tiers and thus have multiple quotas for the same model if it is included in those tiers (00:21:19).
 
+2025-11-04
+- MaaS Stakeholders Sync
+- Gemini notes: https://docs.google.com/document/d/1hq1mVnemiBNQ1QXJhnC2c-ABE9hG3k2zRPqBMh1OcTo/edit?tab=t.sor7xs8hzmc6#heading=h.mfkmzr3qx655
+- Admin UI and Entity Relationship Finalization, Eder Ignatowicz confirmed that the MaaS Admin UI team is bootstrapping and requires clarity on the MVP features and timeline for 3.2/3.3, but the backend for frontend for APIs will be needed (00:27:10). Jonathan Zarecki suggested that finalizing entity relationships, building on Noy Itzikowitz's work, should be a good deadline for TP. Bartosz Majsak agreed that tier management and the domain model need improvement, especially to address flexibility requirements from early engagements (00:29:09).
+- Policy Changes and API Stabilization: The group agreed that policy changes and tier management might be out of scope for the short 3.2 timeline, which is focused on stabilization (00:38:06). Edgar Hernandez emphasized the need to stabilize the API first before building features like GitOps or dashboard integration (00:33:30).
+- Engineering Objectives and Iterative Approach: concluded that the engineering objectives for 3.2 are focused on user experience hardening, integration with the MaaS Admin UI/dashboard team, and enabling GitOps, while 3.3 will be stabilization and fixing issues from 3.2 (00:51:04).
+- VLM Usage in Dashboard: confirmed a Jira issue to enable MAZ for general VLM usage in the dashboard, noting it is a quick win for 3.2 as it primarily involves adding a UI option, as the backend is not a limiting factor in this specific case (00:55:26).
+
 2025-11-03
 - Model Serving PM/ENG/UX Sync meeting
 - Recording: https://drive.google.com/file/d/1Se9koq8yJuGMb5AYEY6WNSHuPAFMdquP/view
