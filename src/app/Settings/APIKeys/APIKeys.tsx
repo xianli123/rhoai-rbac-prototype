@@ -206,7 +206,7 @@ const APIKeys: React.FunctionComponent = () => {
                           e.stopPropagation();
                           handleViewDetails(apiKey);
                         }}
-                        style={{ fontWeight: 'bold', padding: 0, textDecoration: 'none' }}
+                        style={{ textDecoration: 'none' }}
                       >
                         {apiKey.name}
                       </Button>
