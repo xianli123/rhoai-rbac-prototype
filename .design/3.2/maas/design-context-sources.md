@@ -64,7 +64,7 @@ source: https://docs.google.com/presentation/d/1ms_my1WI4l_-zBe6wBCAoeUA2dNnQAVi
 
 ### Repositories
 
-source: https://github.com/opendatahub-io/maas-billing/tree/main
+source: https://github.com/opendatahub-io/maas-billing
 - title: ODH - Models as a Service with Policy Management
 - description: Core GitHub repository for all MaaS-related infrastructure code (config, components)
 source: https://github.com/rh-aiservices-bu/litemaas
