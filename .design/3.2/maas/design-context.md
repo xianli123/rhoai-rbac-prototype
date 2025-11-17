@@ -9,7 +9,7 @@ NOTE: in the future we likely need to automatically grab the creation date and d
 source: https://notebooklm.google.com/notebook/7c5d493a-85b8-438d-b1d9-aeab507c63a7
 - description: UXD Orientation NotebookLM for Models-as-a-Service (MaaS)
 
-Miro
+### Miro
 
 source: https://miro.com/app/board/uXjVIgQDVWw=/
 - description: Journey map of the MaaS end user experience, from 3.0 to 3.2/3.3
@@ -72,6 +72,8 @@ source: https://github.com/rh-aiservices-bu/litemaas
 
 ### Jira
 
+source: https://issues.redhat.com/browse/RHAIRFE-737
+- title: Add MaaS quotas/info to AI Asset Endpoints Page
 source: https://issues.redhat.com/browse/RHOAIUX-1409
 - title: User Experience For MaaS Admin (Tech Preview)
 source: https://issues.redhat.com/browse/RHOAISTRAT-703
