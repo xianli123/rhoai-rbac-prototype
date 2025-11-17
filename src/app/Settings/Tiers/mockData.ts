@@ -123,10 +123,10 @@ spec:
     limits: {
       tokenLimit: {
         amount: 1000000,
-        period: 'day',
+        period: 'hour',
       },
       rateLimit: {
-        amount: 100000,
+        amount: 10000,
         period: 'minute',
       },
       apiKeyExpirationDays: 0, // Never expires
@@ -149,9 +149,9 @@ spec:
   limits:
     tokenLimit:
       amount: 1000000
-      period: day
+      period: hour
     rateLimit:
-      amount: 100000
+      amount: 10000
       period: minute
     apiKeyExpirationDays: 0`,
   },

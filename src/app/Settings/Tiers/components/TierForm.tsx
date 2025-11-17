@@ -211,7 +211,7 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
         <FormHelperText>
           <HelperText>
             <HelperTextItem>
-              Higher numbers indicate higher priority. Users in multiple tiers will use the highest level.
+              Higher numbers indicate higher priority. Users in multiple tiers will use the highest level available to them.
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
