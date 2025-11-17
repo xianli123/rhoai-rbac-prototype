@@ -29,6 +29,7 @@ export const mockTiers: Tier[] = [
     description: 'Standard tier with access to MaaS models and baseline rate limits',
     level: 100,
     status: 'Active',
+    isDefault: true,
     isReadOnly: false,
     groups: ['standard-users'],
     models: ['granite-3.1b-maas', 'llama-7b-maas'],

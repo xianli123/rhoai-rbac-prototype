@@ -4,6 +4,7 @@ export interface Tier {
   description: string;
   level: number; // Priority: higher number = higher tier (e.g., 100, 200, 300)
   status: 'Active' | 'Inactive';
+  isDefault?: boolean; // True if this is the default tier
   gitSource?: string; // For GitOps-managed tiers
   isReadOnly: boolean; // True for GitOps-managed tiers
   groups: string[]; // Kubernetes groups assigned to this tier

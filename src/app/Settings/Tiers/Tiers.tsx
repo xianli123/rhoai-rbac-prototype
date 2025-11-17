@@ -13,7 +13,6 @@ import {
   Badge,
   Flex,
   FlexItem,
-  Alert,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -101,7 +100,20 @@ const Tiers: React.FunctionComponent = () => {
         {
           title: 'Edit tier',
           onClick: () => navigate(`/settings/tiers/${tier.id}/edit`),
-        },
+        }
+      );
+
+      // Add "Set as default" action if not already default
+      if (!tier.isDefault) {
+        actions.push({
+          title: 'Set as default',
+          onClick: () => {
+            console.log('Set as default tier', tier.id);
+          },
+        });
+      }
+
+      actions.push(
         {
           isSeparator: true,
         },
@@ -110,6 +122,7 @@ const Tiers: React.FunctionComponent = () => {
           onClick: () => {
             console.log('Delete tier', tier.id);
           },
+          isDisabled: tier.isDefault,
         }
       );
     }
@@ -132,17 +145,7 @@ const Tiers: React.FunctionComponent = () => {
         Manage MaaS tiers, rate limits, and group access. Tiers control which MaaS models users can access via API keys based on their group membership.
       </Content>
       
-      <Alert
-        variant="info"
-        isInline
-        title="How tiers work"
-        style={{ marginTop: '1rem', marginBottom: '1rem' }}
-        id="tiers-info-banner"
-      >
-        Users in multiple groups inherit the tier with the highest level. Higher level numbers indicate higher priority tiers with greater access and limits.
-      </Alert>
-
-      <Card>
+      <Card style={{ marginTop: '1rem' }}>
         <CardBody>
           <Toolbar id="tiers-toolbar">
             <ToolbarContent>
@@ -192,6 +195,14 @@ const Tiers: React.FunctionComponent = () => {
                       >
                         {tier.name}
                       </Button>
+                      {tier.isDefault && (
+                        <Badge 
+                          id={`tier-default-badge-${tier.id}`}
+                          style={{ marginLeft: '0.5rem' }}
+                        >
+                          Default
+                        </Badge>
+                      )}
                       {tier.isReadOnly && (
                         <Badge 
                           id={`tier-readonly-badge-${tier.id}`}

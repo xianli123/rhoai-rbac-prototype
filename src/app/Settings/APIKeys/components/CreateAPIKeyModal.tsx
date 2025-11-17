@@ -5,31 +5,34 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  ModalVariant,
   Form,
   FormGroup,
   TextInput,
   TextArea,
   Button,
-  ExpandableSection,
   DatePicker,
-  NumberInput,
-  Flex,
-  FlexItem,
   FormHelperText,
   HelperText,
   HelperTextItem,
   Alert,
+  Card,
+  CardBody,
+  DescriptionList,
+  DescriptionListTerm,
+  DescriptionListGroup,
+  DescriptionListDescription,
+  Badge,
+  ClipboardCopy,
+  ClipboardCopyVariant,
+  Content,
+  ContentVariants,
+  EmptyState,
+  EmptyStateBody,
   Title,
 } from '@patternfly/react-core';
-import { CreateAPIKeyForm } from '../types';
-import { 
-  mockModels, 
-  mockMCPServers, 
-  mockVectorDatabases, 
-  mockAgents,
-  mockAPIKeys 
-} from '../mockData';
-import { AIAssetSelect, AssetOption } from './AIAssetSelect';
+import { ExclamationTriangleIcon, CheckCircleIcon } from '@patternfly/react-icons';
+import { getCurrentUserHighestTier } from '@app/utils/tierUtils';
 
 interface CreateAPIKeyModalProps {
   isOpen: boolean;
@@ -39,94 +42,38 @@ interface CreateAPIKeyModalProps {
 const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState<CreateAPIKeyForm>({
+  const [showKeyDisplay, setShowKeyDisplay] = React.useState(false);
+  const [generatedKey, setGeneratedKey] = React.useState('');
+  const [keyId, setKeyId] = React.useState('');
+  
+  const [formData, setFormData] = React.useState({
     name: '',
     description: '',
-    owner: {
-      type: 'User',
-      name: '',
-    },
-    assets: {
-      modelEndpoints: [],
-      mcpServers: [],
-      vectorDatabases: [],
-      agents: [],
-    },
+    expirationDate: '',
   });
 
-  // UI state
-  const [isOwnerTypeOpen, setIsOwnerTypeOpen] = React.useState(false);
-  const [isOwnerNameOpen, setIsOwnerNameOpen] = React.useState(false);
-  const [isLimitsExpanded, setIsLimitsExpanded] = React.useState(false);
+  // Get user's highest tier
+  const userTier = getCurrentUserHighestTier();
 
-  // Mock owner names based on type
-  const getOwnerNames = (type: string): string[] => {
-    switch (type) {
-      case 'User':
-        return ['john.doe', 'jane.smith', 'bob.wilson', 'alice.johnson'];
-      case 'Group':
-        return ['dev-team', 'qa-team', 'prod-team', 'data-science-team'];
-      case 'Service Account':
-        return ['prod-service-account', 'dev-service-account', 'ci-service-account'];
-      default:
-        return [];
+  // Initialize expiration date from tier
+  React.useEffect(() => {
+    if (userTier?.limits.apiKeyExpirationDays && !formData.expirationDate) {
+      const days = userTier.limits.apiKeyExpirationDays;
+      if (days > 0) {
+        const expDate = new Date();
+        expDate.setDate(expDate.getDate() + days);
+        setFormData(prev => ({
+          ...prev,
+          expirationDate: expDate.toISOString().split('T')[0],
+        }));
+      }
     }
-  };
+  }, [userTier]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
-    }));
-  };
-
-  const handleNestedInputChange = (parentField: string, field: string, value: any) => {
-    setFormData(prev => {
-      const parentObj = prev[parentField as keyof CreateAPIKeyForm] as any;
-      return {
-        ...prev,
-        [parentField]: {
-          ...parentObj,
-          [field]: value,
-        },
-      };
-    });
-  };
-
-  const handleOwnerTypeSelect = (
-    _event?: React.MouseEvent<Element, MouseEvent>,
-    selection?: string | number
-  ) => {
-    if (typeof selection !== 'string') return;
-    setFormData(prev => ({
-      ...prev,
-      owner: {
-        type: selection as 'User' | 'Group' | 'Service Account',
-        name: '',
-      },
-    }));
-    setIsOwnerTypeOpen(false);
-  };
-
-  const handleOwnerNameSelect = (
-    _event?: React.MouseEvent<Element, MouseEvent>,
-    selection?: string | number
-  ) => {
-    if (typeof selection !== 'string') return;
-    handleNestedInputChange('owner', 'name', selection);
-    setIsOwnerNameOpen(false);
-  };
-
-  const handleAssetSelect = (
-    assetType: 'modelEndpoints' | 'mcpServers' | 'vectorDatabases' | 'agents',
-    selectedIds: string[]
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      assets: {
-        ...prev.assets,
-        [assetType]: selectedIds,
-      },
     }));
   };
 
@@ -140,31 +87,30 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
     return result;
   };
 
+  const downloadKey = (key: string, filename: string) => {
+    const element = document.createElement('a');
+    const file = new Blob([key], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = filename;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Generate new API key
-    const newAPIKey = {
-      id: `key-${Date.now()}`,
-      name: formData.name,
-      description: formData.description,
-      apiKey: generateAPIKey(),
-      owner: formData.owner,
-      dateCreated: new Date(),
-      limits: formData.limits,
-      assets: formData.assets,
-    };
+    const newKey = generateAPIKey();
+    const newKeyId = `key-${Date.now()}`;
     
-    // Navigate to the new API key details page
-    navigate(`/gen-ai-studio/api-keys/${newAPIKey.id}`);
-    onClose();
-  };
-
-  const isFormValid = () => {
-    return formData.name.trim() !== '' && formData.owner.name.trim() !== '';
+    setGeneratedKey(newKey);
+    setKeyId(newKeyId);
+    setShowKeyDisplay(true);
+    setIsSubmitting(false);
   };
 
   const handleClose = () => {
@@ -172,327 +118,249 @@ const CreateAPIKeyModal: React.FunctionComponent<CreateAPIKeyModalProps> = ({ is
     setFormData({
       name: '',
       description: '',
-      owner: {
-        type: 'User',
-        name: '',
-      },
-      assets: {
-        modelEndpoints: [],
-        mcpServers: [],
-        vectorDatabases: [],
-        agents: [],
-      },
+      expirationDate: '',
     });
-    setIsLimitsExpanded(false);
+    setShowKeyDisplay(false);
+    setGeneratedKey('');
+    setKeyId('');
     onClose();
   };
 
-  const ownerNames = getOwnerNames(formData.owner.type);
+  const handleViewDetails = () => {
+    navigate(`/gen-ai-studio/api-keys/${keyId}`);
+    handleClose();
+  };
 
-  // Prepare asset options for the select components
-  const modelOptions: AssetOption[] = mockModels.map(model => ({
-    id: model.id,
-    name: model.name,
-    description: model.id
-  }));
+  const isFormValid = () => {
+    return formData.name.trim() !== '';
+  };
 
-  const mcpServerOptions: AssetOption[] = mockMCPServers.map(server => ({
-    id: server.id,
-    name: server.name,
-    description: server.tools.join(', ')
-  }));
-
-  const vectorDbOptions: AssetOption[] = mockVectorDatabases.map(db => ({
-    id: db.id,
-    name: db.name,
-    description: db.size
-  }));
-
-  const agentOptions: AssetOption[] = mockAgents.map(agent => ({
-    id: agent.id,
-    name: agent.name
-  }));
-
+  // If no tier assigned, show empty state
+  if (!userTier) {
     return (
       <Modal
+        variant={ModalVariant.medium}
+        title="Create API key"
         isOpen={isOpen}
-        onClose={handleClose}
-        aria-labelledby="create-api-key-modal-title"
-        aria-describedby="create-api-key-modal-body"
-        ouiaId="CreateAPIKeyModal"
-        appendTo={document.body}
-        className="pf-m-md"
+        onClose={onClose}
+        id="create-api-key-modal"
       >
-        <ModalHeader title="Create API key" labelId="create-api-key-modal-title" />
-        <ModalBody id="create-api-key-modal-body">
-          <Form>
-        {/* Basic Information */}
-        <FormGroup label="Name" isRequired>
-          <TextInput
-            value={formData.name}
-            onChange={(_event, value) => handleInputChange('name', value)}
-            placeholder="Enter a descriptive name for this API key"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        <FormGroup label="Description">
-          <TextArea
-            value={formData.description}
-            onChange={(_event, value) => handleInputChange('description', value)}
-            placeholder="Describe the key's purpose"
-            rows={3}
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        {/* Owner Information */}
-        <FormGroup label="Owner type" isRequired>
-          <select
-            value={formData.owner.type}
-            onChange={(e) => {
-              const value = e.target.value as 'User' | 'Group' | 'Service Account';
-              setFormData(prev => ({
-                ...prev,
-                owner: { type: value, name: '' }
-              }));
-            }}
-            disabled={isSubmitting}
-            style={{ 
-              width: '100%', 
-              padding: '0.375rem 0.75rem', 
-              border: '1px solid #d2d2d2', 
-              borderRadius: '0.25rem',
-              fontSize: '0.875rem'
-            }}
-          >
-            <option value="User">User</option>
-            <option value="Group">Group</option>
-            <option value="Service Account">Service Account</option>
-          </select>
-        </FormGroup>
-
-        <FormGroup label="Owner name" isRequired>
-          <select
-            value={formData.owner.name}
-            onChange={(e) => handleNestedInputChange('owner', 'name', e.target.value)}
-            disabled={isSubmitting || ownerNames.length === 0}
-            style={{ 
-              width: '100%', 
-              padding: '0.375rem 0.75rem', 
-              border: '1px solid #d2d2d2', 
-              borderRadius: '0.25rem',
-              fontSize: '0.875rem'
-            }}
-          >
-            {ownerNames.map(name => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </FormGroup>
-
-        <FormGroup label="Expiration date">
-          <DatePicker
-            value={formData.limits?.expirationDate ? formData.limits.expirationDate.toISOString().split('T')[0] : ''}
-            onChange={(_event, str, date) => {
-              handleNestedInputChange('limits', 'expirationDate', date);
-            }}
-            placeholder="Select expiration date (optional)"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        {/* Limits and Policies - Temporarily hidden */}
-        {/* <ExpandableSection
-          toggleText="Limits and Policies"
-          isExpanded={isLimitsExpanded}
-          onToggle={() => setIsLimitsExpanded(!isLimitsExpanded)}
-        >
-          <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsMd' }}>
-            <FlexItem>
-              <FormGroup label="Token rate limit">
-                <NumberInput
-                  value={formData.limits?.tokenRateLimit || ''}
-                  onMinus={() => {
-                    const current = formData.limits?.tokenRateLimit || 0;
-                    handleNestedInputChange('limits', 'tokenRateLimit', Math.max(0, current - 1000));
-                  }}
-                  onChange={(event) => {
-                    const value = parseInt((event.target as HTMLInputElement).value) || 0;
-                    handleNestedInputChange('limits', 'tokenRateLimit', value);
-                  }}
-                  onPlus={() => {
-                    const current = formData.limits?.tokenRateLimit || 0;
-                    handleNestedInputChange('limits', 'tokenRateLimit', current + 1000);
-                  }}
-                  inputName="token-rate-limit"
-                  inputAriaLabel="Token rate limit"
-                  minusBtnAriaLabel="Decrease token rate limit"
-                  plusBtnAriaLabel="Increase token rate limit"
-                  unit="tokens per minute"
-                  min={0}
-                  isDisabled={isSubmitting}
-                />
-              </FormGroup>
-            </FlexItem>
-
-            <FlexItem>
-              <FormGroup label="Request rate limit">
-                <NumberInput
-                  value={formData.limits?.requestRateLimit || ''}
-                  onMinus={() => {
-                    const current = formData.limits?.requestRateLimit || 0;
-                    handleNestedInputChange('limits', 'requestRateLimit', Math.max(0, current - 100));
-                  }}
-                  onChange={(event) => {
-                    const value = parseInt((event.target as HTMLInputElement).value) || 0;
-                    handleNestedInputChange('limits', 'requestRateLimit', value);
-                  }}
-                  onPlus={() => {
-                    const current = formData.limits?.requestRateLimit || 0;
-                    handleNestedInputChange('limits', 'requestRateLimit', current + 100);
-                  }}
-                  inputName="request-rate-limit"
-                  inputAriaLabel="Request rate limit"
-                  minusBtnAriaLabel="Decrease request rate limit"
-                  plusBtnAriaLabel="Increase request rate limit"
-                  unit="requests per minute"
-                  min={0}
-                  isDisabled={isSubmitting}
-                />
-              </FormGroup>
-            </FlexItem>
-
-            <FlexItem>
-              <FormGroup label="Budget limit">
-                <NumberInput
-                  value={formData.limits?.budgetLimit || ''}
-                  onMinus={() => {
-                    const current = formData.limits?.budgetLimit || 0;
-                    handleNestedInputChange('limits', 'budgetLimit', Math.max(0, current - 50));
-                  }}
-                  onChange={(event) => {
-                    const value = parseInt((event.target as HTMLInputElement).value) || 0;
-                    handleNestedInputChange('limits', 'budgetLimit', value);
-                  }}
-                  onPlus={() => {
-                    const current = formData.limits?.budgetLimit || 0;
-                    handleNestedInputChange('limits', 'budgetLimit', current + 50);
-                  }}
-                  inputName="budget-limit"
-                  inputAriaLabel="Budget limit"
-                  minusBtnAriaLabel="Decrease budget limit"
-                  plusBtnAriaLabel="Increase budget limit"
-                  unit="USD"
-                  min={0}
-                  isDisabled={isSubmitting}
-                />
-              </FormGroup>
-            </FlexItem>
-
-            <FlexItem>
-              <FormGroup label="Expiration date">
-                <DatePicker
-                  value={formData.limits?.expirationDate ? formData.limits.expirationDate.toISOString().split('T')[0] : ''}
-                  onChange={(_event, str, date) => {
-                    handleNestedInputChange('limits', 'expirationDate', date);
-                  }}
-                  placeholder="Select expiration date (optional)"
-                  isDisabled={isSubmitting}
-                />
-              </FormGroup>
-            </FlexItem>
-          </Flex>
-        </ExpandableSection> */}
-
-        {/* AI Asset Access */}
-        <Title headingLevel="h2">AI asset access</Title>
-        <FormGroup>
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem>
-                Select the AI assets that this API key should provide access to. You can modify these selections later.
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        </FormGroup>
-
-        {/* Model Endpoints */}
-        <FormGroup label="Models">
-          <AIAssetSelect
-            options={modelOptions}
-            selected={formData.assets.modelEndpoints}
-            onSelect={(selectedIds) => handleAssetSelect('modelEndpoints', selectedIds)}
-            placeholder="Select model endpoints"
-            ariaLabel="Model endpoints selection"
-            id="model-endpoints-select"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        {/* MCP Servers */}
-        <FormGroup label="MCP Servers & tools">
-          <AIAssetSelect
-            options={mcpServerOptions}
-            selected={formData.assets.mcpServers}
-            onSelect={(selectedIds) => handleAssetSelect('mcpServers', selectedIds)}
-            placeholder="Select MCP servers"
-            ariaLabel="MCP servers selection"
-            id="mcp-servers-select"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        {/* Vector Databases */}
-        <FormGroup label="Vector Databases">
-          <AIAssetSelect
-            options={vectorDbOptions}
-            selected={formData.assets.vectorDatabases}
-            onSelect={(selectedIds) => handleAssetSelect('vectorDatabases', selectedIds)}
-            placeholder="Select vector databases"
-            ariaLabel="Vector databases selection"
-            id="vector-databases-select"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-        {/* Agents */}
-        <FormGroup label="Agents">
-          <AIAssetSelect
-            options={agentOptions}
-            selected={formData.assets.agents}
-            onSelect={(selectedIds) => handleAssetSelect('agents', selectedIds)}
-            placeholder="Select agents"
-            ariaLabel="Agents selection"
-            id="agents-select"
-            isDisabled={isSubmitting}
-          />
-        </FormGroup>
-
-          </Form>
+        <ModalHeader title="Create API key" />
+        <ModalBody>
+          <EmptyState>
+            <ExclamationTriangleIcon style={{ fontSize: '3rem', color: 'var(--pf-t--global--color--status--warning--default)', marginBottom: '1rem' }} />
+            <Title headingLevel="h4" size="lg">
+              You have no access to MaaS models
+            </Title>
+            <EmptyStateBody>
+              Contact your administrator to be added to a tier and start creating API keys for MaaS model access.
+            </EmptyStateBody>
+          </EmptyState>
         </ModalBody>
         <ModalFooter>
-          <Button
-            key="create"
-            variant="primary"
-            onClick={handleSubmit}
-            isDisabled={!isFormValid() || isSubmitting}
-            isLoading={isSubmitting}
-          >
-            {isSubmitting ? 'Creating...' : 'Create API key'}
-          </Button>
-          <Button
-            key="cancel"
-            variant="link"
-            onClick={handleClose}
-            isDisabled={isSubmitting}
-          >
-            Cancel
+          <Button variant="link" onClick={onClose} id="no-tier-close-button">
+            Close
           </Button>
         </ModalFooter>
       </Modal>
+    );
+  }
+
+  // If key has been generated, show one-time display
+  if (showKeyDisplay) {
+    return (
+      <Modal
+        variant={ModalVariant.medium}
+        title="API key created"
+        isOpen={isOpen}
+        onClose={handleClose}
+        id="api-key-created-modal"
+      >
+        <ModalHeader title="API key created" />
+        <ModalBody>
+          <Alert
+            variant="warning"
+            isInline
+            title="Save your API key"
+            style={{ marginBottom: '1rem' }}
+          >
+            <ExclamationTriangleIcon style={{ marginRight: '0.5rem' }} />
+            This is the only time you will see this key. Copy it now and store it securely.
+          </Alert>
+
+          <Card>
+            <CardBody>
+              <Content component={ContentVariants.h3} style={{ marginBottom: '0.5rem' }}>
+                <CheckCircleIcon color="green" style={{ marginRight: '0.5rem' }} />
+                Your API key
+              </Content>
+              <ClipboardCopy
+                isReadOnly
+                hoverTip="Copy"
+                clickTip="Copied"
+                variant={ClipboardCopyVariant.expansion}
+                id="generated-api-key"
+              >
+                {generatedKey}
+              </ClipboardCopy>
+              <div style={{ marginTop: '1rem' }}>
+                <Button
+                  variant="secondary"
+                  onClick={() => downloadKey(generatedKey, `${formData.name.replace(/\s+/g, '-').toLowerCase()}-api-key.txt`)}
+                  id="download-key-button"
+                  style={{ marginRight: '0.5rem' }}
+                >
+                  Download as .txt
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card style={{ marginTop: '1rem' }}>
+            <CardBody>
+              <DescriptionList isHorizontal columnModifier={{ default: '1Col' }}>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>Name</DescriptionListTerm>
+                  <DescriptionListDescription>{formData.name}</DescriptionListDescription>
+                </DescriptionListGroup>
+                {formData.description && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>Description</DescriptionListTerm>
+                    <DescriptionListDescription>{formData.description}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+                <DescriptionListGroup>
+                  <DescriptionListTerm>Tier</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <Badge isRead>Level {userTier.level}</Badge> {userTier.name}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+                {formData.expirationDate && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>Expiration</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {new Date(formData.expirationDate).toLocaleDateString()}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+              </DescriptionList>
+            </CardBody>
+          </Card>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleViewDetails} id="view-key-details-button">
+            View key details
+          </Button>
+          <Button variant="link" onClick={handleClose} id="key-created-close-button">
+            Close
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  }
+
+  // Show create form
+  return (
+    <Modal
+      variant={ModalVariant.medium}
+      title="Create API key"
+      isOpen={isOpen}
+      onClose={handleClose}
+      id="create-api-key-modal"
+    >
+      <ModalHeader title="Create API key" />
+      <ModalBody>
+        <Alert
+          variant="info"
+          isInline
+          title="Your tier"
+          style={{ marginBottom: '1rem' }}
+          id="tier-info-alert"
+        >
+          <div style={{ marginBottom: '0.5rem' }}>
+            You are assigned to: <strong>{userTier.name}</strong>{' '}
+            <Badge isRead>Level {userTier.level}</Badge>
+          </div>
+          <div style={{ fontSize: '0.875rem' }}>
+            <strong>Inherited limits:</strong>
+            <ul style={{ marginTop: '0.25rem', marginBottom: '0.25rem' }}>
+              {userTier.limits.tokenLimit && (
+                <li>Token limit: {userTier.limits.tokenLimit.amount.toLocaleString()} tokens per {userTier.limits.tokenLimit.period}</li>
+              )}
+              {userTier.limits.rateLimit && (
+                <li>Rate limit: {userTier.limits.rateLimit.amount.toLocaleString()} requests per {userTier.limits.rateLimit.period}</li>
+              )}
+              <li>Accessible models: {userTier.models.length}</li>
+            </ul>
+          </div>
+        </Alert>
+
+        <Form id="create-api-key-form">
+          <FormGroup label="Name" isRequired fieldId="api-key-name">
+            <TextInput
+              isRequired
+              type="text"
+              id="api-key-name"
+              name="api-key-name"
+              value={formData.name}
+              onChange={(_event, value) => handleInputChange('name', value)}
+            />
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>A descriptive name for this API key</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          </FormGroup>
+
+          <FormGroup label="Description" fieldId="api-key-description">
+            <TextArea
+              id="api-key-description"
+              name="api-key-description"
+              value={formData.description}
+              onChange={(_event, value) => handleInputChange('description', value)}
+              rows={3}
+            />
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>Optional description of how this key will be used</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          </FormGroup>
+
+          <FormGroup label="Expiration date" fieldId="api-key-expiration">
+            <DatePicker
+              id="api-key-expiration"
+              value={formData.expirationDate}
+              onChange={(_event, value) => handleInputChange('expirationDate', value)}
+              placeholder="YYYY-MM-DD"
+            />
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>
+                  {userTier.limits.apiKeyExpirationDays
+                    ? `Default: ${userTier.limits.apiKeyExpirationDays} days from today ${userTier.limits.apiKeyExpirationDays === 0 ? '(Never expires)' : ''}`
+                    : 'Optional expiration date for this API key'}
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          isLoading={isSubmitting}
+          isDisabled={!isFormValid() || isSubmitting}
+          id="create-key-submit-button"
+        >
+          Create API key
+        </Button>
+        <Button variant="link" onClick={handleClose} id="create-key-cancel-button">
+          Cancel
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };
 
