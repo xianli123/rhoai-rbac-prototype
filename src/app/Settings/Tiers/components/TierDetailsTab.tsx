@@ -4,8 +4,6 @@ import {
   DescriptionListTerm,
   DescriptionListGroup,
   DescriptionListDescription,
-  Card,
-  CardBody,
   PageSection,
   Badge,
   Flex,
@@ -22,16 +20,6 @@ interface TierDetailsTabProps {
 }
 
 const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) => {
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const renderModelsList = (modelIds: string[]) => {
     if (modelIds.length === 0) {
       return <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>No models assigned</span>;
@@ -109,7 +97,6 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
           isInline 
           title="This tier is managed in git"
           id="tier-git-managed-alert"
-          style={{ marginBottom: '1rem' }}
         >
           This tier is managed in git. To make changes, please edit the tier in the{' '}
           <a href={tier.gitSource} target="_blank" rel="noopener noreferrer">
@@ -119,134 +106,104 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
         </Alert>
       )}
 
-      <Card>
-        <CardBody>
-          <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Name</DescriptionListTerm>
-              <DescriptionListDescription>{tier.name}</DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="tier-details-heading">
+        Tier details
+      </Content>
+      <DescriptionList columnModifier={{ default: '2Col' }}>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Name</DescriptionListTerm>
+          <DescriptionListDescription>{tier.name}</DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Level</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Badge id="tier-level-badge" isRead>Level {tier.level}</Badge>
-                <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>
-                  Higher level = higher priority
-                </div>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Status</DescriptionListTerm>
+          <DescriptionListDescription>
+            <Badge isRead={tier.status === 'Inactive'}>
+              {tier.status}
+            </Badge>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Description</DescriptionListTerm>
-              <DescriptionListDescription>
-                {tier.description || 'No description provided'}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Description</DescriptionListTerm>
+          <DescriptionListDescription>
+            {tier.description || 'No description provided'}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Status</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Badge isRead={tier.status === 'Inactive'}>
-                  {tier.status}
-                </Badge>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Level</DescriptionListTerm>
+          <DescriptionListDescription>
+            <Badge id="tier-level-badge" isRead>Level {tier.level}</Badge>
+            <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>
+              Higher level = higher priority
+            </div>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
 
-            {tier.gitSource && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Git source</DescriptionListTerm>
-                <DescriptionListDescription>
-                  <a href={tier.gitSource} target="_blank" rel="noopener noreferrer" id="git-source-link">
-                    {tier.gitSource}
-                  </a>
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
+        {tier.gitSource && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Git source</DescriptionListTerm>
+            <DescriptionListDescription>
+              <a href={tier.gitSource} target="_blank" rel="noopener noreferrer" id="git-source-link">
+                {tier.gitSource}
+              </a>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
 
-            {!tier.gitSource && (
-              <DescriptionListGroup>
-                <DescriptionListTerm>Git source</DescriptionListTerm>
-                <DescriptionListDescription>None</DescriptionListDescription>
-              </DescriptionListGroup>
-            )}
+        {!tier.gitSource && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>Git source</DescriptionListTerm>
+            <DescriptionListDescription>None</DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
+      </DescriptionList>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Date created</DescriptionListTerm>
-              <DescriptionListDescription>
-                {formatDate(tier.dateCreated)}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+      <Content component={ContentVariants.h2} id="groups-heading" style={{ marginTop: '2rem' }}>
+        Groups
+      </Content>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Assigned groups</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderGroupsList(tier.groups)}
+            <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
+              All users in these groups will have access to this tier's models and inherit its limits.
+            </div>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
 
-            <DescriptionListGroup>
-              <DescriptionListTerm>Created by</DescriptionListTerm>
-              <DescriptionListDescription>
-                {tier.createdBy}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-        </CardBody>
-      </Card>
+      <Content component={ContentVariants.h2} id="models-heading" style={{ marginTop: '2rem' }}>
+        Models
+      </Content>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Available models</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderModelsList(tier.models)}
+            <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
+              Only MaaS models (AI Assets) can be assigned to tiers.
+            </div>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
 
-      {/* Groups Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Groups
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '1Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Assigned groups</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderGroupsList(tier.groups)}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-          <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
-            All users in these groups will have access to this tier's models and inherit its limits.
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Models Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Models
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '1Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Available models</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderModelsList(tier.models)}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-          <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
-            Only MaaS models (AI Assets) can be assigned to tiers.
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Limits Section */}
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Content component={ContentVariants.h3} style={{ marginBottom: '1rem' }}>
-            Limits
-          </Content>
-          <DescriptionList isHorizontal columnModifier={{ default: '1Col' }}>
-            <DescriptionListGroup>
-              <DescriptionListTerm>Configured limits</DescriptionListTerm>
-              <DescriptionListDescription>
-                {renderLimits()}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-          <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
-            These limits apply to all API keys created by users in this tier's groups.
-          </div>
-        </CardBody>
-      </Card>
+      <Content component={ContentVariants.h2} id="limits-heading" style={{ marginTop: '2rem' }}>
+        Limits
+      </Content>
+      <DescriptionList>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Configured limits</DescriptionListTerm>
+          <DescriptionListDescription>
+            {renderLimits()}
+            <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
+              These limits apply to all API keys created by users in this tier's groups.
+            </div>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
     </PageSection>
   );
 };
