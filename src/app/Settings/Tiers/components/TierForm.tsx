@@ -39,10 +39,25 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
   
   // Default expiration time state (always shown, not optional)
   const [expirationValue, setExpirationValue] = React.useState(() => {
-    const days = formData.limits.apiKeyExpirationDays || 90;
-    return days.toString();
+    const days = formData.limits.apiKeyExpirationDays;
+    if (days !== undefined && days > 0) {
+      // If less than 1 day, show in hours
+      if (days < 1) {
+        return Math.round(days * 24).toString();
+      }
+      // Otherwise show in days
+      return days.toString();
+    }
+    return '4';
   });
-  const [expirationUnit, setExpirationUnit] = React.useState<'hours' | 'days'>('days');
+  const [expirationUnit, setExpirationUnit] = React.useState<'hours' | 'days'>(() => {
+    const days = formData.limits.apiKeyExpirationDays;
+    if (days !== undefined && days > 0) {
+      // If less than 1 day, display as hours
+      return days < 1 ? 'hours' : 'days';
+    }
+    return 'hours';
+  });
 
   const handleInputChange = (field: keyof CreateTierForm, value: any) => {
     onChange({
@@ -71,8 +86,8 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
   const handleExpirationChange = (value: string, unit: 'hours' | 'days') => {
     const numValue = Number(value);
     if (!isNaN(numValue) && numValue >= 0) {
-      // Convert to days for storage
-      const days = unit === 'hours' ? Math.round(numValue / 24) : numValue;
+      // Convert to days for storage (support fractional days for hour-based values)
+      const days = unit === 'hours' ? numValue / 24 : numValue;
       onChange({
         ...formData,
         limits: {

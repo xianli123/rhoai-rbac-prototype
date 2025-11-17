@@ -27,7 +27,7 @@ const CreateTier: React.FunctionComponent = () => {
     groups: [],
     models: [],
     limits: {
-      apiKeyExpirationDays: 90, // Default expiration time
+      apiKeyExpirationDays: 4 / 24, // Default expiration time: 4 hours (stored as fractional days)
     },
   });
 

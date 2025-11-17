@@ -99,6 +99,8 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
             <strong>Default expiration time:</strong>{' '}
             {tier.limits.apiKeyExpirationDays === 0 
               ? 'Never expires' 
+              : tier.limits.apiKeyExpirationDays < 1
+              ? `${Math.round(tier.limits.apiKeyExpirationDays * 24)} hours`
               : `${tier.limits.apiKeyExpirationDays} days`}
           </FlexItem>
         )}
