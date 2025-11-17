@@ -96,7 +96,7 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
         )}
         {tier.limits.apiKeyExpirationDays !== undefined && (
           <FlexItem>
-            <strong>API key expiration:</strong>{' '}
+            <strong>Default expiration time:</strong>{' '}
             {tier.limits.apiKeyExpirationDays === 0 
               ? 'Never expires' 
               : `${tier.limits.apiKeyExpirationDays} days`}

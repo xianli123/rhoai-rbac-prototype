@@ -37,9 +37,13 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
 
   const [tokenLimitEnabled, setTokenLimitEnabled] = React.useState(!!formData.limits.tokenLimit);
   const [rateLimitEnabled, setRateLimitEnabled] = React.useState(!!formData.limits.rateLimit);
-  const [apiKeyExpirationEnabled, setApiKeyExpirationEnabled] = React.useState(
-    formData.limits.apiKeyExpirationDays !== undefined
-  );
+  
+  // Default expiration time state (always shown, not optional)
+  const [expirationValue, setExpirationValue] = React.useState(() => {
+    const days = formData.limits.apiKeyExpirationDays || 90;
+    return days.toString();
+  });
+  const [expirationUnit, setExpirationUnit] = React.useState<'hours' | 'days'>('days');
 
   const handleInputChange = (field: keyof CreateTierForm, value: any) => {
     onChange({
@@ -65,14 +69,19 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
     });
   };
 
-  const handleApiKeyExpirationChange = (value: number) => {
-    onChange({
-      ...formData,
-      limits: {
-        ...formData.limits,
-        apiKeyExpirationDays: value,
-      },
-    });
+  const handleExpirationChange = (value: string, unit: 'hours' | 'days') => {
+    const numValue = Number(value);
+    if (!isNaN(numValue) && numValue >= 0) {
+      // Convert to days for storage
+      const days = unit === 'hours' ? Math.round(numValue / 24) : numValue;
+      onChange({
+        ...formData,
+        limits: {
+          ...formData.limits,
+          apiKeyExpirationDays: days,
+        },
+      });
+    }
   };
 
   const handleTokenLimitToggle = (checked: boolean) => {
@@ -113,24 +122,6 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
     }
   };
 
-  const handleApiKeyExpirationToggle = (checked: boolean) => {
-    setApiKeyExpirationEnabled(checked);
-    if (!checked) {
-      const { apiKeyExpirationDays, ...otherLimits } = formData.limits;
-      onChange({
-        ...formData,
-        limits: otherLimits,
-      });
-    } else {
-      onChange({
-        ...formData,
-        limits: {
-          ...formData.limits,
-          apiKeyExpirationDays: 90,
-        },
-      });
-    }
-  };
 
   const handleGroupSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
     if (!value) return;
@@ -309,6 +300,58 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
         </FormHelperText>
       </FormGroup>
 
+      <FormGroup label="Default expiration time" fieldId="default-expiration-time">
+        <Flex>
+          <FlexItem>
+            <TextInput
+              type="number"
+              id="default-expiration-time"
+              name="default-expiration-time"
+              value={expirationValue}
+              onChange={(_event, value) => {
+                setExpirationValue(value);
+                handleExpirationChange(value, expirationUnit);
+              }}
+              style={{ width: '150px' }}
+            />
+          </FlexItem>
+          <FlexItem>
+            <Select
+              id="expiration-unit"
+              isOpen={isPeriodSelectOpen['expiration'] || false}
+              selected={expirationUnit}
+              onSelect={(_event, selection) => {
+                const unit = selection as 'hours' | 'days';
+                setExpirationUnit(unit);
+                handleExpirationChange(expirationValue, unit);
+                setIsPeriodSelectOpen({ ...isPeriodSelectOpen, expiration: false });
+              }}
+              onOpenChange={(isOpen) => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, expiration: isOpen })}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsPeriodSelectOpen({ ...isPeriodSelectOpen, expiration: !isPeriodSelectOpen['expiration'] })}
+                  isExpanded={isPeriodSelectOpen['expiration'] || false}
+                  id="expiration-unit-toggle"
+                >
+                  {expirationUnit}
+                </MenuToggle>
+              )}
+            >
+              <SelectList>
+                <SelectOption value="hours">hours</SelectOption>
+                <SelectOption value="days">days</SelectOption>
+              </SelectList>
+            </Select>
+          </FlexItem>
+        </Flex>
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem>API keys created by users in this tier will expire after this period</HelperTextItem>
+          </HelperText>
+        </FormHelperText>
+      </FormGroup>
+
       <Checkbox
         id="enable-token-limit"
         label="Token limit"
@@ -439,45 +482,6 @@ const TierForm: React.FunctionComponent<TierFormProps> = ({ formData, onChange, 
                 <SelectOption value="day">day</SelectOption>
               </SelectList>
             </Select>
-          </FlexItem>
-        </Flex>
-      )}
-
-      <Checkbox
-        id="enable-api-key-expiration"
-        label="API key expiration"
-        description="API keys created by users in this tier will expire after this period. Set to 0 for no expiration. Default: 90 days"
-        isChecked={apiKeyExpirationEnabled}
-        onChange={(_event, checked) => handleApiKeyExpirationToggle(checked)}
-      />
-      {apiKeyExpirationEnabled && (
-        <Flex style={{ marginTop: '0.5rem', marginLeft: '1.5rem', marginBottom: '1rem' }}>
-          <FlexItem>
-            <NumberInput
-              value={formData.limits.apiKeyExpirationDays || 0}
-              min={0}
-              onMinus={() =>
-                handleApiKeyExpirationChange(Math.max(0, (formData.limits.apiKeyExpirationDays || 0) - 30))
-              }
-              onChange={(event) => {
-                const value = Number((event.target as HTMLInputElement).value);
-                if (!isNaN(value) && value >= 0) {
-                  handleApiKeyExpirationChange(value);
-                }
-              }}
-              onPlus={() =>
-                handleApiKeyExpirationChange((formData.limits.apiKeyExpirationDays || 0) + 30)
-              }
-              inputName="api-key-expiration-days"
-              inputAriaLabel="API key expiration days"
-              minusBtnAriaLabel="Decrease days"
-              plusBtnAriaLabel="Increase days"
-              id="api-key-expiration-days"
-              widthChars={6}
-            />
-          </FlexItem>
-          <FlexItem style={{ paddingTop: '0.5rem', paddingLeft: '0.5rem' }}>
-            days {formData.limits.apiKeyExpirationDays === 0 && '(Never expires)'}
           </FlexItem>
         </Flex>
       )}

@@ -26,7 +26,9 @@ const CreateTier: React.FunctionComponent = () => {
     level: 1,
     groups: [],
     models: [],
-    limits: {},
+    limits: {
+      apiKeyExpirationDays: 90, // Default expiration time
+    },
   });
 
   useDocumentTitle('Create Tier');
