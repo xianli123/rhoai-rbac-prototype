@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
+  Badge,
   Button,
   Divider,
   Dropdown,
@@ -280,6 +281,23 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               >
                 Tech Preview
               </Label>
+            )}
+            {(route as any).tbd && (
+              <Tooltip 
+                content="This feature might not be included in RHOAI 3.2/3.3"
+                position="right"
+              >
+                <Badge 
+                  style={{ 
+                    backgroundColor: '#d93f8c',
+                    color: '#ffffff',
+                    fontSize: '10px'
+                  }}
+                  id={`${itemId}-tbd-badge`}
+                >
+                  TBD
+                </Badge>
+              </Tooltip>
             )}
           </NavLink>
         )}

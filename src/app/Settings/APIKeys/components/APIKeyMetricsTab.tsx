@@ -13,6 +13,13 @@ import {
   Grid,
   GridItem,
   PageSection,
+  Select,
+  SelectOption,
+  SelectList,
+  MenuToggle,
+  MenuToggleElement,
+  InputGroup,
+  InputGroupItem,
 } from '@patternfly/react-core';
 import { 
   Chart, 
@@ -49,7 +56,6 @@ const APIKeyMetricsTab: React.FunctionComponent<APIKeyMetricsTabProps> = ({ keyI
   ) => {
     if (typeof selection === 'string') {
       setTimeRange(selection as TimeRange);
-      setIsTimeRangeOpen(false);
     }
   };
 
@@ -112,20 +118,44 @@ const APIKeyMetricsTab: React.FunctionComponent<APIKeyMetricsTabProps> = ({ keyI
         <Toolbar>
           <ToolbarContent>
             <ToolbarItem>
-              <span style={{ fontSize: '0.875rem' }}>Time range:</span>
-            </ToolbarItem>
-            <ToolbarItem>
-              <select 
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-                style={{ padding: '0.375rem 0.75rem', border: '1px solid #d2d2d2', borderRadius: '0.25rem' }}
-              >
-                {timeRangeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <InputGroup>
+                <InputGroupItem>
+                  <div className="pf-v6-c-input-group__text">
+                    Time range:
+                  </div>
+                </InputGroupItem>
+                <InputGroupItem>
+                  <Select
+                    id="time-range-select"
+                    isOpen={isTimeRangeOpen}
+                    selected={timeRange}
+                    onSelect={handleTimeRangeSelect}
+                    onOpenChange={(isOpen) => setIsTimeRangeOpen(isOpen)}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        onClick={() => setIsTimeRangeOpen(!isTimeRangeOpen)}
+                        isExpanded={isTimeRangeOpen}
+                        id="time-range-toggle"
+                      >
+                        {timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 days'}
+                      </MenuToggle>
+                    )}
+                  >
+                    <SelectList>
+                      {timeRangeOptions.map((option) => (
+                        <SelectOption
+                          key={option.value}
+                          value={option.value}
+                          isSelected={timeRange === option.value}
+                        >
+                          {option.label}
+                        </SelectOption>
+                      ))}
+                    </SelectList>
+                  </Select>
+                </InputGroupItem>
+              </InputGroup>
             </ToolbarItem>
             <ToolbarItem>
               <Button
