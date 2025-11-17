@@ -8,8 +8,6 @@ import {
   ToolbarItem,
   Toolbar,
   ToolbarContent,
-  Card,
-  CardBody,
   Badge,
   Flex,
   FlexItem,
@@ -165,23 +163,21 @@ const APIKeys: React.FunctionComponent = () => {
         Manage API keys that control access to AI asset endpoints.
       </Content>
       
-      <Card>
-        <CardBody>
-          <Toolbar id="api-keys-toolbar">
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button 
-                  variant="primary" 
-                  icon={<PlusIcon />}
-                  onClick={handleCreateAPIKey}
-                >
-                  Create API key
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+      <Toolbar id="api-keys-toolbar" style={{ marginTop: '1rem' }}>
+        <ToolbarContent>
+          <ToolbarItem>
+            <Button 
+              variant="primary" 
+              icon={<PlusIcon />}
+              onClick={handleCreateAPIKey}
+            >
+              Create API key
+            </Button>
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
 
-          <Table aria-label="API Keys table">
+      <Table aria-label="API Keys table">
             <Thead>
               <Tr>
                 <Th>Name</Th>
@@ -299,8 +295,6 @@ const APIKeys: React.FunctionComponent = () => {
               ))}
             </Tbody>
           </Table>
-        </CardBody>
-      </Card>
 
       <CreateAPIKeyModal
         isOpen={isCreateModalOpen}

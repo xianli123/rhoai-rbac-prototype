@@ -8,8 +8,6 @@ import {
   ToolbarItem,
   Toolbar,
   ToolbarContent,
-  Card,
-  CardBody,
   Badge,
   Flex,
   FlexItem,
@@ -145,24 +143,22 @@ const Tiers: React.FunctionComponent = () => {
         Manage MaaS tiers, rate limits, and group access. Tiers control which MaaS models users can access via API keys based on their group membership.
       </Content>
       
-      <Card style={{ marginTop: '1rem' }}>
-        <CardBody>
-          <Toolbar id="tiers-toolbar">
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button 
-                  variant="primary" 
-                  icon={<PlusIcon />}
-                  onClick={handleCreateTier}
-                  id="create-tier-button"
-                >
-                  Create tier
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+      <Toolbar id="tiers-toolbar" style={{ marginTop: '1rem' }}>
+        <ToolbarContent>
+          <ToolbarItem>
+            <Button 
+              variant="primary" 
+              icon={<PlusIcon />}
+              onClick={handleCreateTier}
+              id="create-tier-button"
+            >
+              Create tier
+            </Button>
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
 
-          <Table aria-label="Tiers table" id="tiers-table">
+      <Table aria-label="Tiers table" id="tiers-table">
             <Thead>
               <Tr>
                 <Th>Name</Th>
@@ -253,8 +249,6 @@ const Tiers: React.FunctionComponent = () => {
               ))}
             </Tbody>
           </Table>
-        </CardBody>
-      </Card>
     </PageSection>
   );
 };

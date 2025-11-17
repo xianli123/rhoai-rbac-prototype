@@ -8,8 +8,6 @@ import {
   ToolbarItem,
   Toolbar,
   ToolbarContent,
-  Card,
-  CardBody,
   Badge,
   Flex,
   FlexItem,
@@ -157,24 +155,22 @@ const Policies: React.FunctionComponent = () => {
         <Link to="/settings/tiers">Tiers</Link> page.
       </Alert>
 
-      <Card>
-        <CardBody>
-          <Toolbar id="policies-toolbar">
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button 
-                  variant="primary" 
-                  icon={<PlusIcon />}
-                  onClick={handleCreatePolicy}
-                  id="create-policy-button"
-                >
-                  Create policy
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+      <Toolbar id="policies-toolbar">
+        <ToolbarContent>
+          <ToolbarItem>
+            <Button 
+              variant="primary" 
+              icon={<PlusIcon />}
+              onClick={handleCreatePolicy}
+              id="create-policy-button"
+            >
+              Create policy
+            </Button>
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
 
-          <Table aria-label="Policies table" id="policies-table">
+      <Table aria-label="Policies table" id="policies-table">
             <Thead>
               <Tr>
                 <Th>Name</Th>
@@ -242,8 +238,6 @@ const Policies: React.FunctionComponent = () => {
               ))}
             </Tbody>
           </Table>
-        </CardBody>
-      </Card>
 
       <CreatePolicyModal
         isOpen={isCreateModalOpen}
