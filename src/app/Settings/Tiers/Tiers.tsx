@@ -162,8 +162,8 @@ const Tiers: React.FunctionComponent = () => {
             <Thead>
               <Tr>
                 <Th>Name</Th>
-                <Th>Level</Th>
                 <Th>Status</Th>
+                <Th>Level</Th>
                 <Th>Groups</Th>
                 <Th>Models</Th>
                 <Th>Limits</Th>
@@ -198,17 +198,17 @@ const Tiers: React.FunctionComponent = () => {
                       )}
                     </div>
                   </Td>
-                  <Td dataLabel="Level">
-                    <Badge id={`tier-level-${tier.id}`} isRead>
-                      L{tier.level}
-                    </Badge>
-                  </Td>
                   <Td dataLabel="Status">
                     <Badge 
                       id={`tier-status-${tier.id}`}
                       isRead={tier.status === 'Inactive'}
                     >
                       {tier.status}
+                    </Badge>
+                  </Td>
+                  <Td dataLabel="Level">
+                    <Badge id={`tier-level-${tier.id}`} isRead>
+                      L{tier.level}
                     </Badge>
                   </Td>
                   <Td dataLabel="Groups">
