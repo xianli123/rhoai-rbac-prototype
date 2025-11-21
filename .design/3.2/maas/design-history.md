@@ -1,6 +1,8 @@
 # Design History
 
-This file contains information that will be used to populate the History tab of Apollo and provided as context to the AI Assistant to answer questions.
+This file contains information that will be summarized in Apollo's History tab and available to the AI Assistant to answer questions about the history of this design.
+
+In the future an AI workflow should automatically suggest updates to this file based on recent commits, relevant discussions in stakeholder meeting transcripts, and more.
 
 ## History
 

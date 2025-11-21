@@ -39,15 +39,15 @@ source: https://docs.google.com/document/d/1JhZ7jcBJH71nzvYWYCHk_EXEtxMFKkSyvkbl
 - title: Refinement - RHOAISTRAT-639
 - description: contains a bunch of details for what's in and out of scope for 3.0, some of which is likely 3.2/3.3
 - description: Contains PM's source of truth for MaaS roadmap items, requirements, and more.
-source: https://docs.google.com/document/d/12oZzzPyfrxiajvgfUsc4xPMwZFckGwC9Qqoi7u4DKK8/edit?tab=t.0#heading=h.djbgpzpj5t69
+source: https://docs.google.com/document/d/12oZzzPyfrxiajvgfUsc4xPMwZFckGwC9Qqoi7u4DKK8/edit
 - title: Notes - llm-d in RHOAI model deployment wizard
-source: https://docs.google.com/document/d/1ZZiSG58daRtUGcsofDU-Q5n8c-FzqxUXVx05Sil3p5M/edit?tab=t.0
+source: https://docs.google.com/document/d/1ZZiSG58daRtUGcsofDU-Q5n8c-FzqxUXVx05Sil3p5M/edit
 - title: MaaS Stakeholders Sync
 - description: Contains notes from our weekly MaaS Stakeholder meeting
-source: https://docs.google.com/document/d/1iXOtTwmXhm582L3nYpFdaMXyZN8EEL_xMmCcgwpkGxk/edit?tab=t.0
+source: https://docs.google.com/document/d/1iXOtTwmXhm582L3nYpFdaMXyZN8EEL_xMmCcgwpkGxk/edit
 - title: PRD Gen AI Studio - API Key UI
 - description: Includes problem statement, user narrative, and an outline of features for the API Key area of the UI
-source: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGOEtVwjBw/edit?tab=t.0
+source: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGOEtVwjBw/edit
 - title: UXD MaaS Orientation doc
 - description: A UXD-oriented intruction to MaaS, likely to be deprecated by AI in the future with continuosly-updated information
 
