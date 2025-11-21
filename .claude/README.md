@@ -10,7 +10,8 @@ This folder contains custom commands that make it easier to work with Claude in 
 ├── README.md                     # This file
 ├── workflows/                    # How Claude understands the design process
 │   ├── primary-workflow.md       # Main prototyping workflow
-│   └── design-guidelines.md      # PatternFly & accessibility standards
+│   ├── design-guidelines.md      # PatternFly & accessibility standards
+│   └── event-tracking-guide.md   # Event tracking planning guide
 └── commands/                          # Custom commands you can use
     ├── review-design.md               # Get comprehensive design feedback
     └── check-patternfly-compliance.md # Verify PatternFly usage
@@ -28,11 +29,33 @@ You're a designer. Claude is your implementation partner. You describe what you 
 
 Claude will translate your design intent into working code.
 
-## 🛠️ Two Useful Commands
+## 🛠️ Workflows and Commands
+
+### Workflows
+
+#### Event Tracking Guide (`@workflows/event-tracking-guide.md`)
+Get guided help planning event tracking for your designs. This workflow walks you through identifying what user interactions to track, defining events, and preparing handoff documentation.
+
+**When to use**: When your PM has confirmed that analytics are important for a feature and you're ready to plan event tracking.
+
+**Example**:
+```
+@workflows/event-tracking-guide.md
+```
+
+**What you'll get**: 
+- Step-by-step guidance through the event tracking process
+- Help identifying valuable events to track
+- Properly formatted event definitions (trigger, name, description, properties)
+- Documentation ready for handoff to engineering
+
+---
+
+### Commands
 
 When you need more than just implementing a change, use these commands to get design feedback:
 
-### 1. Review Design (`@review-design.md`)
+#### 1. Review Design (`@review-design.md`)
 Get a comprehensive design critique covering usability, visual design, accessibility, and PatternFly compliance.
 
 **When to use**: Before sharing a prototype, or when you want a fresh perspective on your design.
@@ -46,7 +69,7 @@ Get a comprehensive design critique covering usability, visual design, accessibi
 
 ---
 
-### 2. Check PatternFly Compliance (`@check-patternfly-compliance.md`)
+#### 2. Check PatternFly Compliance (`@check-patternfly-compliance.md`)
 Verify that a page follows the PatternFly design system correctly.
 
 **When to use**: When you want to make sure your design is consistent with PatternFly standards.
@@ -83,14 +106,16 @@ Just describe what you want in natural language:
 
 Claude will implement the changes directly. No need to use commands for this—just chat naturally.
 
-### For Design Reviews
+### For Design Reviews and Planning
 
-Use the commands above when you want structured feedback:
+Use the commands and workflows when you want structured feedback or guided assistance:
 
 ```
 @review-design.md src/app/Dashboard/Dashboard.tsx
 
 @check-patternfly-compliance.md src/app/GenAIStudio/AgentBuilder/
+
+@workflows/event-tracking-guide.md
 ```
 
 ## 📝 Design Language
@@ -135,6 +160,7 @@ This is a working UI prototype for Red Hat OpenShift AI, built with PatternFly (
 1. **Make design changes**: Just describe what you want in natural language
 2. **Get feedback**: Use `@review-design.md` when you want a design critique
 3. **Verify consistency**: Use `@check-patternfly-compliance.md` to ensure PatternFly compliance
+4. **Plan event tracking**: Use `@workflows/event-tracking-guide.md` for guided help with analytics planning
 
 ## 💡 Tips
 

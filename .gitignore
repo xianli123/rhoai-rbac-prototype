@@ -8,5 +8,10 @@ storybook-static
 .DS_Store
 .idea
 .env
+.env.local
 .history
 .vscode
+
+# MCP configuration with sensitive data
+# (keep .cursormcp.example in git as a template)
+.cursormcp.local
