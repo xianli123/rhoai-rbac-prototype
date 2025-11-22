@@ -11,7 +11,8 @@ This folder contains custom commands that make it easier to work with Claude in 
 ├── workflows/                    # How Claude understands the design process
 │   ├── primary-workflow.md       # Main prototyping workflow
 │   ├── design-guidelines.md      # PatternFly & accessibility standards
-│   └── event-tracking-guide.md   # Event tracking planning guide
+│   ├── event-tracking-guide.md   # Event tracking planning guide
+│   └── create-team-report.md     # Generate daily Slack discussion summaries
 └── commands/                          # Custom commands you can use
     ├── review-design.md               # Get comprehensive design feedback
     └── check-patternfly-compliance.md # Verify PatternFly usage
@@ -48,6 +49,34 @@ Get guided help planning event tracking for your designs. This workflow walks yo
 - Help identifying valuable events to track
 - Properly formatted event definitions (trigger, name, description, properties)
 - Documentation ready for handoff to engineering
+
+---
+
+#### Create Team Report (`@workflows/create-team-report.md`)
+Generate weekly summary reports of team discussions from your Slack channels. This creates organized markdown files with concise summaries of conversations, decisions, and action items.
+
+**When to use**: 
+- End of week to create weekly digests
+- After being away to catch up on discussions
+- To create historical records of design decisions
+
+**Example**:
+```
+@workflows/create-team-report.md
+```
+
+Or for a specific time period:
+```
+@workflows/create-team-report.md for the week of January 27-31, 2025
+```
+
+**What you'll get**: 
+- Weekly summary files (format: `2025-01-31.md`) in `.design/team/reports/`
+- Organized summaries by Slack channel
+- Key discussions, decisions, and action items highlighted across the week
+- An index file listing all generated reports
+
+**Channels monitored**: Automatically reads channel list from `.design/team/team-context-sources.md`
 
 ---
 
@@ -161,6 +190,7 @@ This is a working UI prototype for Red Hat OpenShift AI, built with PatternFly (
 2. **Get feedback**: Use `@review-design.md` when you want a design critique
 3. **Verify consistency**: Use `@check-patternfly-compliance.md` to ensure PatternFly compliance
 4. **Plan event tracking**: Use `@workflows/event-tracking-guide.md` for guided help with analytics planning
+5. **Generate team summaries**: Use `@workflows/create-team-report.md` to create weekly digests of Slack discussions
 
 ## 💡 Tips
 
