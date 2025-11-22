@@ -4,17 +4,17 @@ The sources below contain information about MaaS that are useful on an ongoing b
 
 NOTE: in the future we likely need to automatically grab the creation date and date last modified of each document/source, since the information in older docs is less relevant than newer ones. Need to figure out a good way of tracking this and gradually de-emphasizing older docs to the AI model.
 
-### Notebooks
+## Notebooks
 
 source: https://notebooklm.google.com/notebook/7c5d493a-85b8-438d-b1d9-aeab507c63a7
 - description: UXD Orientation NotebookLM for Models-as-a-Service (MaaS)
 
-### Miro
+## Miro
 
 source: https://miro.com/app/board/uXjVIgQDVWw=/
 - description: Journey map of the MaaS end user experience, from 3.0 to 3.2/3.3
 
-### Slack
+## Slack
 
 source: https://redhat.enterprise.slack.com/archives/C091QD3C3QT
 - name: #maas-update Slack channel
@@ -23,7 +23,7 @@ source: https://redhat.enterprise.slack.com/archives/C094HF5KD6E
 - name: #wg-maas Slack channel
 - description: Channel for the team developing MaaS for RHAI
 
-### Docs
+## Docs
 
 source: https://docs.google.com/document/d/142X3mx_SIdSWMvgf3ppSW83J__ZtQ4EDmOiF0IKZYJc/edit?pli=1&tab=t.grnrd6dljv81
 - title: Models-as-a-Service Worksheet North Star
@@ -51,7 +51,7 @@ source: https://docs.google.com/document/d/10IIWRpETdRIDzQiPIvHSzCBj3bwq02fE0mGO
 - title: UXD MaaS Orientation doc
 - description: A UXD-oriented intruction to MaaS, likely to be deprecated by AI in the future with continuosly-updated information
 
-### Decks
+## Decks
 
 source: https://docs.google.com/presentation/d/1ORtU9uYWKxlOngo1Xj7atkLPYdUMUTZrua5v0OOtdOY/edit?slide=id.g2e86baf0a21_0_0#slide=id.g2e86baf0a21_0_0
 - title: RHAI MaaS Master Deck
@@ -62,7 +62,7 @@ source: https://docs.google.com/presentation/d/1ms_my1WI4l_-zBe6wBCAoeUA2dNnQAVi
 - date: 2025-09-03
 - description: Summary of Dev Preview strategy and plan for MaaS in RHOAI, confirms that group filtering of models is a thing for the future and by default we can list models to everyone
 
-### Repositories
+## Repositories
 
 source: https://github.com/opendatahub-io/maas-billing
 - title: ODH - Models as a Service with Policy Management
@@ -70,7 +70,7 @@ source: https://github.com/opendatahub-io/maas-billing
 source: https://github.com/rh-aiservices-bu/litemaas
 - description Repository for LiteMaaS, helpful as a reference implementation of MaaS functionality, created by the CAI team
 
-### Jira
+## Jira
 
 source: https://issues.redhat.com/browse/RHAIRFE-737
 - title: Add MaaS quotas/info to AI Asset Endpoints Page
@@ -102,7 +102,7 @@ source: https://issues.redhat.com/browse/RHAIRFE-137
 - title: Basic Chargeback & Showback ($$$) Reporting for MaaS
 - description: Not in scope for 3.0, but possibly 3.2 or 3.3
 
-### Other
+## Other
 
 source: https://www.redhat.com/rhdc/managed-files/ma-models-as-a-service-overview-2669809OM-202509-en.pdf
 - description: Introductory guide to Models-as-a-Service, customer-facing
