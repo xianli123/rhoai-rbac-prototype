@@ -95,6 +95,7 @@ export interface IAppRoute {
   icon?: React.ComponentType;
   featureFlag?: keyof import('@app/utils/FeatureFlagsContext').FeatureFlags;
   tbd?: boolean; // Indicates the feature might not be included in upcoming releases
+  new?: boolean; // Indicates a new feature being introduced
 }
 
 export interface IAppRouteGroup {
@@ -205,7 +206,7 @@ const routes: AppRouteConfig[] = [
         label: 'API keys',
         path: '/gen-ai-studio/api-keys',
         title: 'RHOAI 3.1 Console | Gen AI Studio - API Keys',
-        tbd: true,
+        new: true,
       },
       {
         element: <APIKeyDetails />,
@@ -471,6 +472,7 @@ const routes: AppRouteConfig[] = [
         label: 'Tiers',
         path: '/settings/tiers',
         title: 'RHOAI 3.1 Console | Settings - Tiers',
+        new: true,
       },
       {
         element: <Policies />,

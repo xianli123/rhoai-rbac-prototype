@@ -299,6 +299,23 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                 </Badge>
               </Tooltip>
             )}
+            {(route as any).new && (
+              <Tooltip 
+                content="This page will be available in 3.2/3.3 with further improvements planned in 3.x."
+                position="right"
+              >
+                <Badge 
+                  style={{ 
+                    backgroundColor: '#f0ab00',
+                    color: '#151515',
+                    fontSize: '10px'
+                  }}
+                  id={`${itemId}-new-badge`}
+                >
+                  New
+                </Badge>
+              </Tooltip>
+            )}
           </NavLink>
         )}
       </NavItem>
