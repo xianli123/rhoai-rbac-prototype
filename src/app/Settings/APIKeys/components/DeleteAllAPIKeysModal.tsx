@@ -25,99 +25,99 @@ const DeleteAllAPIKeysModal: React.FunctionComponent<DeleteAllAPIKeysModalProps>
   onDelete,
   keyCount,
 }) => {
-  const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [revokeConfirmation, setRevokeConfirmation] = React.useState('');
+  const [isRevoking, setIsRevoking] = React.useState(false);
 
-  const isDeleteEnabled = deleteConfirmation === 'delete';
+  const isRevokeEnabled = revokeConfirmation === 'revoke';
 
   React.useEffect(() => {
     if (!isOpen) {
-      setDeleteConfirmation('');
-      setIsDeleting(false);
+      setRevokeConfirmation('');
+      setIsRevoking(false);
     }
   }, [isOpen]);
 
-  const handleDeleteConfirm = () => {
-    if (!isDeleteEnabled) return;
+  const handleRevokeConfirm = () => {
+    if (!isRevokeEnabled) return;
 
-    setIsDeleting(true);
+    setIsRevoking(true);
     
-    // Simulate deletion delay
+    // Simulate revocation delay
     setTimeout(() => {
       onDelete();
-      setIsDeleting(false);
+      setIsRevoking(false);
       onClose();
     }, 1000);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && isDeleteEnabled) {
-      handleDeleteConfirm();
+    if (event.key === 'Enter' && isRevokeEnabled) {
+      handleRevokeConfirm();
     }
   };
 
   return (
     <Modal
-      id="delete-all-api-keys-modal"
+      id="revoke-all-api-keys-modal"
       variant={ModalVariant.small}
       isOpen={isOpen}
       onClose={onClose}
-      aria-labelledby="delete-all-api-keys-modal-title"
-      aria-describedby="delete-all-api-keys-modal-description"
+      aria-labelledby="revoke-all-api-keys-modal-title"
+      aria-describedby="revoke-all-api-keys-modal-description"
     >
       <ModalHeader
-        title="Delete all API keys?"
-        labelId="delete-all-api-keys-modal-title"
+        title="Revoke all API keys?"
+        labelId="revoke-all-api-keys-modal-title"
       />
-      <ModalBody id="delete-all-api-keys-modal-description">
+      <ModalBody id="revoke-all-api-keys-modal-description">
         <Alert
-          id="delete-all-api-keys-alert"
+          id="revoke-all-api-keys-alert"
           variant="danger"
           title="This action cannot be undone"
           isInline
           style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
         >
-          Deleting all API keys will immediately revoke endpoint access to any applications currently using them.
-          This will delete {keyCount} {keyCount === 1 ? 'key' : 'keys'}.
+          Revoking all API keys will immediately remove endpoint access to any applications currently using them.
+          This will revoke {keyCount} {keyCount === 1 ? 'key' : 'keys'}.
         </Alert>
         
         <p style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-          To confirm deletion, type <strong>delete</strong> below:
+          To confirm revocation, type <strong>revoke</strong> below:
         </p>
         
         <Form>
           <FormGroup 
             label="Confirmation" 
             isRequired 
-            fieldId="delete-all-confirmation-input"
+            fieldId="revoke-all-confirmation-input"
           >
             <TextInput
-              id="delete-all-confirmation-input"
-              value={deleteConfirmation}
-              onChange={(_event, value) => setDeleteConfirmation(value)}
+              id="revoke-all-confirmation-input"
+              value={revokeConfirmation}
+              onChange={(_event, value) => setRevokeConfirmation(value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type 'delete' to confirm"
-              isDisabled={isDeleting}
-              aria-label="Type 'delete' to confirm deletion of all API keys"
+              placeholder="Type 'revoke' to confirm"
+              isDisabled={isRevoking}
+              aria-label="Type 'revoke' to confirm revocation of all API keys"
             />
           </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>
         <Button
-          id="confirm-delete-all-button"
+          id="confirm-revoke-all-button"
           variant="danger"
-          onClick={handleDeleteConfirm}
-          isDisabled={!isDeleteEnabled}
-          isLoading={isDeleting}
+          onClick={handleRevokeConfirm}
+          isDisabled={!isRevokeEnabled}
+          isLoading={isRevoking}
         >
-          {isDeleting ? 'Deleting...' : 'Delete keys'}
+          {isRevoking ? 'Revoking...' : 'Revoke keys'}
         </Button>
         <Button
-          id="cancel-delete-all-button"
+          id="cancel-revoke-all-button"
           variant="link"
           onClick={onClose}
-          isDisabled={isDeleting}
+          isDisabled={isRevoking}
         >
           Cancel
         </Button>

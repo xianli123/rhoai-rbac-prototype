@@ -181,14 +181,14 @@ const APIKeys: React.FunctionComponent = () => {
           >
             <DropdownList>
               <DropdownItem
-                id="delete-all-keys-action"
-                key="delete-all"
+                id="revoke-all-keys-action"
+                key="revoke-all"
                 onClick={() => {
                   setIsActionsDropdownOpen(false);
                   setIsDeleteAllModalOpen(true);
                 }}
               >
-                Delete all API keys
+                Revoke all API keys
               </DropdownItem>
             </DropdownList>
           </Dropdown>
