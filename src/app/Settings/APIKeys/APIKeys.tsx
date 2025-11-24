@@ -17,6 +17,7 @@ import {
   Dropdown,
   DropdownList,
   DropdownItem,
+  MenuToggleElement,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -25,10 +26,8 @@ import {
   Tr,
   Th,
   Td,
-  ActionsColumn,
-  IAction,
 } from '@patternfly/react-table';
-import { PlusIcon } from '@patternfly/react-icons';
+import { PlusIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { mockAPIKeys, getModelById } from './mockData';
 import { APIKey, APIKeyStatus } from './types';
 import { CreateAPIKeyModal, DeleteAPIKeyModal, DeleteAllAPIKeysModal } from './components';
@@ -40,6 +39,7 @@ const APIKeys: React.FunctionComponent = () => {
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = React.useState(false);
   const [isActionsDropdownOpen, setIsActionsDropdownOpen] = React.useState(false);
   const [selectedAPIKey, setSelectedAPIKey] = React.useState<APIKey | null>(null);
+  const [openKebabMenus, setOpenKebabMenus] = React.useState<Set<string>>(new Set());
 
   const formatAPIKey = (apiKey: string): string => {
     return apiKey.substring(0, 9) + '...';
@@ -64,7 +64,7 @@ const APIKeys: React.FunctionComponent = () => {
   };
 
   const getOwnerDisplay = (owner: APIKey['owner']): string => {
-    return `${owner.name} (${owner.type})`;
+    return owner.name;
   };
 
   const getStatusLabel = (status: APIKeyStatus) => {
@@ -97,17 +97,12 @@ const APIKeys: React.FunctionComponent = () => {
     return <Label id={`status-${status.toLowerCase()}`} color={color}>{label}</Label>;
   };
 
-  const formatLastUsed = (date?: Date): string => {
-    if (!date) return 'Never';
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return `${diffDays} days ago`;
+  const formatCreationDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   const formatExpirationDate = (date?: Date): string => {
@@ -147,21 +142,16 @@ const APIKeys: React.FunctionComponent = () => {
     setIsCreateModalOpen(true);
   };
 
-  const rowActions = (apiKey: APIKey): IAction[] => {
-    return [
-      {
-        title: 'View details',
-        onClick: () => handleViewDetails(apiKey),
-      },
-      {
-        title: apiKey.status === 'Active' ? 'Disable API key' : 'Enable API key',
-        onClick: () => handleToggleAPIKeyStatus(apiKey),
-      },
-      {
-        title: 'Delete API key',
-        onClick: () => handleDeleteAPIKey(apiKey),
-      },
-    ];
+  const toggleKebabMenu = (apiKeyId: string) => {
+    setOpenKebabMenus((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(apiKeyId)) {
+        newSet.delete(apiKeyId);
+      } else {
+        newSet.add(apiKeyId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -227,10 +217,8 @@ const APIKeys: React.FunctionComponent = () => {
               <Tr>
                 <Th>Name</Th>
                 <Th>Status</Th>
-                <Th>API Key</Th>
-                <Th>Assets</Th>
                 <Th>Owner</Th>
-                <Th>Last used</Th>
+                <Th>Creation date</Th>
                 <Th>Expiration date</Th>
                 <Th></Th>
               </Tr>
@@ -239,44 +227,78 @@ const APIKeys: React.FunctionComponent = () => {
               {mockAPIKeys.map((apiKey) => (
                 <Tr key={apiKey.id}>
                   <Td dataLabel="Name">
-                    <div>
-                      <Button
-                        variant="link"
-                        isInline
-                        id={`api-key-name-${apiKey.id}`}
-                        onClick={() => handleViewDetails(apiKey)}
-                      >
-                        {apiKey.name}
-                      </Button>
-                      {apiKey.description && (
-                        <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                          {apiKey.description}
-                        </div>
-                      )}
-                    </div>
+                    <Button
+                      variant="link"
+                      isInline
+                      id={`api-key-name-${apiKey.id}`}
+                      onClick={() => handleViewDetails(apiKey)}
+                    >
+                      {apiKey.name}
+                    </Button>
                   </Td>
                   <Td dataLabel="Status">
                     {getStatusLabel(apiKey.status)}
                   </Td>
-                  <Td dataLabel="API Key">
-                    <code>{formatAPIKey(apiKey.apiKey)}</code>
-                  </Td>
-                  <Td dataLabel="Assets">
-                    {getAssetsSummary(apiKey)}
-                  </Td>
                   <Td dataLabel="Owner">
                     {getOwnerDisplay(apiKey.owner)}
                   </Td>
-                  <Td dataLabel="Last used">
-                    {formatLastUsed(apiKey.dateLastUsed)}
+                  <Td dataLabel="Creation date">
+                    {formatCreationDate(apiKey.dateCreated)}
                   </Td>
                   <Td dataLabel="Expiration date">
                     {formatExpirationDate(apiKey.limits?.expirationDate)}
                   </Td>
-                  <Td isActionCell>
-                    <ActionsColumn
-                      items={rowActions(apiKey)}
-                    />
+                  <Td isActionCell style={{ textAlign: 'right', width: '60px' }}>
+                    <Dropdown
+                      isOpen={openKebabMenus.has(apiKey.id)}
+                      onOpenChange={(isOpen) => {
+                        if (!isOpen) {
+                          setOpenKebabMenus((prev) => {
+                            const newSet = new Set(prev);
+                            newSet.delete(apiKey.id);
+                            return newSet;
+                          });
+                        }
+                      }}
+                      popperProps={{ position: 'right' }}
+                      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                        <MenuToggle
+                          ref={toggleRef}
+                          onClick={() => toggleKebabMenu(apiKey.id)}
+                          variant="plain"
+                          aria-label={`Actions for ${apiKey.name}`}
+                          isExpanded={openKebabMenus.has(apiKey.id)}
+                        >
+                          <EllipsisVIcon />
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList>
+                        <DropdownItem
+                          key="view-details"
+                          onClick={() => {
+                            handleViewDetails(apiKey);
+                            toggleKebabMenu(apiKey.id);
+                          }}
+                        >
+                          View details
+                        </DropdownItem>
+                        <DropdownItem
+                          key="toggle-status"
+                          isAriaDisabled
+                          tooltipProps={{ content: 'Not available in 3.2/3.3', position: 'top' }}
+                        >
+                          {apiKey.status === 'Active' ? 'Disable API key' : 'Enable API key'}
+                        </DropdownItem>
+                        <DropdownItem
+                          key="delete"
+                          isAriaDisabled
+                          tooltipProps={{ content: 'Not available in 3.2/3.3', position: 'top' }}
+                        >
+                          Delete API key
+                        </DropdownItem>
+                      </DropdownList>
+                    </Dropdown>
                   </Td>
                 </Tr>
               ))}

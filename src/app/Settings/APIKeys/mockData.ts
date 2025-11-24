@@ -23,11 +23,11 @@ export const mockPolicies: Policy[] = [
 export const mockAPIKeys: APIKey[] = [
   {
     id: 'key-0',
-    name: 'Personal Key',
-    description: 'Personal API key for individual development and testing',
+    name: 'personal-key',
+    description: '',
     apiKey: 'sk-personal0123456789abcdefghijklmn',
     status: 'Active',
-    owner: { type: 'User', name: 'jane.smith' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-10-01T08:00:00Z'),
     dateLastUsed: new Date('2025-10-14T09:15:00Z'),
     limits: {
@@ -42,11 +42,11 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-1',
-    name: 'Development Team Key',
-    description: 'Main API key for the development team to access models and tools',
+    name: 'development-team-key',
+    description: '',
     apiKey: 'sk-1234567890abcdef1234567890abcdef',
     status: 'Active',
-    owner: { type: 'Group', name: 'dev-team' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-10-12T10:30:00Z'),
     dateLastUsed: new Date('2025-10-12T10:30:00Z'),
     limits: {
@@ -61,11 +61,11 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-2',
-    name: 'Production Workload Key',
-    description: 'High-throughput key for production applications',
+    name: 'production-workload-key',
+    description: '',
     apiKey: 'sk-abcdef1234567890abcdef1234567890',
     status: 'Active',
-    owner: { type: 'Service Account', name: 'prod-service-account' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-10-12T10:30:00Z'),
     dateLastUsed: new Date('2025-10-12T10:30:00Z'),
     limits: {
@@ -80,11 +80,11 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-3',
-    name: 'Research Project Key',
-    description: 'API key for ML research experiments',
+    name: 'research-project-key',
+    description: '',
     apiKey: 'sk-fedcba0987654321fedcba0987654321',
     status: 'Disabled',
-    owner: { type: 'User', name: 'john.doe' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-10-12T10:30:00Z'),
     dateLastUsed: new Date('2025-10-12T10:30:00Z'),
     limits: {
@@ -99,18 +99,18 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-4',
-    name: 'Legacy Integration Key',
-    description: 'Expired API key from previous integration project',
+    name: 'legacy-integration-key',
+    description: '',
     apiKey: 'sk-expired123456789abcdefghijklmno',
     status: 'Expired',
-    owner: { type: 'Service Account', name: 'legacy-service-account' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2024-08-10T10:00:00Z'),
     dateLastUsed: new Date('2025-01-15T08:45:00Z'),
     limits: {
       tokenRateLimit: 15000,
       requestRateLimit: 300,
       budgetLimit: 150,
-      expirationDate: new Date('2025-02-10T10:00:00Z'),
+      expirationDate: new Date('2024-09-10T10:00:00Z'),
     },
     assets: {
       modelEndpoints: ['llama-7b'],
@@ -118,11 +118,11 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-5',
-    name: 'Playground (free)',
-    description: 'Free playground API key with access to all models',
+    name: 'playground-free',
+    description: '',
     apiKey: 'sk-playground0987654321fedcbafedcba',
     status: 'Active',
-    owner: { type: 'Group', name: 'All' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-10-10T14:00:00Z'),
     dateLastUsed: new Date(Date.now() - 30000), // 30 seconds ago
     limits: {
@@ -137,11 +137,11 @@ export const mockAPIKeys: APIKey[] = [
   },
   {
     id: 'key-6',
-    name: 'Orphaned Key',
-    description: 'API key with deleted tier association',
+    name: 'orphaned-key',
+    description: '',
     apiKey: 'sk-orphaned0987654321abcdefghijklmn',
     status: 'Inactive',
-    owner: { type: 'User', name: 'alice.johnson' },
+    owner: { type: 'User', name: 'username-here' },
     dateCreated: new Date('2025-09-15T10:00:00Z'),
     dateLastUsed: new Date('2025-10-01T14:30:00Z'),
     limits: {
