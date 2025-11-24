@@ -74,32 +74,60 @@ source: https://github.com/rh-aiservices-bu/litemaas
 
 source: https://issues.redhat.com/browse/RHAIRFE-737
 - title: Add MaaS quotas/info to AI Asset Endpoints Page
+- status: In Progress
+- last_modified: 2025-11-07T15:50:18
 source: https://issues.redhat.com/browse/RHOAIUX-1409
 - title: User Experience For MaaS Admin (Tech Preview)
+- status: In Progress
+- last_modified: 2025-11-18T23:49:47
 source: https://issues.redhat.com/browse/RHOAISTRAT-703
 - title: MaaS Offering Fast Follow
+- status: Closed
+- last_modified: 2025-11-10T04:11:47
 source: https://issues.redhat.com/browse/RHAISTRAT-174
 - title: Models-as-a-Service (MaaS) Tech Preview (Feature)
+- status: New
+- last_modified: 2025-11-23T10:15:07
 source: https://issues.redhat.com/browse/RHAIRFE-476
 - title: AI Available Assets -  Implement Quota Management and Visibility for Model Deployments
+- status: New
+- last_modified: 2025-11-17T09:25:28
 source: https://issues.redhat.com/browse/RHOAISTRAT-638
 - title: MaaS UI for Admin
+- status: Closed
+- last_modified: 2025-11-20T18:18:56
 source: https://issues.redhat.com/browse/RHOAIUX-996
 - title: User Experience For MaaS Admin
+- status: Closed
+- last_modified: 2025-11-20T18:10:29
 source: https://issues.redhat.com/browse/RHOAISTRAT-639
 - title: Initial MaaS Offering (3.0)
+- status: In Progress
+- last_modified: 2025-11-16T18:48:42
 source: https://issues.redhat.com/browse/RHAIRFE-151
 - title: AI Available Assets - LLS Deployed Models, MCP Servers (via ConfigMap) - MVP
+- status: Approved
+- last_modified: 2025-10-14T20:56:31
 source: https://issues.redhat.com/browse/RHAIRFE-608
 - title: AI Available Assets - MaaS Dev Preview Integration
+- status: Approved
+- last_modified: 2025-10-14T18:15:46
 source: https://issues.redhat.com/browse/RHAIRFE-244
 - title: API Keys UI - to enable API Endpoint consumption for Gen AI Studio components
+- status: Pending Approval
+- last_modified: 2025-11-20T16:46:48
 source: https://issues.redhat.com/browse/RHAIRFE-138
 - title: MaaS UI for Admin
+- status: Approved
+- last_modified: 2025-10-19T00:36:30
 source: https://issues.redhat.com/browse/RHOAISTRAT-650
 - title: Observability for MaaS v1.0
+- status: In Progress
+- last_modified: 2025-11-20T14:57:59
 source: https://issues.redhat.com/browse/RHAIRFE-137
 - title: Basic Chargeback & Showback ($$$) Reporting for MaaS
+- status: New
+- last_modified: 2025-10-20T16:25:50
 - description: Not in scope for 3.0, but possibly 3.2 or 3.3
 
 ## Other
