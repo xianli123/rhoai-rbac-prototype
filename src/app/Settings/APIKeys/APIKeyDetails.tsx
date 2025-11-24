@@ -14,6 +14,7 @@ import {
   Alert,
   ClipboardCopy,
   PageBreadcrumb,
+  Tooltip,
 } from '@patternfly/react-core';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 import { getAPIKeyById } from './mockData';
@@ -98,16 +99,40 @@ const APIKeyDetails: React.FunctionComponent = () => {
           <Tab eventKey="details" title={<TabTitleText>Details</TabTitleText>} aria-label="Details tab">
             <APIKeyDetailsTab apiKey={apiKey} />
           </Tab>
-          <Tab eventKey="assets" title={<TabTitleText>Assets</TabTitleText>} aria-label="Assets tab">
+          <Tab 
+            eventKey="assets" 
+            title={<TabTitleText>Assets</TabTitleText>} 
+            aria-label="Assets tab"
+            isAriaDisabled
+            tooltip={<Tooltip content="Out of scope for 3.2/3.3" />}
+          >
             <APIKeyAssetsTab apiKey={apiKey} />
           </Tab>
-          <Tab eventKey="metrics" title={<TabTitleText>Metrics</TabTitleText>} aria-label="Metrics tab">
+          <Tab 
+            eventKey="metrics" 
+            title={<TabTitleText>Metrics</TabTitleText>} 
+            aria-label="Metrics tab"
+            isAriaDisabled
+            tooltip={<Tooltip content="Out of scope for 3.2/3.3" />}
+          >
             <APIKeyMetricsTab keyId={apiKey.id} />
           </Tab>
-          <Tab eventKey="policies" title={<TabTitleText>Policies</TabTitleText>} aria-label="Policies tab">
+          <Tab 
+            eventKey="policies" 
+            title={<TabTitleText>Policies</TabTitleText>} 
+            aria-label="Policies tab"
+            isAriaDisabled
+            tooltip={<Tooltip content="Out of scope for 3.2/3.3" />}
+          >
             <APIKeyPoliciesTab keyId={apiKey.id} />
           </Tab>
-          <Tab eventKey="settings" title={<TabTitleText>Settings</TabTitleText>} aria-label="Settings tab">
+          <Tab 
+            eventKey="settings" 
+            title={<TabTitleText>Settings</TabTitleText>} 
+            aria-label="Settings tab"
+            isAriaDisabled
+            tooltip={<Tooltip content="Out of scope for 3.2/3.3" />}
+          >
             <APIKeySettingsTab apiKey={apiKey} />
           </Tab>
         </Tabs>

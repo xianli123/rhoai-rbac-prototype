@@ -2,14 +2,11 @@ import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
-  Flex,
-  FlexItem,
   PageSection,
   Content,
   ContentVariants,
-  Divider,
+  Alert,
 } from '@patternfly/react-core';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { APIKey } from '../types';
 import { DeleteAPIKeyModal } from './DeleteAPIKeyModal';
 
@@ -33,30 +30,30 @@ const APIKeySettingsTab: React.FunctionComponent<APIKeySettingsTabProps> = ({ ap
   return (
     <>
       <PageSection>
-        <Divider style={{ marginTop: '1rem', marginBottom: '2rem' }} />
-        
-        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginBottom: '1rem' }}>
-          <FlexItem>
-            <ExclamationTriangleIcon style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)' }} />
-          </FlexItem>
-          <FlexItem>
-            <Content component={ContentVariants.h2} id="danger-zone-heading">
-              Danger zone
-            </Content>
-          </FlexItem>
-        </Flex>
-        
+        <Content component={ContentVariants.h2} id="settings-heading" style={{ marginTop: '1rem' }}>
+          Settings
+        </Content>
         <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '1rem' }}>
-          Permanently delete this API key. This action cannot be undone and will immediately revoke access for any applications using this key.
+          Manage settings for this API key.
         </div>
         
-        <Button 
-          id="delete-api-key-button"
+        <Alert
+          id="danger-zone-alert"
           variant="danger"
-          onClick={handleDeleteClick}
+          isInline
+          title="Delete API key"
+          actionLinks={
+            <Button 
+              id="delete-api-key-button"
+              variant="danger"
+              onClick={handleDeleteClick}
+            >
+              Delete API key
+            </Button>
+          }
         >
-          Delete API key
-        </Button>
+          Permanently delete this API key. This action cannot be undone and will immediately revoke access for any applications using this key.
+        </Alert>
       </PageSection>
 
       <DeleteAPIKeyModal

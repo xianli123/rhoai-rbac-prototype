@@ -36,19 +36,12 @@ const APIKeyDetailsTab: React.FunctionComponent<APIKeyDetailsTabProps> = ({ apiK
   return (
     <PageSection>
       <Content component={ContentVariants.h2} id="api-key-details-heading" style={{ marginTop: '1rem' }}>
-        API key details
+        Details
       </Content>
       <DescriptionList columnModifier={{ default: '2Col' }}>
         <DescriptionListGroup>
           <DescriptionListTerm>Name</DescriptionListTerm>
           <DescriptionListDescription>{apiKey.name}</DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>Description</DescriptionListTerm>
-          <DescriptionListDescription>
-            {apiKey.description || 'No description provided'}
-          </DescriptionListDescription>
         </DescriptionListGroup>
 
         <DescriptionListGroup>
@@ -67,13 +60,6 @@ const APIKeyDetailsTab: React.FunctionComponent<APIKeyDetailsTabProps> = ({ apiK
         </DescriptionListGroup>
 
         <DescriptionListGroup>
-          <DescriptionListTerm>Owner</DescriptionListTerm>
-          <DescriptionListDescription>
-            {apiKey.owner.name} ({apiKey.owner.type})
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
           <DescriptionListTerm>Date created</DescriptionListTerm>
           <DescriptionListDescription>
             {formatDate(apiKey.dateCreated)}
@@ -81,9 +67,9 @@ const APIKeyDetailsTab: React.FunctionComponent<APIKeyDetailsTabProps> = ({ apiK
         </DescriptionListGroup>
 
         <DescriptionListGroup>
-          <DescriptionListTerm>Date last used</DescriptionListTerm>
+          <DescriptionListTerm>Owner</DescriptionListTerm>
           <DescriptionListDescription>
-            {apiKey.dateLastUsed ? formatDate(apiKey.dateLastUsed) : 'Never used'}
+            {apiKey.owner.name}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
