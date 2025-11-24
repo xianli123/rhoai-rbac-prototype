@@ -6,6 +6,15 @@ In the future an AI workflow should automatically suggest updates to this file b
 
 ## History
 
+2025-11-25
+- Made a variety of updates to the 3.2/3.3 prototype based on recent discussions about what's viable in that timeframe. API Key management is now simplified.
+
+2025-11-24
+- Title: MaaS in RHOAI Tech Preview Refinement
+- Doc: https://docs.google.com/document/d/1HOKOSg1Ueh3MiM0NtWu87LdFKWKs2h05EjZX9Z-aq7g/edit
+- We reviewed the intended scope and technical viability of MaaS-related features of the OpenShift AI Dashboard for 3.2/3.3
+- One gap identified was the ability to see which Tiers a particular model / AI asset was available through. This would likely be included in a Model Details page which is being worked on separately, likely something for 3.4
+
 2025-11-18
 - Title: MaaS Team Sync
 - [Gemini notes](https://docs.google.com/document/d/10wMJYU24BNtVZFPksrfaVpTndEGXGPbxNpaF_kPlpoU/edit)
