@@ -432,6 +432,36 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
             }} 
           />
         </Tooltip>
+        <span style={{ margin: '0 0.25rem' }}>|</span>
+        <a
+          href="https://gitlab.cee.redhat.com/uxd/prototypes/rhoai"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="repo-link"
+          style={{
+            color: 'white',
+            textDecoration: 'underline',
+            fontWeight: 600,
+            letterSpacing: '0.5px'
+          }}
+        >
+          Code
+        </a>
+        <span style={{ margin: '0 0.25rem' }}>|</span>
+        <a
+          href="https://gitlab.cee.redhat.com/uxd/prototypes/rhoai/-/commits/3.2"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="changelog-link"
+          style={{
+            color: 'white',
+            textDecoration: 'underline',
+            fontWeight: 600,
+            letterSpacing: '0.5px'
+          }}
+        >
+          Changelog
+        </a>
       </div>
       
       <Page
