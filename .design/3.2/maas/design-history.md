@@ -7,6 +7,18 @@ In the future an AI workflow should automatically suggest updates to this file b
 ## History
 
 2025-11-25
+- Met with Andrew Ballantyne and Celestine Tan to discuss some additional design updates for 3.2/3.3 based on latest understanding of what's doable in the backend
+- Added more todos for the Tiers area and API Keys cleanup
+
+maybe model deployemnts could add a thing to display/associate a tier
+Add an option to the Model Deployments wizard checkbox thing to associate a tier, might need to be ablank box and they associate the name, can do conditional dropdown oif they're an admin
+Make an Edit screen that's the same as the form
+Add delete modal to stirp part of YAM:
+Create Tier - add the ability to add multipel time windows, little plus icon pattern thing
+Get rid of theDefault Expiration in Tier Creation
+Create API Key modal may not have a Description
+
+2025-11-25
 - Made a variety of updates to the 3.2/3.3 prototype based on recent discussions about what's viable in that timeframe. API Key management is now simplified.
 
 2025-11-24
