@@ -7,19 +7,13 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageBreadcrumb,
-  ToggleGroup,
-  ToggleGroupItem,
 } from '@patternfly/react-core';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 import { TierForm } from './components/TierForm';
-import { TierYAMLEditor } from './components/TierYAMLEditor';
 import { CreateTierForm } from './types';
-
-type ViewMode = 'form' | 'yaml';
 
 const CreateTier: React.FunctionComponent = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = React.useState<ViewMode>('form');
   const [formData, setFormData] = React.useState<CreateTierForm>({
     name: '',
     description: '',
@@ -70,38 +64,12 @@ const CreateTier: React.FunctionComponent = () => {
           Create a new tier to control which models users can access based on their group membership.
         </Content>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <ToggleGroup aria-label="View mode">
-            <ToggleGroupItem
-              text="Form"
-              buttonId="view-mode-form"
-              isSelected={viewMode === 'form'}
-              onChange={() => setViewMode('form')}
-            />
-            <ToggleGroupItem
-              text="YAML"
-              buttonId="view-mode-yaml"
-              isSelected={viewMode === 'yaml'}
-              onChange={() => setViewMode('yaml')}
-            />
-          </ToggleGroup>
-        </div>
-
-        {viewMode === 'form' ? (
-          <TierForm
-            formData={formData}
-            onChange={handleFormDataChange}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-          />
-        ) : (
-          <TierYAMLEditor
-            formData={formData}
-            onChange={handleFormDataChange}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-          />
-        )}
+        <TierForm
+          formData={formData}
+          onChange={handleFormDataChange}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       </PageSection>
     </>
   );
