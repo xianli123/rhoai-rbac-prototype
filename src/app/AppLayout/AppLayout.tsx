@@ -49,19 +49,38 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const { flags } = useFeatureFlags();
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Fidelity switcher state
   const [fidelitySelectOpen, setFidelitySelectOpen] = React.useState(false);
-  const [fidelity, setFidelity] = React.useState<'high' | 'low'>('high');
+  const [fidelity, setFidelity] = React.useState<'high' | 'low'>(() => {
+    // Initialize from URL query parameter if present
+    const params = new URLSearchParams(location.search);
+    return params.get('fidelity') === 'low' ? 'low' : 'high';
+  });
 
-  // Effect to toggle fidelity class on body
+  // Effect to toggle fidelity class on body and update URL
   React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const currentFidelityParam = params.get('fidelity');
+    
     if (fidelity === 'low') {
       document.body.classList.add('fidelity-low');
+      // Add query parameter to URL if not already present
+      if (currentFidelityParam !== 'low') {
+        params.set('fidelity', 'low');
+        navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+      }
     } else {
       document.body.classList.remove('fidelity-low');
+      // Remove query parameter from URL if present
+      if (currentFidelityParam !== null) {
+        params.delete('fidelity');
+        const newSearch = params.toString();
+        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+      }
     }
-  }, [fidelity]);
+  }, [fidelity, location.pathname, location.search, navigate]);
   
   // Clear local storage handler
   const handleClearLocalStorage = () => {
