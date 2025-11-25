@@ -597,82 +597,86 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
             </>
           )}
 
-          <FormGroup 
-            label="Availability" 
-            fieldId="add-asset-access-control-type-select"
-            isRequired
-          >
-            <Select
-              id="add-asset-access-control-type-select"
-              isOpen={isAccessControlTypeOpen}
-              selected={accessControlType}
-              onSelect={(_event, value) => handleAccessControlTypeChange(value as AccessControlType)}
-              onOpenChange={setIsAccessControlTypeOpen}
-              toggle={(toggleRef) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={() => setIsAccessControlTypeOpen(!isAccessControlTypeOpen)}
-                  isExpanded={isAccessControlTypeOpen}
-                  style={{ width: '100%' }}
-                  id="add-asset-access-control-type-toggle"
-                >
-                  {accessControlType}
-                </MenuToggle>
-              )}
-            >
-              <SelectList>
-                <SelectOption value="All users" id="access-control-all-users">
-                  All users
-                </SelectOption>
-                <SelectOption value="User" id="access-control-user">
-                  User
-                </SelectOption>
-                <SelectOption value="Group" id="access-control-group">
-                  Group
-                </SelectOption>
-                <SelectOption value="Service Account" id="access-control-service-account">
-                  Service Account
-                </SelectOption>
-              </SelectList>
-            </Select>
-          </FormGroup>
-
-          {accessControlType !== 'All users' && (
-            <FormGroup 
-              label={accessControlType === 'User' ? 'Username' : accessControlType === 'Group' ? 'Group name' : 'Service account name'}
-              fieldId="add-asset-access-control-name-select"
-              isRequired
-            >
-              <Select
-                id="add-asset-access-control-name-select"
-                isOpen={isAccessControlNameOpen}
-                selected={accessControlName}
-                onSelect={(_event, value) => {
-                  setAccessControlName(value as string);
-                  setIsAccessControlNameOpen(false);
-                }}
-                onOpenChange={setIsAccessControlNameOpen}
-                toggle={(toggleRef) => (
-                  <MenuToggle
-                    ref={toggleRef}
-                    onClick={() => setIsAccessControlNameOpen(!isAccessControlNameOpen)}
-                    isExpanded={isAccessControlNameOpen}
-                    style={{ width: '100%' }}
-                    id="add-asset-access-control-name-toggle"
-                  >
-                    {accessControlName || `Select ${accessControlType === 'User' ? 'user' : accessControlType === 'Group' ? 'group' : 'service account'}`}
-                  </MenuToggle>
-                )}
+          {((assetType === 'Model' && modelLocation !== '') || (assetType === 'MCP Server' && mcpServer !== '')) && (
+            <>
+              <FormGroup 
+                label="Availability" 
+                fieldId="add-asset-access-control-type-select"
+                isRequired
               >
-                <SelectList>
-                  {getAccessControlNames(accessControlType).map((name) => (
-                    <SelectOption key={name} value={name} id={`access-control-name-${name}`}>
-                      {name}
+                <Select
+                  id="add-asset-access-control-type-select"
+                  isOpen={isAccessControlTypeOpen}
+                  selected={accessControlType}
+                  onSelect={(_event, value) => handleAccessControlTypeChange(value as AccessControlType)}
+                  onOpenChange={setIsAccessControlTypeOpen}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsAccessControlTypeOpen(!isAccessControlTypeOpen)}
+                      isExpanded={isAccessControlTypeOpen}
+                      style={{ width: '100%' }}
+                      id="add-asset-access-control-type-toggle"
+                    >
+                      {accessControlType}
+                    </MenuToggle>
+                  )}
+                >
+                  <SelectList>
+                    <SelectOption value="All users" id="access-control-all-users">
+                      All users
                     </SelectOption>
-                  ))}
-                </SelectList>
-              </Select>
-            </FormGroup>
+                    <SelectOption value="User" id="access-control-user">
+                      User
+                    </SelectOption>
+                    <SelectOption value="Group" id="access-control-group">
+                      Group
+                    </SelectOption>
+                    <SelectOption value="Service Account" id="access-control-service-account">
+                      Service Account
+                    </SelectOption>
+                  </SelectList>
+                </Select>
+              </FormGroup>
+
+              {accessControlType !== 'All users' && (
+                <FormGroup 
+                  label={accessControlType === 'User' ? 'Username' : accessControlType === 'Group' ? 'Group name' : 'Service account name'}
+                  fieldId="add-asset-access-control-name-select"
+                  isRequired
+                >
+                  <Select
+                    id="add-asset-access-control-name-select"
+                    isOpen={isAccessControlNameOpen}
+                    selected={accessControlName}
+                    onSelect={(_event, value) => {
+                      setAccessControlName(value as string);
+                      setIsAccessControlNameOpen(false);
+                    }}
+                    onOpenChange={setIsAccessControlNameOpen}
+                    toggle={(toggleRef) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        onClick={() => setIsAccessControlNameOpen(!isAccessControlNameOpen)}
+                        isExpanded={isAccessControlNameOpen}
+                        style={{ width: '100%' }}
+                        id="add-asset-access-control-name-toggle"
+                      >
+                        {accessControlName || `Select ${accessControlType === 'User' ? 'user' : accessControlType === 'Group' ? 'group' : 'service account'}`}
+                      </MenuToggle>
+                    )}
+                  >
+                    <SelectList>
+                      {getAccessControlNames(accessControlType).map((name) => (
+                        <SelectOption key={name} value={name} id={`access-control-name-${name}`}>
+                          {name}
+                        </SelectOption>
+                      ))}
+                    </SelectList>
+                  </Select>
+                </FormGroup>
+              )}
+            </>
           )}
 
           <FormGroup 
