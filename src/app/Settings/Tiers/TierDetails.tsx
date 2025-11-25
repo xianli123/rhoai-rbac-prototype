@@ -93,11 +93,6 @@ const TierDetails: React.FunctionComponent = () => {
       {breadcrumb}
       <PageSection>
         <Content component={ContentVariants.h1}>{tier.name}</Content>
-        {tier.description && (
-          <Content component={ContentVariants.p} style={{ marginTop: '0.5rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-            {tier.description}
-          </Content>
-        )}
       </PageSection>
 
       <PageSection type="tabs">
