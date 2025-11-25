@@ -16,6 +16,7 @@ import {
   HelperTextItem,
   Label,
   MenuToggle,
+  MenuToggleElement,
   NumberInput,
   PageSection,
   PageSectionTypes,
@@ -68,6 +69,8 @@ interface WizardData {
   applyEnvVars: boolean;
   makeAvailableAsAIAsset: boolean;
   makeAvailableGlobally: boolean;
+  selectedTier: string;
+  customTierNames: string;
 }
 
 const DeployModelWizard: React.FunctionComponent = () => {
@@ -105,6 +108,8 @@ const DeployModelWizard: React.FunctionComponent = () => {
     applyEnvVars: false,
     makeAvailableAsAIAsset: false,
     makeAvailableGlobally: false,
+    selectedTier: '',
+    customTierNames: '',
   });
 
   // State for dropdowns
@@ -114,6 +119,7 @@ const DeployModelWizard: React.FunctionComponent = () => {
   const [isHardwareProfileOpen, setIsHardwareProfileOpen] = React.useState(false);
   const [isModelFormatOpen, setIsModelFormatOpen] = React.useState(false);
   const [isServingRuntimeOpen, setIsServingRuntimeOpen] = React.useState(false);
+  const [isTierSelectOpen, setIsTierSelectOpen] = React.useState(false);
 
   const updateWizardData = (updates: Partial<WizardData>) => {
     setWizardData((prev) => ({ ...prev, ...updates }));
@@ -631,8 +637,66 @@ const DeployModelWizard: React.FunctionComponent = () => {
           id="make-available-ai-asset"
           label="Make this deployment available as an AI asset"
           isChecked={wizardData.makeAvailableAsAIAsset}
-          onChange={(_event, checked) => updateWizardData({ makeAvailableAsAIAsset: checked })}
+          onChange={(_event, checked) => updateWizardData({ makeAvailableAsAIAsset: checked, selectedTier: checked ? '' : '', customTierNames: checked ? '' : '' })}
         />
+        {wizardData.makeAvailableAsAIAsset && (
+          <div style={{ marginTop: '1rem', marginLeft: '1.5rem' }}>
+            <Select
+              id="tier-select"
+              isOpen={isTierSelectOpen}
+              selected={wizardData.selectedTier}
+              onSelect={(_event, value) => {
+                updateWizardData({ selectedTier: value as string });
+                setIsTierSelectOpen(false);
+              }}
+              onOpenChange={(isOpen) => setIsTierSelectOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsTierSelectOpen(!isTierSelectOpen)}
+                  isExpanded={isTierSelectOpen}
+                  id="tier-select-toggle"
+                  style={{ width: '400px' }}
+                >
+                  {wizardData.selectedTier || 'Select a tier'}
+                </MenuToggle>
+              )}
+            >
+              <SelectList>
+                <SelectOption value="free-tier">Free Tier</SelectOption>
+                <SelectOption value="premium-tier">Premium Tier</SelectOption>
+                <SelectOption value="enterprise-tier">Enterprise Tier</SelectOption>
+                <SelectOption value="Custom...">Custom...</SelectOption>
+              </SelectList>
+            </Select>
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>
+                  The model will be made available to users who can access this tier
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+            {wizardData.selectedTier === 'Custom...' && (
+              <div style={{ marginTop: '1rem' }}>
+                <TextInput
+                  id="custom-tier-names"
+                  type="text"
+                  value={wizardData.customTierNames}
+                  onChange={(_event, value) => updateWizardData({ customTierNames: value })}
+                  placeholder="Enter tier names (comma separated)"
+                  aria-label="Custom tier names"
+                />
+                <FormHelperText>
+                  <HelperText>
+                    <HelperTextItem>
+                      Enter the exact names of the tiers (comma separated) that you would like the model to be available to
+                    </HelperTextItem>
+                  </HelperText>
+                </FormHelperText>
+              </div>
+            )}
+          </div>
+        )}
       </FormGroup>
     </Form>
   );

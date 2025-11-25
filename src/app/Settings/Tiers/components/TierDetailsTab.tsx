@@ -82,36 +82,43 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
   };
 
   const renderLimits = () => {
-    const hasLimits = tier.limits.tokenLimit || tier.limits.rateLimit;
+    const hasLimits = (tier.limits.tokenLimits && tier.limits.tokenLimits.length > 0) || 
+                      (tier.limits.rateLimits && tier.limits.rateLimits.length > 0);
     
     if (!hasLimits) {
       return <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>No limits configured</span>;
     }
 
-    const formatPeriod = (period: string): string => {
-      switch (period) {
-        case 'minute':
-          return 'min';
-        case 'hour':
-          return 'hr';
-        case 'day':
-          return 'day';
-        default:
-          return period;
-      }
+    const formatUnit = (quantity: number, unit: string): string => {
+      const unitLabel = quantity === 1 ? unit : `${unit}s`;
+      return `${quantity} ${unitLabel}`;
     };
 
     return (
       <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
-        {tier.limits.tokenLimit && (
-          <FlexItem>
-            <strong>Token limit:</strong> {tier.limits.tokenLimit.amount.toLocaleString()} tokens/{formatPeriod(tier.limits.tokenLimit.period)}
-          </FlexItem>
+        {tier.limits.tokenLimits && tier.limits.tokenLimits.length > 0 && (
+          <>
+            <FlexItem>
+              <strong>Token limits:</strong>
+            </FlexItem>
+            {tier.limits.tokenLimits.map((limit, index) => (
+              <FlexItem key={limit.id} style={{ marginLeft: '1rem' }}>
+                {limit.amount.toLocaleString()} tokens per {formatUnit(limit.quantity, limit.unit)}
+              </FlexItem>
+            ))}
+          </>
         )}
-        {tier.limits.rateLimit && (
-          <FlexItem>
-            <strong>Rate limit:</strong> {tier.limits.rateLimit.amount.toLocaleString()} requests/{formatPeriod(tier.limits.rateLimit.period)}
-          </FlexItem>
+        {tier.limits.rateLimits && tier.limits.rateLimits.length > 0 && (
+          <>
+            <FlexItem>
+              <strong>Request rate limits:</strong>
+            </FlexItem>
+            {tier.limits.rateLimits.map((limit, index) => (
+              <FlexItem key={limit.id} style={{ marginLeft: '1rem' }}>
+                {limit.amount.toLocaleString()} requests per {formatUnit(limit.quantity, limit.unit)}
+              </FlexItem>
+            ))}
+          </>
         )}
       </Flex>
     );
@@ -171,17 +178,6 @@ const TierDetailsTab: React.FunctionComponent<TierDetailsTabProps> = ({ tier }) 
           <DescriptionListTerm>Description</DescriptionListTerm>
           <DescriptionListDescription>
             {tier.description || 'No description provided'}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>Default expiration</DescriptionListTerm>
-          <DescriptionListDescription>
-            {tier.limits.apiKeyExpirationDays === 0 
-              ? 'Never expires' 
-              : tier.limits.apiKeyExpirationDays !== undefined && tier.limits.apiKeyExpirationDays < 1
-              ? `${Math.round(tier.limits.apiKeyExpirationDays * 24)} hours`
-              : `${tier.limits.apiKeyExpirationDays} days`}
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>
