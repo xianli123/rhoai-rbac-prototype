@@ -6,7 +6,18 @@ In the future an AI workflow should automatically suggest updates to this file b
 
 ## History
 
-2024-11-25
+2025-11-26
+- UX meeting between Cece and Andy to iterate on updates to the Available AI Assets screen, primarily focused on things related to API Keys and updating it to reflect the current scope of 3.2/3.3
+- TASKS:
+- [ ] In the "Add asset" modal, hide / comment out the code for the the ability to add an external model/provider (descoped from 3.2/3.3 but likely to arrive in 3.4)
+- [ ] In the "Add asset" modal, hide/comment out the "Availability" field/dropdown and replace it with the same "Tiers" field that currently lives in the "Deploy model" wizard > Advanced options > "Make this model available as an AI asset" > Tiers dropdown. Just bring over the same behavior with the list of tiers and the "Other..." option too. Maybe add a heading of "Availability" above the dropdown and help text to clarify that a Tier needs to be selected to make it available to other users.
+- [ ] In the AI Assets table > Endpoint popover, add back the ability to generate an API key within the popover. I'll include a screenshot of this for reference, but don't change the labels, just bring over the button and the loading behavior on the button and eventually showing the API key.
+- [ ] 
+- DECISIONS:
+- [ ] cc Danielle, need to determine how to handle the project selector in the AI Assets page, potentially removing the All Projects option and/or moving it entirely since the Playground button is the only thing that's project-dependant now
+
+
+2025-11-25
 - UI MaaS Kickoff meeting
 - Recording: https://drive.google.com/file/d/1ieSuDXqJctsVa635dbOvNAG6Nyo9UeeM/view
 - Chat: https://drive.google.com/file/d/1F9XEe_KbVf8lsTIX1mrzeoUz_v-cKy8D/view
