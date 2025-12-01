@@ -101,15 +101,27 @@ ENV_2=http://2.myendpoint.com
 
 With that in place, you can use the values in your code like `console.log(process.env.ENV_1);`
 
-## Research Mode
-The prototype supports a research mode that prepares it for user research sessions by hiding internal development indicators. To enable research mode, create a `.env` file in the root directory with:
+## Prototype Appearance Configuration
+The prototype supports configurable appearance settings to prepare it for different contexts (e.g., user research, demos). Create a `.env` file in the root directory with the following options:
 
 ```sh
-RESEARCH_MODE=true
+# Use generic "AI Platform" text instead of branded logo
+GENERIC_LOGO=true
+
+# Hide the orange "UXD PROTOTYPE" banner
+PROTOTYPE_BAR=false
 ```
 
-When research mode is enabled:
-- The logo changes from the branded logo to simple "AI Platform" text
-- The orange "UXD PROTOTYPE" banner at the top is completely hidden
+### Available Options:
 
-To disable research mode, set `RESEARCH_MODE=false` or remove the environment variable entirely.
+**GENERIC_LOGO**
+- `true`: Shows "AI Platform" as text (generic, unbranded)
+- `false` (default): Shows the branded product logo
+
+**PROTOTYPE_BAR**
+- `true` (default): Shows the orange "UXD PROTOTYPE" banner with fidelity controls
+- `false`: Hides the banner completely
+
+You can use these independently or together depending on your needs:
+- For user research: Set both `GENERIC_LOGO=true` and `PROTOTYPE_BAR=false`
+- For internal demos: Keep defaults or customize as needed

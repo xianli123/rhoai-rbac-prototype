@@ -51,8 +51,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Research mode - controlled by RESEARCH_MODE environment variable
-  const isResearchMode = process.env.RESEARCH_MODE === 'true';
+  // Environment variable controls for prototype appearance
+  const useGenericLogo = process.env.GENERIC_LOGO === 'true';
+  const hidePrototypeBar = process.env.PROTOTYPE_BAR === 'false';
   
   // Fidelity switcher state
   const [fidelitySelectOpen, setFidelitySelectOpen] = React.useState(false);
@@ -119,7 +120,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           />
         </MastheadToggle>
         <MastheadBrand style={{ display: 'flex', alignItems: 'center' }}>
-          {isResearchMode ? (
+          {useGenericLogo ? (
             <span style={{ 
               fontSize: '1.25rem', 
               fontWeight: 600,
@@ -462,8 +463,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       {/* Apollo Canvas Masthead */}
       {/* <ApolloCanvasMasthead /> */}
       
-      {/* UXD Prototype Banner - Hidden in research mode */}
-      {!isResearchMode && (
+      {/* UXD Prototype Banner - Controlled by PROTOTYPE_BAR environment variable */}
+      {!hidePrototypeBar && (
         <div style={{
           backgroundColor: '#FF6F00',
           color: 'white',
