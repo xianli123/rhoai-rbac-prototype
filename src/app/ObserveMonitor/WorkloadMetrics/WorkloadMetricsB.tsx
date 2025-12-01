@@ -513,138 +513,6 @@ const WorkloadMetricsB: React.FunctionComponent = () => {
           </FlexItem>
         </Flex>
 
-        {/* Attribute and Filter selector */}
-        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsMd' }} style={{ marginTop: '16px' }}>
-          <FlexItem>
-            <Select
-              id="attribute-filter-select"
-              isOpen={isAttributeSelectOpen}
-              selected={selectedAttribute}
-              onSelect={onAttributeSelect}
-              onOpenChange={setIsAttributeSelectOpen}
-              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={onAttributeToggle}
-                  isExpanded={isAttributeSelectOpen}
-                  icon={<FilterIcon />}
-                  id="attribute-filter-toggle"
-                  style={{ minWidth: '200px' }}
-                >
-                  {selectedAttribute}
-                </MenuToggle>
-              )}
-            >
-              <SelectList id="attribute-select-list">
-                {attributeOptions.map((option, index) => (
-                  <SelectOption
-                    key={option}
-                    value={option}
-                    id={`attribute-option-${index}`}
-                  >
-                    {option}
-                  </SelectOption>
-                ))}
-              </SelectList>
-            </Select>
-          </FlexItem>
-          <FlexItem>
-            <Select
-              id="filter-options-select"
-              isOpen={isFilterSelectOpen}
-              selected={currentSelectedFilters}
-              onSelect={onFilterSelect}
-              onOpenChange={setIsFilterSelectOpen}
-              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={onFilterToggle}
-                  isExpanded={isFilterSelectOpen}
-                  id="filter-options-toggle"
-                  style={{ minWidth: '300px' }}
-                >
-                  Filter by {selectedAttribute.toLowerCase()}
-                </MenuToggle>
-              )}
-            >
-              <SelectList id="filter-options-list">
-                {currentFilterOptions.map((option, index) => {
-                  const lines = option.split('\n');
-                  return (
-                    <SelectOption
-                      key={option}
-                      value={option}
-                      isSelected={currentSelectedFilters.includes(option)}
-                      id={`filter-option-${index}`}
-                    >
-                      {lines.length > 1 ? (
-                        <div>
-                          <div>{lines[0]}</div>
-                          <div style={{ fontSize: '12px', color: '#6A6E73' }}>{lines[1]}</div>
-                        </div>
-                      ) : (
-                        option
-                      )}
-                    </SelectOption>
-                  );
-                })}
-              </SelectList>
-            </Select>
-          </FlexItem>
-        </Flex>
-
-        {/* Active filters */}
-        {allActiveFilters.length > 0 && (
-          <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} style={{ marginTop: '16px' }}>
-            {selectedStatusFilters.length > 0 && (
-              <FlexItem>
-                <LabelGroup categoryName="Status" id="filter-label-group-status">
-                  {selectedStatusFilters.map((filter) => {
-                    const displayText = filter.split('\n')[0];
-                    return (
-                      <Label key={filter} onClose={() => clearFilter('Status', filter)} id={`filter-label-status-${filter}`} color="grey">
-                        {displayText}
-                      </Label>
-                    );
-                  })}
-                </LabelGroup>
-              </FlexItem>
-            )}
-            {selectedPriorityFilters.length > 0 && (
-              <FlexItem>
-                <LabelGroup categoryName="Priority" id="filter-label-group-priority">
-                  {selectedPriorityFilters.map((filter) => {
-                    const displayText = filter.split('\n')[0];
-                    return (
-                      <Label key={filter} onClose={() => clearFilter('Priority', filter)} id={`filter-label-priority-${filter}`} color="grey">
-                        {displayText}
-                      </Label>
-                    );
-                  })}
-                </LabelGroup>
-              </FlexItem>
-            )}
-            {selectedHardwareFilters.length > 0 && (
-              <FlexItem>
-                <LabelGroup categoryName="Hardware profile" id="filter-label-group-hardware">
-                  {selectedHardwareFilters.map((filter) => {
-                    const displayText = filter.split('\n')[0];
-                    return (
-                      <Label key={filter} onClose={() => clearFilter('Hardware profile', filter)} id={`filter-label-hardware-${filter}`} color="grey">
-                        {displayText}
-                      </Label>
-                    );
-                  })}
-                </LabelGroup>
-              </FlexItem>
-            )}
-            <FlexItem>
-              <Button variant="link" onClick={clearFilters} id="clear-filters-button">
-                Clear all filters
-              </Button>
-            </FlexItem>
-          </Flex>
-        )}
       </PageSection>
 
       <PageSection>
@@ -915,9 +783,85 @@ const WorkloadMetricsB: React.FunctionComponent = () => {
           style={{ backgroundColor: 'transparent' }}
         >
           <div style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-              {/* Toolbar with search and pagination */}
+              {/* Toolbar with filters, search and pagination */}
             <Toolbar id="workloads-toolbar">
-              <ToolbarContent style={{ alignItems: 'baseline' }}>
+              <ToolbarContent>
+                <ToolbarItem>
+                  <Select
+                    id="attribute-filter-select"
+                    isOpen={isAttributeSelectOpen}
+                    selected={selectedAttribute}
+                    onSelect={onAttributeSelect}
+                    onOpenChange={setIsAttributeSelectOpen}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        onClick={onAttributeToggle}
+                        isExpanded={isAttributeSelectOpen}
+                        icon={<FilterIcon />}
+                        id="attribute-filter-toggle"
+                        style={{ minWidth: '200px' }}
+                      >
+                        {selectedAttribute}
+                      </MenuToggle>
+                    )}
+                  >
+                    <SelectList id="attribute-select-list">
+                      {attributeOptions.map((option, index) => (
+                        <SelectOption
+                          key={option}
+                          value={option}
+                          id={`attribute-option-${index}`}
+                        >
+                          {option}
+                        </SelectOption>
+                      ))}
+                    </SelectList>
+                  </Select>
+                </ToolbarItem>
+                <ToolbarItem>
+                  <Select
+                    id="filter-options-select"
+                    isOpen={isFilterSelectOpen}
+                    selected={currentSelectedFilters}
+                    onSelect={onFilterSelect}
+                    onOpenChange={setIsFilterSelectOpen}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        onClick={onFilterToggle}
+                        isExpanded={isFilterSelectOpen}
+                        id="filter-options-toggle"
+                        style={{ minWidth: '300px' }}
+                      >
+                        Filter by {selectedAttribute.toLowerCase()}
+                      </MenuToggle>
+                    )}
+                  >
+                    <SelectList id="filter-options-list">
+                      {currentFilterOptions.map((option, index) => {
+                        const lines = option.split('\n');
+                        return (
+                          <SelectOption
+                            key={option}
+                            value={option}
+                            isSelected={currentSelectedFilters.includes(option)}
+                            id={`filter-option-${index}`}
+                          >
+                            {lines.length > 1 ? (
+                              <div>
+                                <div>{lines[0]}</div>
+                                <div style={{ fontSize: '12px', color: '#6A6E73' }}>{lines[1]}</div>
+                              </div>
+                            ) : (
+                              option
+                            )}
+                          </SelectOption>
+                        );
+                      })}
+                    </SelectList>
+                  </Select>
+                </ToolbarItem>
                 <ToolbarItem>
                   <TextInput
                     id="job-search-input"
@@ -929,12 +873,64 @@ const WorkloadMetricsB: React.FunctionComponent = () => {
                     customIcon={<SearchIcon />}
                   />
                 </ToolbarItem>
-                <ToolbarItem variant="pagination" align={{ default: 'alignEnd' }} style={{ alignSelf: 'center' }}>
+                <ToolbarItem variant="pagination" align={{ default: 'alignEnd' }}>
                   <span style={{ fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>
                     {filteredJobs.length > 0 ? `1 - ${filteredJobs.length} of ${filteredJobs.length}` : '0 of 0'}
                   </span>
                 </ToolbarItem>
               </ToolbarContent>
+              {/* Active filters */}
+              {allActiveFilters.length > 0 && (
+                <ToolbarContent>
+                  {selectedStatusFilters.length > 0 && (
+                    <ToolbarItem>
+                      <LabelGroup categoryName="Status" id="filter-label-group-status">
+                        {selectedStatusFilters.map((filter) => {
+                          const displayText = filter.split('\n')[0];
+                          return (
+                            <Label key={filter} onClose={() => clearFilter('Status', filter)} id={`filter-label-status-${filter}`} color="grey">
+                              {displayText}
+                            </Label>
+                          );
+                        })}
+                      </LabelGroup>
+                    </ToolbarItem>
+                  )}
+                  {selectedPriorityFilters.length > 0 && (
+                    <ToolbarItem>
+                      <LabelGroup categoryName="Priority" id="filter-label-group-priority">
+                        {selectedPriorityFilters.map((filter) => {
+                          const displayText = filter.split('\n')[0];
+                          return (
+                            <Label key={filter} onClose={() => clearFilter('Priority', filter)} id={`filter-label-priority-${filter}`} color="grey">
+                              {displayText}
+                            </Label>
+                          );
+                        })}
+                      </LabelGroup>
+                    </ToolbarItem>
+                  )}
+                  {selectedHardwareFilters.length > 0 && (
+                    <ToolbarItem>
+                      <LabelGroup categoryName="Hardware profile" id="filter-label-group-hardware">
+                        {selectedHardwareFilters.map((filter) => {
+                          const displayText = filter.split('\n')[0];
+                          return (
+                            <Label key={filter} onClose={() => clearFilter('Hardware profile', filter)} id={`filter-label-hardware-${filter}`} color="grey">
+                              {displayText}
+                            </Label>
+                          );
+                        })}
+                      </LabelGroup>
+                    </ToolbarItem>
+                  )}
+                  <ToolbarItem>
+                    <Button variant="link" onClick={clearFilters} id="clear-filters-button">
+                      Clear all filters
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarContent>
+              )}
             </Toolbar>
             <Table aria-label="Workload jobs table" variant="compact" id="jobs-table">
                 <Thead>
