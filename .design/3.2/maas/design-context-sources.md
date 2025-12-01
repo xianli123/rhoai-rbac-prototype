@@ -70,6 +70,9 @@ source: https://miro.com/app/board/uXjVJut8fcE=/
 source: https://docs.google.com/drawings/d/1z3c-8lvXUjzBTCIHLZzIN5LROKHwc9AQ6ygqqZcYMT8/edit
 - title: MaaS Tiers relationships
 - description: mid-November diagrams of how the various Tier-related APIs might relate to one another
+source: https://miro.com/app/board/uXjVJjHg2YU=/
+- title: MaaS Tech Preview Architecture
+- description: a GUI-oriented architecture map showing the various calls that the UI will need to make in order to provide the Tech Preview experience
 
 ## Repositories
 
