@@ -6,6 +6,14 @@ In the future an AI workflow should automatically suggest updates to this file b
 
 ## History
 
+2025-12-01
+- RHOAI MaaS & RHCL / MaaS API Management - Demo & Collaboration Discussion
+- Gemini notes: https://docs.google.com/document/d/1xxxa7idVjCXbxMaRhktM_apjSUIYUbnAH8goqBGtsqM/edit
+- Summary: PM initiated a discussion to align on collaboration between teams to leverage the connectivity link team's development for solving current issues. RHOAI MaaS team provided an overview of their current setup involving global policies for token verification, metadata enrichment for user tier determination, and rate limit policies using ephemeral JSON web tokens. The discussion covered their entity model centered around tiers, a UI prototype presented by Andy Braren for Open Shift AI 3.2/3.3 showing tier management via config maps, and a strategic debate regarding CRD management of `PlanPolicy`. RHCL team confirmed their plan to investigate other token issuance methods, aligning with RHOAI MaaS team's goal of integrating with IDPs. RHOAI MaaS team agreed to attend Kuadrant community meetings to expose their needs, including adding token rate-limiting policies to `PlanPolicy`.
+
+2025-12-01
+- Updated the prototype for 3.2/3.3 to re-add the Project selector on the AI Assets list page, even though it doesn't actually do anything for Models. See Slack discussion [here](https://redhat-internal.slack.com/archives/C099MEPGF43/p1764619801256859?thread_ts=1764607838.071739&cid=C099MEPGF43).
+
 2025-11-26
 - UX meeting between Cece and Andy to iterate on updates to the Available AI Assets screen, primarily focused on things related to API Keys and updating it to reflect the current scope of 3.2/3.3
 - TASKS:

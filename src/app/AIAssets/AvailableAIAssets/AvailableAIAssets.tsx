@@ -2774,15 +2774,63 @@ const AvailableAIAssets: React.FunctionComponent = () => {
         </div>
       </PageSection>
 
-      {/* Add Asset Button */}
+      {/* Project Selector and Add Asset Button */}
       <PageSection style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
-        <Button 
-          variant="primary" 
-          onClick={handleOpenAddAssetModal}
-          id="add-asset-button"
-        >
-          Add asset
-        </Button>
+        <Toolbar id="ai-asset-endpoints-toolbar">
+          <ToolbarContent>
+            {flags.showProjectWorkspaceDropdowns && (
+              <ToolbarGroup>
+                <ToolbarItem>
+                  <InputGroup>
+                    <InputGroupItem>
+                      <div className="pf-v6-c-input-group__text">
+                        <OutlinedFolderIcon /> Project
+                      </div>
+                    </InputGroupItem>
+                    <InputGroupItem>
+                      <Select
+                        id="ai-asset-endpoints-project-select"
+                        isOpen={isProjectSelectOpen}
+                        selected={selectedProject}
+                        onSelect={(_event, value) => {
+                          setSelectedProject(value as string);
+                          setIsProjectSelectOpen(false);
+                        }}
+                        onOpenChange={(isOpen) => setIsProjectSelectOpen(isOpen)}
+                        toggle={(toggleRef) => (
+                          <MenuToggle
+                            ref={toggleRef}
+                            onClick={() => setIsProjectSelectOpen(!isProjectSelectOpen)}
+                            isExpanded={isProjectSelectOpen}
+                            style={{ width: '200px' }}
+                            id="ai-asset-endpoints-project-toggle"
+                          >
+                            {selectedProject}
+                          </MenuToggle>
+                        )}
+                        shouldFocusToggleOnSelect
+                      >
+                        <SelectList>
+                          <SelectOption value="Project X" id="ai-asset-endpoints-project-x">Project X</SelectOption>
+                          <SelectOption value="Project Y" id="ai-asset-endpoints-project-y">Project Y</SelectOption>
+                        </SelectList>
+                      </Select>
+                    </InputGroupItem>
+                  </InputGroup>
+                </ToolbarItem>
+              </ToolbarGroup>
+            )}
+            <ToolbarItem>
+              <Button 
+                variant="primary" 
+                onClick={handleOpenAddAssetModal}
+                id="add-asset-button"
+              >
+                Add asset
+              </Button>
+            </ToolbarItem>
+          </ToolbarContent>
+        </Toolbar>
       </PageSection>
 
       <PageSection style={{ paddingTop: '0.5rem' }}>

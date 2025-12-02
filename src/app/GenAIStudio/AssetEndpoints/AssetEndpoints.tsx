@@ -20,12 +20,22 @@ import {
   TextArea,
   Flex,
   FlexItem,
+  InputGroup,
+  InputGroupItem,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
 } from '@patternfly/react-core';
+import { OutlinedFolderIcon } from '@patternfly/react-icons';
+import { useFeatureFlags } from '../../utils/FeatureFlagsContext';
 
 type AssetType = 'Model' | 'MCP Server' | '';
 type AccessControlType = 'All users' | 'User' | 'Group' | 'Service Account';
 
 const AssetEndpoints: React.FunctionComponent = () => {
+  const { flags, selectedProject, setSelectedProject } = useFeatureFlags();
+  const [isProjectSelectOpen, setIsProjectSelectOpen] = React.useState(false);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [assetType, setAssetType] = React.useState<AssetType>('');
   const [isAssetTypeOpen, setIsAssetTypeOpen] = React.useState(false);
@@ -114,13 +124,61 @@ const AssetEndpoints: React.FunctionComponent = () => {
             </Content>
           </FlexItem>
           <FlexItem>
-            <Button 
-              variant="primary" 
-              onClick={handleOpenModal}
-              id="add-asset-button"
-            >
-              Add asset
-            </Button>
+            <Toolbar id="asset-endpoints-toolbar">
+              <ToolbarContent>
+                {flags.showProjectWorkspaceDropdowns && (
+                  <ToolbarGroup>
+                    <ToolbarItem>
+                      <InputGroup>
+                        <InputGroupItem>
+                          <div className="pf-v6-c-input-group__text">
+                            <OutlinedFolderIcon /> Project
+                          </div>
+                        </InputGroupItem>
+                        <InputGroupItem>
+                          <Select
+                            id="asset-endpoints-project-select"
+                            isOpen={isProjectSelectOpen}
+                            selected={selectedProject}
+                            onSelect={(_event, value) => {
+                              setSelectedProject(value as string);
+                              setIsProjectSelectOpen(false);
+                            }}
+                            onOpenChange={(isOpen) => setIsProjectSelectOpen(isOpen)}
+                            toggle={(toggleRef) => (
+                              <MenuToggle
+                                ref={toggleRef}
+                                onClick={() => setIsProjectSelectOpen(!isProjectSelectOpen)}
+                                isExpanded={isProjectSelectOpen}
+                                style={{ width: '200px' }}
+                                id="asset-endpoints-project-toggle"
+                              >
+                                {selectedProject}
+                              </MenuToggle>
+                            )}
+                            shouldFocusToggleOnSelect
+                          >
+                            <SelectList>
+                              <SelectOption value="Project X" id="asset-endpoints-project-x">Project X</SelectOption>
+                              <SelectOption value="Project Y" id="asset-endpoints-project-y">Project Y</SelectOption>
+                            </SelectList>
+                          </Select>
+                        </InputGroupItem>
+                      </InputGroup>
+                    </ToolbarItem>
+                  </ToolbarGroup>
+                )}
+                <ToolbarItem>
+                  <Button 
+                    variant="primary" 
+                    onClick={handleOpenModal}
+                    id="add-asset-button"
+                  >
+                    Add asset
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
           </FlexItem>
         </Flex>
       </PageSection>
