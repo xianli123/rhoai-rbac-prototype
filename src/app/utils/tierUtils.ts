@@ -8,7 +8,7 @@ import { mockTiers } from '@app/Settings/Tiers/mockData';
 export const getCurrentUserGroups = (): string[] => {
   // Mock: Return groups for the current user (AI Admin in this case)
   // This would typically come from Kubernetes RBAC or authentication context
-  return ['dev-team', 'data-science-team'];
+  return ['standard-users', 'dev-team', 'data-science-team'];
 };
 
 /**

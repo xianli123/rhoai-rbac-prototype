@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Alert,
+  Badge,
   Button,
   Card,
   CardBody,
@@ -9,6 +10,10 @@ import {
   Checkbox,
   CodeBlock,
   CodeBlockCode,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Divider,
   Dropdown,
   DropdownItem,
@@ -86,6 +91,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDocumentTitle } from '../../utils/useDocumentTitle';
 import { useFeatureFlags } from '../../utils/FeatureFlagsContext';
 import { useUserProfile } from '../../utils/UserProfileContext';
+import { getCurrentUserHighestTier } from '../../utils/tierUtils';
 import { mcpServerLogos } from '../MVPServers/mcpServerLogos';
 import { modelLogos } from '../Models/modelLogos';
 import { ModelDeploymentModal } from './ModelDeploymentModal';
@@ -2754,9 +2760,16 @@ const AvailableAIAssets: React.FunctionComponent = () => {
   return (
     <>
       <PageSection>
-        <Title headingLevel="h1" size="2xl">
-          AI asset endpoints
-        </Title>
+        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl">
+              AI asset endpoints
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <Label id="tech-preview-badge" color="yellow">Tech Preview</Label>
+          </FlexItem>
+        </Flex>
         <div className="pf-v5-u-color-200 pf-v5-u-mt-sm">
           Browse endpoints for available models and MCP servers.
         </div>
@@ -2927,6 +2940,93 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                             />
                           </InputGroupItem>
                         </InputGroup>
+                      </ToolbarItem>
+                      <ToolbarItem>
+                        <Popover
+                          id="tier-info-popover"
+                          aria-label="Tier information"
+                          headerContent="Tier information"
+                          bodyContent={
+                            <div>
+                              <p style={{ marginBottom: '1rem' }}>
+                                This list of models is based on your current highest Tier that determines which ones you can access.
+                              </p>
+                              {(() => {
+                                const highestTier = getCurrentUserHighestTier();
+                                if (highestTier) {
+                                  return (
+                                    <DescriptionList id="tier-description-list" isCompact>
+                                      <DescriptionListGroup id="tier-name-group">
+                                        <DescriptionListTerm id="tier-name-term">Current Tier</DescriptionListTerm>
+                                        <DescriptionListDescription id="tier-name-description">
+                                          <strong>{highestTier.name}</strong>
+                                        </DescriptionListDescription>
+                                      </DescriptionListGroup>
+                                      <DescriptionListGroup id="tier-description-group">
+                                        <DescriptionListTerm id="tier-description-term">Description</DescriptionListTerm>
+                                        <DescriptionListDescription id="tier-description-text">
+                                          {highestTier.description}
+                                        </DescriptionListDescription>
+                                      </DescriptionListGroup>
+                                      {highestTier.limits.tokenLimits && highestTier.limits.tokenLimits.length > 0 && (
+                                        <DescriptionListGroup id="tier-token-limit-group">
+                                          <DescriptionListTerm id="tier-token-limit-term">Token Limit</DescriptionListTerm>
+                                          <DescriptionListDescription id="tier-token-limit-description">
+                                            {highestTier.limits.tokenLimits.map((limit, index) => (
+                                              <div key={limit.id || index}>
+                                                {limit.amount.toLocaleString()} tokens per {limit.quantity} {limit.unit}
+                                                {limit.quantity > 1 ? 's' : ''}
+                                              </div>
+                                            ))}
+                                          </DescriptionListDescription>
+                                        </DescriptionListGroup>
+                                      )}
+                                      {highestTier.limits.rateLimits && highestTier.limits.rateLimits.length > 0 && (
+                                        <DescriptionListGroup id="tier-rate-limit-group">
+                                          <DescriptionListTerm id="tier-rate-limit-term">Rate Limit</DescriptionListTerm>
+                                          <DescriptionListDescription id="tier-rate-limit-description">
+                                            {highestTier.limits.rateLimits.map((limit, index) => (
+                                              <div key={limit.id || index}>
+                                                {limit.amount.toLocaleString()} requests per {limit.quantity} {limit.unit}
+                                                {limit.quantity > 1 ? 's' : ''}
+                                              </div>
+                                            ))}
+                                          </DescriptionListDescription>
+                                        </DescriptionListGroup>
+                                      )}
+                                      {highestTier.limits.apiKeyExpirationDays !== undefined && (
+                                        <DescriptionListGroup id="tier-api-key-expiration-group">
+                                          <DescriptionListTerm id="tier-api-key-expiration-term">API Key Expiration</DescriptionListTerm>
+                                          <DescriptionListDescription id="tier-api-key-expiration-description">
+                                            {highestTier.limits.apiKeyExpirationDays < 1 
+                                              ? `${Math.round(highestTier.limits.apiKeyExpirationDays * 24)} hours`
+                                              : `${Math.round(highestTier.limits.apiKeyExpirationDays)} days`}
+                                          </DescriptionListDescription>
+                                        </DescriptionListGroup>
+                                      )}
+                                    </DescriptionList>
+                                  );
+                                }
+                                return (
+                                  <p style={{ fontStyle: 'italic', color: 'var(--pf-v5-global--Color--200)' }}>
+                                    No tier assigned
+                                  </p>
+                                );
+                              })()}
+                            </div>
+                          }
+                          position="bottom"
+                        >
+                          <Button
+                            id="tier-info-badge"
+                            variant="plain"
+                          >
+                            <Badge id="tier-info-badge-content">
+                              <OutlinedQuestionCircleIcon style={{ marginRight: '0.25rem' }} />
+                              Tier information
+                            </Badge>
+                          </Button>
+                        </Popover>
                       </ToolbarItem>
 
                     </ToolbarGroup>
