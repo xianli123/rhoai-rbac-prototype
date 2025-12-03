@@ -5,6 +5,13 @@ import {
   Dropdown,
   DropdownItem,
   DropdownList,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateActions,
+  Icon,
+  InputGroup,
+  InputGroupItem,
   Label,
   MenuToggle,
   Modal,
@@ -13,6 +20,9 @@ import {
   ModalHeader,
   ModalVariant,
   Pagination,
+  Select,
+  SelectList,
+  SelectOption,
   TextInput,
   Title
 } from '@patternfly/react-core';
@@ -24,7 +34,7 @@ import {
   Thead,
   Tr
 } from '@patternfly/react-table';
-import { CheckCircleIcon, FilterIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, FilterIcon, OutlinedFolderIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Model {
   id: string;
@@ -48,6 +58,12 @@ interface ModelSelectionModalProps {
   isFilterDropdownOpen: boolean;
   onFilterDropdownToggle: (isOpen: boolean) => void;
   onNavigateToModels: () => void;
+  showEmptyState?: boolean;
+  selectedProject?: string;
+  onProjectChange?: (project: string) => void;
+  isProjectSelectOpen?: boolean;
+  onProjectSelectOpenChange?: (isOpen: boolean) => void;
+  onEmptyStateConfigure?: () => void;
 }
 
 export const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
@@ -64,7 +80,13 @@ export const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
   onSearchTextChange,
   isFilterDropdownOpen,
   onFilterDropdownToggle,
-  onNavigateToModels
+  onNavigateToModels,
+  showEmptyState = false,
+  selectedProject = 'Project Y',
+  onProjectChange,
+  isProjectSelectOpen = false,
+  onProjectSelectOpenChange,
+  onEmptyStateConfigure
 }) => {
   return (
     <Modal
@@ -80,6 +102,29 @@ export const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
         </Title>
       </ModalHeader>
       <ModalBody>
+        {showEmptyState ? (
+          <div>
+            <EmptyState>
+              <Icon status="warning" size="xl">
+                <ExclamationCircleIcon />
+              </Icon>
+              <Title headingLevel="h4" size="lg">
+                Playground needs to be enabled
+              </Title>
+              <EmptyStateBody>
+                The playground is not enabled for the selected project. Click the button below to configure and enable the playground.
+              </EmptyStateBody>
+              <EmptyStateFooter>
+                <EmptyStateActions>
+                  <Button variant="primary" onClick={onEmptyStateConfigure} id="empty-state-configure-button">
+                    Configure playground
+                  </Button>
+                </EmptyStateActions>
+              </EmptyStateFooter>
+            </EmptyState>
+          </div>
+        ) : (
+          <div>
         <div style={{ marginBottom: '1.5rem' }}>
           <p>
             Choose the models you want to make available in this playground. You can add additional models by making them available from the{' '}
@@ -210,19 +255,30 @@ export const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
             </Tbody>
           </Table>
         </div>
+          </div>
+        )}
       </ModalBody>
       <ModalFooter>
-        <Button 
-          variant="primary" 
-          onClick={onConfigure}
-          isDisabled={selectedModels.size === 0}
-          id="configure-playground-button"
-        >
-          Configure
-        </Button>
-        <Button variant="link" onClick={onClose} id="cancel-model-selection-button">
-          Cancel
-        </Button>
+        {!showEmptyState && (
+          <>
+            <Button 
+              variant="primary" 
+              onClick={onConfigure}
+              isDisabled={selectedModels.size === 0}
+              id="configure-playground-button"
+            >
+              Configure
+            </Button>
+            <Button variant="link" onClick={onClose} id="cancel-model-selection-button">
+              Cancel
+            </Button>
+          </>
+        )}
+        {showEmptyState && (
+          <Button variant="link" onClick={onClose} id="cancel-empty-state-button">
+            Cancel
+          </Button>
+        )}
       </ModalFooter>
     </Modal>
   );

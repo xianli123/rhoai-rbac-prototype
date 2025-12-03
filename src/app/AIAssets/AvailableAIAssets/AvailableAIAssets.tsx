@@ -984,6 +984,16 @@ const AvailableAIAssets: React.FunctionComponent = () => {
   const [isTierSelectOpen, setIsTierSelectOpen] = React.useState(false);
   const [customTierNames, setCustomTierNames] = React.useState('');
 
+  // Options dropdown state for playground configuration
+  const [selectedOption, setSelectedOption] = React.useState<'option1' | 'option2' | 'option3'>('option1');
+  const [isOptionsDropdownOpen, setIsOptionsDropdownOpen] = React.useState(false);
+  const [showEmptyState, setShowEmptyState] = React.useState(false);
+  const [selectedProjectForPlayground, setSelectedProjectForPlayground] = React.useState('Project Y');
+  const [isProjectSelectorPopoverOpen, setIsProjectSelectorPopoverOpen] = React.useState(false);
+  const [projectSelectorForPopoverOpen, setProjectSelectorForPopoverOpen] = React.useState(false);
+  const [selectedProjectInPopover, setSelectedProjectInPopover] = React.useState('Project X');
+  const [emptyStateProjectSelectOpen, setEmptyStateProjectSelectOpen] = React.useState(false);
+
   // Initialize state from localStorage
   React.useEffect(() => {
     // Initialize modelsAddedToPlayground from localStorage
@@ -1494,6 +1504,14 @@ const AvailableAIAssets: React.FunctionComponent = () => {
     console.log('Model details:', model?.name);
     console.log('Current modelsAddedToPlayground:', Array.from(modelsAddedToPlayground));
     
+    // Option 1: Show empty state if playground isn't enabled
+    if (selectedOption === 'option1') {
+      setShowEmptyState(true);
+      setSelectedModelsForPlayground(new Set([modelId]));
+      setIsModelSelectionModalOpen(true);
+      return;
+    }
+    
     // Removed addingModelId state
     // Pre-select the clicked model
     setSelectedModelsForPlayground(new Set([modelId]));
@@ -1540,6 +1558,7 @@ const AvailableAIAssets: React.FunctionComponent = () => {
   const handleCancelModelSelection = () => {
     setIsModelSelectionModalOpen(false);
     setSelectedModelsForPlayground(new Set());
+    setShowEmptyState(false);
     // Removed addingModelId state
     // Reset search when closing modal
     setModalSearchText('');
@@ -1655,8 +1674,14 @@ const AvailableAIAssets: React.FunctionComponent = () => {
 
 
 
-  const handlePlayground = (assetId: string, assetType: 'model' | 'mcp') => {
-    // Navigate to AI Playground with pre-selected asset
+  const handlePlayground = (assetId: string, assetType: 'model' | 'mcp', skipPopover: boolean = false) => {
+    // Option 2: Show popover for project selection unless skipPopover is true
+    if (selectedOption === 'option2' && !skipPopover) {
+      // For Option 2, we'll handle this in the button click
+      return;
+    }
+
+    // Option 3 or normal flow: Navigate to AI Playground with pre-selected asset
     if (assetType === 'model') {
       const model = mockModels.find(m => m.id === assetId);
       if (model) {
@@ -2008,7 +2033,8 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                 </Td>
                 <Td>
                   <Flex spaceItems={{ default: 'spaceItemsXs' }}>
-                    {(model.llsStatus === 'not-registered' && !modelsWithEndpoints.has(model.id) && !modelsAddedToPlayground.has(model.id)) && (
+                    {/* Option 1: Always show "Add to playground" for all models */}
+                    {selectedOption === 'option1' && (
                       <FlexItem>
                         <Button 
                           variant="link" 
@@ -2022,18 +2048,88 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                         </Button>
                       </FlexItem>
                     )}
-                    {(model.llsStatus === 'registered' || modelsWithEndpoints.has(model.id) || modelsAddedToPlayground.has(model.id)) && (
+                    {/* Option 2 & 3: Always show "Try in playground" for all models */}
+                    {(selectedOption === 'option2' || selectedOption === 'option3') && (
                       <FlexItem>
-                        <Button 
-                          variant="secondary" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayground(model.id, 'model');
+                        <Popover
+                          isVisible={isProjectSelectorPopoverOpen && model.id === selectedModelForEndpoint.id}
+                          shouldOpen={() => {
+                            if (selectedOption === 'option2') {
+                              setIsProjectSelectorPopoverOpen(true);
+                              setSelectedModelForEndpoint({id: model.id, name: model.name});
+                              return true;
+                            }
+                            return false;
                           }}
+                          shouldClose={() => {
+                            setIsProjectSelectorPopoverOpen(false);
+                            return true;
+                          }}
+                          headerContent="Select a project"
+                          bodyContent={
+                            <div style={{ padding: '0.5rem', minWidth: '250px' }}>
+                              <Select
+                                id="project-selector-popover"
+                                isOpen={projectSelectorForPopoverOpen}
+                                selected={selectedProjectInPopover}
+                                onSelect={(_event, value) => {
+                                  setSelectedProjectInPopover(value as string);
+                                  setProjectSelectorForPopoverOpen(false);
+                                  
+                                  // Check if playground is configured for this project
+                                  const playgroundConfigured = value === 'Project X';
+                                  
+                                  if (playgroundConfigured) {
+                                    // Navigate directly to playground
+                                    setIsProjectSelectorPopoverOpen(false);
+                                    handlePlayground(model.id, 'model', true);
+                                  } else {
+                                    // Show configure playground modal
+                                    setIsProjectSelectorPopoverOpen(false);
+                                    setSelectedModelsForPlayground(new Set([model.id]));
+                                    setIsModelSelectionModalOpen(true);
+                                  }
+                                }}
+                                onOpenChange={(isOpen) => setProjectSelectorForPopoverOpen(isOpen)}
+                                toggle={(toggleRef) => (
+                                  <MenuToggle
+                                    ref={toggleRef}
+                                    onClick={() => setProjectSelectorForPopoverOpen(!projectSelectorForPopoverOpen)}
+                                    isExpanded={projectSelectorForPopoverOpen}
+                                    style={{ width: '200px' }}
+                                    id="popover-project-toggle"
+                                  >
+                                    {selectedProjectInPopover}
+                                  </MenuToggle>
+                                )}
+                                shouldFocusToggleOnSelect
+                              >
+                                <SelectList>
+                                  <SelectOption value="Project X" id="popover-project-x">Project X</SelectOption>
+                                  <SelectOption value="Project Y" id="popover-project-y">Project Y</SelectOption>
+                                </SelectList>
+                              </Select>
+                            </div>
+                          }
                         >
-                          Try in playground
-                        </Button>
+                          <Button 
+                            variant="secondary" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (selectedOption === 'option3') {
+                                // Option 3: Direct navigation
+                                handlePlayground(model.id, 'model', true);
+                              } else {
+                                // Option 2: Show popover
+                                setIsProjectSelectorPopoverOpen(true);
+                                setSelectedModelForEndpoint({id: model.id, name: model.name});
+                              }
+                            }}
+                          >
+                            Try in playground
+                          </Button>
+                        </Popover>
                       </FlexItem>
                     )}
                   </Flex>
@@ -2359,7 +2455,8 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                     onClearGeneratedToken={handleClearGeneratedToken}
                   />
                   
-                  {(model.llsStatus === 'not-registered' && !modelsWithEndpoints.has(model.id) && !modelsAddedToPlayground.has(model.id)) && (
+                  {/* Option 1: Always show "Add to playground" for all models */}
+                  {selectedOption === 'option1' && (
                     <Button 
                       variant="link" 
                       onClick={(e) => {
@@ -2368,16 +2465,24 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                       }}
                     >
                       <PlusCircleIcon style={{ marginRight: '0.25rem' }} />
-                      Add to Playground
+                      Add to playground
                     </Button>
                   )}
-                  {(model.llsStatus === 'registered' || modelsWithEndpoints.has(model.id) || modelsAddedToPlayground.has(model.id)) && (
+                  {/* Option 2 & 3: Always show "Try in playground" for all models */}
+                  {(selectedOption === 'option2' || selectedOption === 'option3') && (
                     <Button 
                       variant="secondary" 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlayground(model.id, 'model');
+                        if (selectedOption === 'option3') {
+                          // Option 3: Direct navigation
+                          handlePlayground(model.id, 'model', true);
+                        } else {
+                          // Option 2: Show popover
+                          setIsProjectSelectorPopoverOpen(true);
+                          setSelectedModelForEndpoint({id: model.id, name: model.name});
+                        }
                       }}
                     >
                       Try in playground
@@ -2507,22 +2612,8 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                 </Td>
                 <Td dataLabel="Playground">
                   <Flex spaceItems={{ default: 'spaceItemsXs' }}>
-                    {/* Special logic for MaaS models */}
-                    {model.name === 'llama-3.1-8b-instruct' && (
-                      <FlexItem>
-                        <Button 
-                          variant="secondary" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayground(model.id, 'model');
-                          }}
-                        >
-                          Try in playground
-                        </Button>
-                      </FlexItem>
-                    )}
-                    {model.name === 'Pixtral-Large-Instruct-2411-hf-quantized.w8a8' && !modelsAddedToPlayground.has(model.id) && (
+                    {/* Option 1: Always show "Add to playground" for all MaaS models */}
+                    {selectedOption === 'option1' && (
                       <FlexItem>
                         <Button 
                           variant="link" 
@@ -2536,18 +2627,88 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                         </Button>
                       </FlexItem>
                     )}
-                    {model.name === 'Pixtral-Large-Instruct-2411-hf-quantized.w8a8' && modelsAddedToPlayground.has(model.id) && (
+                    {/* Option 2 & 3: Always show "Try in playground" for all models */}
+                    {(selectedOption === 'option2' || selectedOption === 'option3') && (
                       <FlexItem>
-                        <Button 
-                          variant="secondary" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayground(model.id, 'model');
+                        <Popover
+                          isVisible={isProjectSelectorPopoverOpen && model.id === selectedModelForEndpoint.id}
+                          shouldOpen={() => {
+                            if (selectedOption === 'option2') {
+                              setIsProjectSelectorPopoverOpen(true);
+                              setSelectedModelForEndpoint({id: model.id, name: model.name});
+                              return true;
+                            }
+                            return false;
                           }}
+                          shouldClose={() => {
+                            setIsProjectSelectorPopoverOpen(false);
+                            return true;
+                          }}
+                          headerContent="Select a project"
+                          bodyContent={
+                            <div style={{ padding: '0.5rem', minWidth: '250px' }}>
+                              <Select
+                                id="project-selector-popover-maas"
+                                isOpen={projectSelectorForPopoverOpen}
+                                selected={selectedProjectInPopover}
+                                onSelect={(_event, value) => {
+                                  setSelectedProjectInPopover(value as string);
+                                  setProjectSelectorForPopoverOpen(false);
+                                  
+                                  // Check if playground is configured for this project
+                                  const playgroundConfigured = value === 'Project X';
+                                  
+                                  if (playgroundConfigured) {
+                                    // Navigate directly to playground
+                                    setIsProjectSelectorPopoverOpen(false);
+                                    handlePlayground(model.id, 'model', true);
+                                  } else {
+                                    // Show configure playground modal
+                                    setIsProjectSelectorPopoverOpen(false);
+                                    setSelectedModelsForPlayground(new Set([model.id]));
+                                    setIsModelSelectionModalOpen(true);
+                                  }
+                                }}
+                                onOpenChange={(isOpen) => setProjectSelectorForPopoverOpen(isOpen)}
+                                toggle={(toggleRef) => (
+                                  <MenuToggle
+                                    ref={toggleRef}
+                                    onClick={() => setProjectSelectorForPopoverOpen(!projectSelectorForPopoverOpen)}
+                                    isExpanded={projectSelectorForPopoverOpen}
+                                    style={{ width: '200px' }}
+                                    id="popover-project-toggle-maas"
+                                  >
+                                    {selectedProjectInPopover}
+                                  </MenuToggle>
+                                )}
+                                shouldFocusToggleOnSelect
+                              >
+                                <SelectList>
+                                  <SelectOption value="Project X" id="popover-project-x-maas">Project X</SelectOption>
+                                  <SelectOption value="Project Y" id="popover-project-y-maas">Project Y</SelectOption>
+                                </SelectList>
+                              </Select>
+                            </div>
+                          }
                         >
-                          Try in playground
-                        </Button>
+                          <Button 
+                            variant="secondary" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (selectedOption === 'option3') {
+                                // Option 3: Direct navigation
+                                handlePlayground(model.id, 'model', true);
+                              } else {
+                                // Option 2: Show popover
+                                setIsProjectSelectorPopoverOpen(true);
+                                setSelectedModelForEndpoint({id: model.id, name: model.name});
+                              }
+                            }}
+                          >
+                            Try in playground
+                          </Button>
+                        </Popover>
                       </FlexItem>
                     )}
                   </Flex>
@@ -2637,20 +2798,8 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                   </Label>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {/* Special logic for MaaS models */}
-                  {model.name === 'llama-3.1-8b-instruct' && (
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayground(model.id, 'model');
-                      }}
-                    >
-                      Try in playground
-                    </Button>
-                  )}
-                  {model.name === 'Pixtral-Large-Instruct-2411-hf-quantized.w8a8' && !modelsAddedToPlayground.has(model.id) && (
+                  {/* Option 1: Always show "Add to playground" for all MaaS models */}
+                  {selectedOption === 'option1' && (
                     <Button 
                       variant="link" 
                       onClick={(e) => {
@@ -2662,13 +2811,21 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                       Add to playground
                     </Button>
                   )}
-                  {model.name === 'Pixtral-Large-Instruct-2411-hf-quantized.w8a8' && modelsAddedToPlayground.has(model.id) && (
+                  {/* Option 2 & 3: Always show "Try in playground" for all models */}
+                  {(selectedOption === 'option2' || selectedOption === 'option3') && (
                     <Button 
                       variant="secondary" 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlayground(model.id, 'model');
+                        if (selectedOption === 'option3') {
+                          // Option 3: Direct navigation
+                          handlePlayground(model.id, 'model', true);
+                        } else {
+                          // Option 2: Show popover
+                          setIsProjectSelectorPopoverOpen(true);
+                          setSelectedModelForEndpoint({id: model.id, name: model.name});
+                        }
                       }}
                     >
                       Try in playground
@@ -2769,6 +2926,55 @@ const AvailableAIAssets: React.FunctionComponent = () => {
           <FlexItem>
             <Label id="tech-preview-badge" color="yellow">Tech Preview</Label>
           </FlexItem>
+          <FlexItem>
+            <Dropdown
+              isOpen={isOptionsDropdownOpen}
+              onSelect={(event, value) => {
+                setSelectedOption(value as 'option1' | 'option2' | 'option3');
+                setIsOptionsDropdownOpen(false);
+              }}
+              onOpenChange={(isOpen) => setIsOptionsDropdownOpen(isOpen)}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsOptionsDropdownOpen(!isOptionsDropdownOpen)}
+                  isExpanded={isOptionsDropdownOpen}
+                  style={{ 
+                    minWidth: '120px',
+                    backgroundColor: '#ffc0e3',
+                    borderColor: '#ffc0e3'
+                  }}
+                  id="playground-options-toggle"
+                >
+                  Options
+                </MenuToggle>
+              )}
+            >
+              <DropdownList id="playground-options-list">
+                <DropdownItem 
+                  value="option1" 
+                  id="playground-option-1"
+                  description="Adds empty state when Playground isn't enabled for the selected project."
+                >
+                  Keep Project Dropdown + Empty State
+                </DropdownItem>
+                <DropdownItem 
+                  value="option2" 
+                  id="playground-option-2"
+                  description='All models shown always, Playground column now shows "Try in playground" for all models, clicking reveals project selector'
+                >
+                  Remove Project Dropdown + Modal Selector
+                </DropdownItem>
+                <DropdownItem 
+                  value="option3" 
+                  id="playground-option-3"
+                  description='No more "Add to Playground" step needed, single sandbox with Playground always ready.'
+                >
+                  Hot-reload future
+                </DropdownItem>
+              </DropdownList>
+            </Dropdown>
+          </FlexItem>
         </Flex>
         <div className="pf-v5-u-color-200 pf-v5-u-mt-sm">
           Browse endpoints for available models and MCP servers.
@@ -2779,7 +2985,7 @@ const AvailableAIAssets: React.FunctionComponent = () => {
       <PageSection style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
         <Toolbar id="ai-asset-endpoints-toolbar">
           <ToolbarContent>
-            {flags.showProjectWorkspaceDropdowns && (
+            {flags.showProjectWorkspaceDropdowns && selectedOption === 'option1' && (
               <ToolbarGroup>
                 <ToolbarItem>
                   <InputGroup>
@@ -2949,7 +3155,7 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                           bodyContent={
                             <div>
                               <div style={{ marginBottom: '1rem' }}>
-                                <Label id="tier-wip-label" color="pink">
+                                <Label id="tier-wip-label" color="purple">
                                   Work in progress
                                 </Label>
                               </div>
@@ -3664,6 +3870,14 @@ const AvailableAIAssets: React.FunctionComponent = () => {
         isFilterDropdownOpen={isModalFilterDropdownOpen}
         onFilterDropdownToggle={(isOpen) => setIsModalFilterDropdownOpen(isOpen)}
         onNavigateToModels={() => navigate('/ai-assets/models')}
+        showEmptyState={showEmptyState}
+        selectedProject={selectedProjectForPlayground}
+        onProjectChange={(project) => setSelectedProjectForPlayground(project)}
+        isProjectSelectOpen={emptyStateProjectSelectOpen}
+        onProjectSelectOpenChange={(isOpen) => setEmptyStateProjectSelectOpen(isOpen)}
+        onEmptyStateConfigure={() => {
+          setShowEmptyState(false);
+        }}
       />
 
       {/* Auto Config Modal */}
