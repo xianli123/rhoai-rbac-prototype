@@ -2969,13 +2969,15 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                   onClick={() => setIsOptionsDropdownOpen(!isOptionsDropdownOpen)}
                   isExpanded={isOptionsDropdownOpen}
                   style={{ 
-                    minWidth: '120px',
+                    minWidth: '180px',
                     backgroundColor: '#ffc0e3',
                     borderColor: '#ffc0e3'
                   }}
                   id="playground-options-toggle"
                 >
-                  Options
+                  {selectedOption === 'option1' && 'Option 1'}
+                  {selectedOption === 'option2' && 'Option 2'}
+                  {selectedOption === 'option3' && 'Option 3'}
                 </MenuToggle>
               )}
             >
@@ -2985,21 +2987,21 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                   id="playground-option-1"
                   description="Adds empty state when Playground isn't enabled for the selected project."
                 >
-                  Keep Project Dropdown + Empty State
+                  Option 1: Keep Project Dropdown + Empty State
                 </DropdownItem>
                 <DropdownItem 
                   value="option2" 
                   id="playground-option-2"
                   description='All models shown always, Playground column now shows "Try in playground" for all models, clicking reveals project selector'
                 >
-                  Remove Project Dropdown + Modal Selector
+                  Option 2: Remove Project Dropdown + Modal Selector
                 </DropdownItem>
                 <DropdownItem 
                   value="option3" 
                   id="playground-option-3"
                   description='No more "Add to Playground" step needed, single sandbox with Playground always ready.'
                 >
-                  Hot-reload future
+                  Option 3: Hot-reload future
                 </DropdownItem>
               </DropdownList>
             </Dropdown>
