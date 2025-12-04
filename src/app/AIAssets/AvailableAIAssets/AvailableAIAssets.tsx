@@ -1956,7 +1956,6 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                   minWidth: 0
                 }}>Model name</div>
               </Th>
-              <Th>Model ID</Th>
               <Th>Endpoints</Th>
               <Th>Use Case</Th>
               <Th>Status</Th>
@@ -2009,9 +2008,6 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                       </Tooltip>
                     </div>
                   </div>
-                </Td>
-                <Td dataLabel="Model ID">
-                  {model.slug}
                 </Td>
                 <Td dataLabel="Endpoints">
                   <CombinedEndpointsPopover 
@@ -2578,7 +2574,6 @@ const AvailableAIAssets: React.FunctionComponent = () => {
                   minWidth: 0
                 }}>Model name</div>
               </Th>
-              <Th width={10}>Model ID</Th>
               <Th width={10}>External endpoint</Th>
               <Th width={10}>Status</Th>
               <Th width={10}>Playground</Th>
