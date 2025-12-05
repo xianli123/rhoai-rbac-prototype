@@ -23,6 +23,8 @@ default:
 
 build:
   stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "3.2"
   script:
     - echo "Installing dependencies (including devDependencies for build tools)..."
     - npm ci --include=dev
@@ -41,6 +43,8 @@ build:
 
 pages:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "3.2"
   script:
     - echo "Deploying to GitLab Pages..."
   artifacts:
