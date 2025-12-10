@@ -1,11 +1,12 @@
-# Next.js build outputs
+# Dependencies
+**/node_modules
+node_modules/
+
+# Build outputs
+dist
+build/
 .next/
 out/
-build/
-dist/
-
-# Dependencies
-node_modules/
 
 # Debug logs
 npm-debug.log*
@@ -48,7 +49,8 @@ jspm_packages/
 *.tgz
 
 # Yarn Integrity file
-.yarn-integrity
+yarn-integrity
+yarn.lock
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
@@ -56,7 +58,24 @@ jspm_packages/
 # Next.js specific
 .vercel
 .env*.local
+.env.local
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Webpack/PatternFly specific
+stats.json
+storybook-static
+
+# IDE
+.idea
+.vscode
+.history
+
+# OS
+.DS_Store
+
+# MCP configuration with sensitive data
+# (keep .cursormcp.example in git as a template)
+.cursormcp.local

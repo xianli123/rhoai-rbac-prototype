@@ -1,0 +1,1020 @@
+{
+  "nodes": [
+    {
+      "id": "legend",
+      "type": "text",
+      "text": "# Legend\n\n**Personas:**\n- 🔵 Anna (AI Eng)\n- 🔴 Paula (AI PlatEng)\n\n**Elements:**\n- 📝 Notes\n- ⚠️ Pain Points\n- 💬 Discussion\n- 🖼️ Screens",
+      "x": -500,
+      "y": -400,
+      "width": 250,
+      "height": 300,
+      "color": "3"
+    },
+    {
+      "id": "swimlane-anna-bg",
+      "type": "text",
+      "text": "# Anna\n## AI Eng",
+      "x": -200,
+      "y": -200,
+      "width": 6000,
+      "height": 600,
+      "color": "5"
+    },
+    {
+      "id": "swimlane-paula-bg",
+      "type": "text",
+      "text": "# Paula\n## AI PlatEng",
+      "x": -200,
+      "y": 500,
+      "width": 6000,
+      "height": 800,
+      "color": "6"
+    },
+    {
+      "id": "persona-anna",
+      "type": "text",
+      "text": "# Anna\n## AI Engineer\n\n**Goals:**\n- Discover & access AI models\n- Build AI applications\n- Test and deploy solutions\n- Monitor performance\n\n**Needs:**\n- Easy model discovery\n- Clear API documentation\n- Reliable endpoints\n- Usage visibility",
+      "x": -180,
+      "y": -150,
+      "width": 280,
+      "height": 350,
+      "color": "5"
+    },
+    {
+      "id": "persona-paula",
+      "type": "text",
+      "text": "# Paula\n## AI Platform Engineer\n\n**Goals:**\n- Manage AI infrastructure\n- Control access & quotas\n- Ensure security\n- Monitor costs\n\n**Needs:**\n- Tier management\n- User/group administration\n- Policy controls\n- Usage analytics",
+      "x": -180,
+      "y": 550,
+      "width": 280,
+      "height": 350,
+      "color": "6"
+    },
+    {
+      "id": "stage-1-header",
+      "type": "text",
+      "text": "# STAGE 1\n## Discover\nWorking in with AI Hub",
+      "x": 150,
+      "y": -350,
+      "width": 800,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "stage-2-header",
+      "type": "text",
+      "text": "# STAGE 2\n## Onboard\nUse AI Hub/Studio UI to access AI Models",
+      "x": 1000,
+      "y": -350,
+      "width": 1000,
+      "height": 120,
+      "color": "2"
+    },
+    {
+      "id": "stage-3-header",
+      "type": "text",
+      "text": "# STAGE 3\n## Develop\nCall model API with pre-2 key",
+      "x": 2050,
+      "y": -350,
+      "width": 1200,
+      "height": 120,
+      "color": "1"
+    },
+    {
+      "id": "stage-4-header",
+      "type": "text",
+      "text": "# STAGE 4\n## Deploy\nUse APIs for their AI Use Case",
+      "x": 3300,
+      "y": -350,
+      "width": 1200,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "future-header",
+      "type": "text",
+      "text": "# Future\n## Out of scope / Integration",
+      "x": 4550,
+      "y": -350,
+      "width": 800,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "anna-1-1",
+      "type": "text",
+      "text": "## AI Hub/Studio (3.2)\n\nAnna browses available models and assets",
+      "x": 200,
+      "y": -100,
+      "width": 220,
+      "height": 120,
+      "color": "5"
+    },
+    {
+      "id": "anna-1-2",
+      "type": "text",
+      "text": "## Future out of scope: Integration stuff\n\nNote: Investigate if a key exists\n- Has one already?\n- Needs to generate?",
+      "x": 460,
+      "y": -100,
+      "width": 250,
+      "height": 150,
+      "color": "3"
+    },
+    {
+      "id": "paula-1-1",
+      "type": "text",
+      "text": "## AI Hub/Studio (3.2)\n\n\"Available assets\" management\n- Curate catalog\n- Add external services\n- Configure visibility",
+      "x": 200,
+      "y": 600,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-1-2",
+      "type": "text",
+      "text": "## \"Add asset\"\n\nAdd external model endpoint\n- Configure connection\n- Set authentication\n- Test endpoint",
+      "x": 520,
+      "y": 600,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-1-note",
+      "type": "text",
+      "text": "📝 Note:\n\nNeeds to set what appears for different users",
+      "x": 520,
+      "y": 820,
+      "width": 260,
+      "height": 100,
+      "color": "3"
+    },
+    {
+      "id": "decision-1",
+      "type": "text",
+      "text": "# Decision\n\nPublish asset to all or specific groups?",
+      "x": 820,
+      "y": 650,
+      "width": 200,
+      "height": 150,
+      "color": "2"
+    },
+    {
+      "id": "anna-2-1",
+      "type": "text",
+      "text": "## AI Playground\n(Gemini)\n\nTest and experiment with models",
+      "x": 1050,
+      "y": -100,
+      "width": 220,
+      "height": 130,
+      "color": "5"
+    },
+    {
+      "id": "anna-2-2",
+      "type": "text",
+      "text": "## \"AI Assets\" / \"Publish as AI Asset\"\n\nBrowse published models available to Anna",
+      "x": 1310,
+      "y": -100,
+      "width": 250,
+      "height": 130,
+      "color": "5"
+    },
+    {
+      "id": "anna-2-note",
+      "type": "text",
+      "text": "📝 Anna sees models based on her tier/group membership",
+      "x": 1310,
+      "y": 60,
+      "width": 250,
+      "height": 100,
+      "color": "3"
+    },
+    {
+      "id": "anna-2-3",
+      "type": "text",
+      "text": "## AI Asset API endpoint details\n\nView endpoint info:\n- URL\n- Authentication\n- Rate limits\n- Documentation",
+      "x": 1600,
+      "y": -100,
+      "width": 250,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-2-4",
+      "type": "text",
+      "text": "## \"Create API Key\"\n\nGenerate new API key:\n- Name the key\n- Set expiration\n- Copy token",
+      "x": 1890,
+      "y": -100,
+      "width": 220,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-2-pain",
+      "type": "text",
+      "text": "⚠️ PAIN:\n\nKey expires in 4 hours by default\n\nCannot customize expiration",
+      "x": 1890,
+      "y": 110,
+      "width": 220,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "paula-2-1",
+      "type": "text",
+      "text": "## \"Add asset\" / \"Publish as AI Asset\"\n\nPublish model to groups:\n- Select groups\n- Assign tier\n- Set policies",
+      "x": 1050,
+      "y": 600,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-2-2",
+      "type": "text",
+      "text": "## Deploy model resource / Configure tiers\n\nSet up tier configuration:\n- Model access\n- Rate limits\n- Token quotas",
+      "x": 1370,
+      "y": 600,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-2-pain",
+      "type": "text",
+      "text": "⚠️ PAIN POINT:\n\nDifficult to set consistent quotas across groups\n\nNeeds clear tier inheritance",
+      "x": 1370,
+      "y": 820,
+      "width": 280,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "paula-2-3",
+      "type": "text",
+      "text": "## Display model resource (+)\n\nView deployed models:\n- Status\n- Tier assignment\n- Usage stats",
+      "x": 1690,
+      "y": 600,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-discussion-1",
+      "type": "text",
+      "text": "💬 Discussion:\n\n**Consider metrics:**\n- Token usage\n- Request counts\n- Error rates\n- Cost per user",
+      "x": 1690,
+      "y": 820,
+      "width": 260,
+      "height": 180,
+      "color": "3"
+    },
+    {
+      "id": "anna-3-1",
+      "type": "text",
+      "text": "## Code in IDE\n\nDevelop application:\n- Use API key\n- Call model endpoints\n- Handle responses",
+      "x": 2100,
+      "y": -100,
+      "width": 250,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-3-2",
+      "type": "text",
+      "text": "## Test locally\n\nValidate functionality:\n- Debug issues\n- Optimize prompts\n- Check performance",
+      "x": 2390,
+      "y": -100,
+      "width": 240,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-3-screen",
+      "type": "text",
+      "text": "🖼️ Screen:\nCode editor with API integration",
+      "x": 2100,
+      "y": 110,
+      "width": 240,
+      "height": 80,
+      "color": "3"
+    },
+    {
+      "id": "anna-3-3",
+      "type": "text",
+      "text": "## Check usage/limits\n\nMonitor consumption:\n- Token usage\n- Rate limit status\n- Remaining quota",
+      "x": 2670,
+      "y": -100,
+      "width": 250,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-3-pain",
+      "type": "text",
+      "text": "⚠️ PAIN:\n\nLimited visibility into:\n- Historical usage\n- Quota details\n- Cost estimates",
+      "x": 2670,
+      "y": 110,
+      "width": 250,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "anna-3-4",
+      "type": "text",
+      "text": "## Iterate on prompts\n\nRefine implementation:\n- Adjust parameters\n- Optimize tokens\n- Improve results",
+      "x": 2960,
+      "y": -100,
+      "width": 240,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "paula-3-1",
+      "type": "text",
+      "text": "## RHOAI \"User Management\" + 3.2\n\nManage users and groups:\n- View user list\n- Assign to groups\n- Set tier membership",
+      "x": 2100,
+      "y": 600,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-2",
+      "type": "text",
+      "text": "## User Details\n\nView/modify:\n- Group memberships\n- Tier assignments\n- API keys\n- Usage metrics",
+      "x": 2420,
+      "y": 600,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-3",
+      "type": "text",
+      "text": "## Modify User Settings\n\nAdjust:\n- Group assignments\n- Tier overrides\n- Access controls",
+      "x": 2720,
+      "y": 600,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-4",
+      "type": "text",
+      "text": "## Modify User Access\n\nConfigure:\n- Model permissions\n- Rate limits\n- Quotas",
+      "x": 3020,
+      "y": 600,
+      "width": 240,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-note",
+      "type": "text",
+      "text": "📝 K8s Groups:\n- Namespace groups\n- RBAC integration\n- IdP sync",
+      "x": 2420,
+      "y": 820,
+      "width": 260,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "paula-3-5",
+      "type": "text",
+      "text": "## Groups Management\n\nManage groups:\n- List groups\n- View members\n- Assign tiers\n- Set policies",
+      "x": 2100,
+      "y": 980,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-6",
+      "type": "text",
+      "text": "## Group Details\n\nConfigure:\n- Member list\n- Tier assignment\n- Usage breakdown\n- Applied policies",
+      "x": 2420,
+      "y": 980,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-7",
+      "type": "text",
+      "text": "## Modify Group Settings\n\nUpdate:\n- Add/remove members\n- Change tier\n- Adjust limits",
+      "x": 2720,
+      "y": 980,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-3-8",
+      "type": "text",
+      "text": "## Modify Group Access\n\nSet:\n- Model access\n- Rate policies\n- Token quotas",
+      "x": 3020,
+      "y": 980,
+      "width": 240,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "anna-4-1",
+      "type": "text",
+      "text": "## Build app in workbench\n\nDevelop in RHOAI:\n- Use notebooks\n- Test integrations\n- Deploy components",
+      "x": 3350,
+      "y": -100,
+      "width": 250,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-4-2",
+      "type": "text",
+      "text": "## Deploy to OpenShift\n\nProduction deployment:\n- Configure app\n- Set env vars with API key\n- Deploy services",
+      "x": 3640,
+      "y": -100,
+      "width": 260,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-4-3",
+      "type": "text",
+      "text": "## App calls model APIs\n\nRuntime behavior:\n- Authenticate with key\n- Make inferences\n- Handle responses",
+      "x": 3940,
+      "y": -100,
+      "width": 250,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-4-4",
+      "type": "text",
+      "text": "## Monitor app performance\n\nObserve:\n- Request success rates\n- Response times\n- Error patterns\n- Usage trends",
+      "x": 4230,
+      "y": -100,
+      "width": 260,
+      "height": 180,
+      "color": "5"
+    },
+    {
+      "id": "anna-4-note",
+      "type": "text",
+      "text": "📝 Anna's app is now in production using MaaS endpoints",
+      "x": 3640,
+      "y": 110,
+      "width": 550,
+      "height": 80,
+      "color": "3"
+    },
+    {
+      "id": "paula-4-1",
+      "type": "text",
+      "text": "## Tier Management\n\nCreate/edit tiers:\n- Define models\n- Set rate limits\n- Configure quotas\n- Assign to groups",
+      "x": 3350,
+      "y": 600,
+      "width": 280,
+      "height": 200,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-2",
+      "type": "text",
+      "text": "## Select deployed model\n\nChoose model for tier:\n- Filter by status\n- Search by name\n- View details",
+      "x": 3670,
+      "y": 600,
+      "width": 260,
+      "height": 200,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-3",
+      "type": "text",
+      "text": "## Adjust rate/token limits\n\nConfigure advanced:\n- Token rate limit\n- Request rate limit\n- Burst allowance\n- Time window",
+      "x": 3970,
+      "y": 600,
+      "width": 280,
+      "height": 200,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-note",
+      "type": "text",
+      "text": "📌 Tiers are primary management construct:\n- Define access\n- Set policies\n- Inherit to groups",
+      "x": 3670,
+      "y": 840,
+      "width": 580,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "paula-4-4",
+      "type": "text",
+      "text": "## API Key Management\n\nManage keys:\n- View active keys (limited)\n- Revoke all keys\n- Monitor usage",
+      "x": 3350,
+      "y": 1000,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-pain",
+      "type": "text",
+      "text": "⚠️ PAIN:\n\nCannot list individual keys\n\nCan only revoke ALL\n\n4hr default expiry",
+      "x": 3670,
+      "y": 1000,
+      "width": 260,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-5",
+      "type": "text",
+      "text": "## Monitor usage\n\nObserve platform:\n- User/group usage\n- Model consumption\n- Rate limit hits\n- System health",
+      "x": 3970,
+      "y": 1000,
+      "width": 280,
+      "height": 180,
+      "color": "6"
+    },
+    {
+      "id": "paula-4-discussion",
+      "type": "text",
+      "text": "💬 Observability:\n\n- Dashboard integration\n- Grafana metrics\n- Usage trends\n- Cost tracking (future)\n- Chargeback (roadmap)",
+      "x": 4290,
+      "y": 1000,
+      "width": 280,
+      "height": 180,
+      "color": "3"
+    },
+    {
+      "id": "future-anna-1",
+      "type": "text",
+      "text": "## Future: Cost visibility\n\n- View token costs\n- Budget alerts\n- Usage forecasting",
+      "x": 4600,
+      "y": -100,
+      "width": 260,
+      "height": 150,
+      "color": "3"
+    },
+    {
+      "id": "future-anna-2",
+      "type": "text",
+      "text": "## Future: BYO keys\n\nBring your own API keys from external providers",
+      "x": 4900,
+      "y": -100,
+      "width": 260,
+      "height": 150,
+      "color": "3"
+    },
+    {
+      "id": "future-paula-1",
+      "type": "text",
+      "text": "## Future: Individual key management\n\n- List all keys\n- Revoke individual keys\n- Key metadata\n- Usage per key",
+      "x": 4600,
+      "y": 600,
+      "width": 280,
+      "height": 200,
+      "color": "3"
+    },
+    {
+      "id": "future-paula-2",
+      "type": "text",
+      "text": "## Future: Chargeback\n\n- Usage-based billing\n- Cost allocation\n- Budget management\n- Financial reporting",
+      "x": 4920,
+      "y": 600,
+      "width": 280,
+      "height": 200,
+      "color": "3"
+    },
+    {
+      "id": "future-paula-3",
+      "type": "text",
+      "text": "## Future: GitOps\n\n- Policy as code\n- Version control\n- Automated deployment\n- Audit trail",
+      "x": 5240,
+      "y": 600,
+      "width": 260,
+      "height": 200,
+      "color": "3"
+    },
+    {
+      "id": "intersection-1",
+      "type": "text",
+      "text": "🔗 Paula publishes assets that Anna discovers",
+      "x": 820,
+      "y": 380,
+      "width": 300,
+      "height": 80,
+      "color": "4"
+    },
+    {
+      "id": "intersection-2",
+      "type": "text",
+      "text": "🔗 Paula configures tiers that control Anna's access levels",
+      "x": 1370,
+      "y": 380,
+      "width": 280,
+      "height": 100,
+      "color": "4"
+    },
+    {
+      "id": "intersection-3",
+      "type": "text",
+      "text": "🔗 Anna's usage is monitored by Paula's system",
+      "x": 2670,
+      "y": 380,
+      "width": 280,
+      "height": 100,
+      "color": "4"
+    },
+    {
+      "id": "intersection-4",
+      "type": "text",
+      "text": "🔗 Paula manages groups that Anna belongs to",
+      "x": 3640,
+      "y": 380,
+      "width": 280,
+      "height": 100,
+      "color": "4"
+    },
+    {
+      "id": "key-insights",
+      "type": "text",
+      "text": "# Key Insights\n\n## Relationship Model:\n**Tier → Group → User → API Key → Model Access**\n\n## Critical Touchpoints:\n1. Asset publication (Paula) → Discovery (Anna)\n2. Tier configuration (Paula) → Access levels (Anna)\n3. Group membership (Paula) → Permissions (Anna)\n4. Usage monitoring (Paula) ← Activity (Anna)\n\n## Pain Points:\n- API key management limitations (both)\n- Limited usage visibility (Anna)\n- Complex tier inheritance (Paula)\n- 4hr key expiration (Anna)\n\n## Future Opportunities:\n- Individual key management\n- Cost visibility & chargeback\n- GitOps for policy management\n- External provider integration",
+      "x": -180,
+      "y": 1350,
+      "width": 600,
+      "height": 600,
+      "color": "4"
+    },
+    {
+      "id": "technical-notes",
+      "type": "text",
+      "text": "# Technical Constraints (3.2/3.3)\n\n## API Keys:\n- Ephemeral (not persisted)\n- Cannot list individual keys\n- Can only revoke all at once\n- 4hr default expiration\n- No metadata for management\n\n## Rate Limiting:\n- Per user (not per key)\n- Highest tier applies if user in multiple groups\n\n## Tiers:\n- ConfigMap-based (CRD coming later)\n- Define models + limits + groups\n\n## Integration:\n- RHCL included with RHOAI for MaaS\n- K8s groups for access control\n- OpenShift RBAC integration",
+      "x": 500,
+      "y": 1350,
+      "width": 450,
+      "height": 600,
+      "color": "6"
+    },
+    {
+      "id": "workflow-summary",
+      "type": "text",
+      "text": "# Workflow Summary\n\n## Anna's Journey:\n1. **Discover** - Browse AI Hub/Studio\n2. **Onboard** - Find models, create API key\n3. **Develop** - Code & test locally\n4. **Deploy** - Production application\n\n## Paula's Journey:\n1. **Discover** - Curate asset catalog\n2. **Onboard** - Publish assets, configure tiers\n3. **Develop** - Manage users & groups\n4. **Deploy** - Monitor usage, adjust policies\n\n## Personas Intersect At:\n- Asset catalog management\n- Tier & group configuration\n- API key generation\n- Usage monitoring\n\n## Success Metrics:\n- Time to first API call (Anna)\n- Model adoption rate (both)\n- Policy compliance (Paula)\n- Resource utilization (Paula)",
+      "x": 1030,
+      "y": 1350,
+      "width": 500,
+      "height": 600,
+      "color": "5"
+    }
+  ],
+  "edges": [
+    {
+      "id": "anna-flow-1",
+      "fromNode": "anna-1-1",
+      "fromSide": "right",
+      "toNode": "anna-2-1",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-2",
+      "fromNode": "anna-2-1",
+      "fromSide": "right",
+      "toNode": "anna-2-2",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-3",
+      "fromNode": "anna-2-2",
+      "fromSide": "right",
+      "toNode": "anna-2-3",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-4",
+      "fromNode": "anna-2-3",
+      "fromSide": "right",
+      "toNode": "anna-2-4",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-5",
+      "fromNode": "anna-2-4",
+      "fromSide": "right",
+      "toNode": "anna-3-1",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-6",
+      "fromNode": "anna-3-1",
+      "fromSide": "right",
+      "toNode": "anna-3-2",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-7",
+      "fromNode": "anna-3-2",
+      "fromSide": "right",
+      "toNode": "anna-3-3",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-8",
+      "fromNode": "anna-3-3",
+      "fromSide": "right",
+      "toNode": "anna-3-4",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-9",
+      "fromNode": "anna-3-4",
+      "fromSide": "right",
+      "toNode": "anna-4-1",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-10",
+      "fromNode": "anna-4-1",
+      "fromSide": "right",
+      "toNode": "anna-4-2",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-11",
+      "fromNode": "anna-4-2",
+      "fromSide": "right",
+      "toNode": "anna-4-3",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "anna-flow-12",
+      "fromNode": "anna-4-3",
+      "fromSide": "right",
+      "toNode": "anna-4-4",
+      "toSide": "left",
+      "color": "5"
+    },
+    {
+      "id": "paula-flow-1",
+      "fromNode": "paula-1-1",
+      "fromSide": "right",
+      "toNode": "paula-1-2",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-2",
+      "fromNode": "paula-1-2",
+      "fromSide": "right",
+      "toNode": "decision-1",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-3",
+      "fromNode": "decision-1",
+      "fromSide": "right",
+      "toNode": "paula-2-1",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-4",
+      "fromNode": "paula-2-1",
+      "fromSide": "right",
+      "toNode": "paula-2-2",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-5",
+      "fromNode": "paula-2-2",
+      "fromSide": "right",
+      "toNode": "paula-2-3",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-6",
+      "fromNode": "paula-2-3",
+      "fromSide": "right",
+      "toNode": "paula-3-1",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-7",
+      "fromNode": "paula-3-1",
+      "fromSide": "right",
+      "toNode": "paula-3-2",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-8",
+      "fromNode": "paula-3-2",
+      "fromSide": "right",
+      "toNode": "paula-3-3",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-9",
+      "fromNode": "paula-3-3",
+      "fromSide": "right",
+      "toNode": "paula-3-4",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-10",
+      "fromNode": "paula-3-1",
+      "fromSide": "bottom",
+      "toNode": "paula-3-5",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-11",
+      "fromNode": "paula-3-5",
+      "fromSide": "right",
+      "toNode": "paula-3-6",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-12",
+      "fromNode": "paula-3-6",
+      "fromSide": "right",
+      "toNode": "paula-3-7",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-13",
+      "fromNode": "paula-3-7",
+      "fromSide": "right",
+      "toNode": "paula-3-8",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-14",
+      "fromNode": "paula-3-4",
+      "fromSide": "right",
+      "toNode": "paula-4-1",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-15",
+      "fromNode": "paula-4-1",
+      "fromSide": "right",
+      "toNode": "paula-4-2",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-16",
+      "fromNode": "paula-4-2",
+      "fromSide": "right",
+      "toNode": "paula-4-3",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-17",
+      "fromNode": "paula-4-1",
+      "fromSide": "bottom",
+      "toNode": "paula-4-4",
+      "toSide": "top",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-18",
+      "fromNode": "paula-4-4",
+      "fromSide": "right",
+      "toNode": "paula-4-pain",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "paula-flow-19",
+      "fromNode": "paula-4-pain",
+      "fromSide": "right",
+      "toNode": "paula-4-5",
+      "toSide": "left",
+      "color": "6"
+    },
+    {
+      "id": "intersection-1-anna",
+      "fromNode": "anna-2-2",
+      "fromSide": "bottom",
+      "toNode": "intersection-2",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "intersection-1-paula",
+      "fromNode": "paula-2-1",
+      "fromSide": "top",
+      "toNode": "intersection-2",
+      "toSide": "bottom",
+      "color": "4"
+    },
+    {
+      "id": "intersection-3-anna",
+      "fromNode": "anna-3-3",
+      "fromSide": "bottom",
+      "toNode": "intersection-3",
+      "toSide": "top",
+      "color": "4"
+    },
+    {
+      "id": "intersection-3-paula",
+      "fromNode": "paula-3-2",
+      "fromSide": "top",
+      "toNode": "intersection-3",
+      "toSide": "bottom",
+      "color": "4"
+    },
+    {
+      "id": "note-connection-1",
+      "fromNode": "anna-2-4",
+      "fromSide": "bottom",
+      "toNode": "anna-2-pain",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-2",
+      "fromNode": "anna-2-2",
+      "fromSide": "bottom",
+      "toNode": "anna-2-note",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-3",
+      "fromNode": "paula-1-2",
+      "fromSide": "bottom",
+      "toNode": "paula-1-note",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-4",
+      "fromNode": "paula-2-2",
+      "fromSide": "bottom",
+      "toNode": "paula-2-pain",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-5",
+      "fromNode": "paula-3-2",
+      "fromSide": "bottom",
+      "toNode": "paula-3-note",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-6",
+      "fromNode": "anna-3-3",
+      "fromSide": "bottom",
+      "toNode": "anna-3-pain",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-7",
+      "fromNode": "paula-4-3",
+      "fromSide": "bottom",
+      "toNode": "paula-4-note",
+      "toSide": "top",
+      "color": "3"
+    },
+    {
+      "id": "note-connection-8",
+      "fromNode": "paula-4-5",
+      "fromSide": "right",
+      "toNode": "paula-4-discussion",
+      "toSide": "left",
+      "color": "3"
+    }
+  ]
+}
