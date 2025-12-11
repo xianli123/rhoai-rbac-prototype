@@ -901,7 +901,7 @@ const WorkloadMetrics: React.FunctionComponent = () => {
   <PageSection>
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
           <FlexItem>
-            <Content component={ContentVariants.h1} id="workload-metrics-title">Workload metrics (Option A)</Content>
+            <Content component={ContentVariants.h1} id="workload-metrics-title">Workload metrics</Content>
           </FlexItem>
           <FlexItem>
             <Badge 
