@@ -1,5 +1,5 @@
-# GitLab Pages for Node.js Web App (Vite-based)
-# Configured to deploy from '3.2' branch and support branch previews
+# GitLab Pages for Node.js Web App
+# Configured to deploy from 'gitlab-pages' branch to keep main branch clean
 image: registry.redhat.io/ubi8/nodejs-18:latest
 
 stages:
@@ -8,13 +8,11 @@ stages:
 
 variables:
   NODE_ENV: production
-  # Default prefix (overridden per branch in job rules)
-  PAGES_PREFIX: "branch-$CI_COMMIT_BRANCH"
 
 # Default settings for all jobs
 default:
   tags:
-    - shared-podman
+    - itup-alm-arm
 
 # Cache disabled due to S3 upload timeouts in Red Hat GitLab environment
 # cache:
@@ -27,7 +25,6 @@ build:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "3.2"
-    - if: $CI_COMMIT_BRANCH != "main" && $CI_COMMIT_BRANCH != "3.2"
   script:
     - echo "Installing dependencies (including devDependencies for build tools)..."
     - npm ci --include=dev
@@ -35,34 +32,11 @@ build:
     - export PATH="$PWD/node_modules/.bin:$PATH"
     - echo "Verifying build tools are available..."
     - which tsc || echo "TypeScript compiler not found - will use npx fallback"
-    - echo "Setting base path for Vite build..."
-    - |
-      if [ "$CI_COMMIT_BRANCH" == "3.2" ]; then
-        # 3.2 branch: deploy to root
-        export VITE_BASE_PATH="/"
-        echo "Building for root deployment (base: /)"
-      else
-        # Other branches: deploy to subdirectory (ensure leading and trailing slashes)
-        export VITE_BASE_PATH="/${PAGES_PREFIX}/"
-        echo "Building for subdirectory deployment (base: /${PAGES_PREFIX}/)"
-      fi
-    - echo "Running Vite build process with base path: $VITE_BASE_PATH"
+    - echo "Running build process..."
     - npm run build
     - echo "Preparing files for GitLab Pages..."
     # GitLab Pages expects files in a 'public' directory
-    - |
-      if [ "$CI_COMMIT_BRANCH" == "3.2" ]; then
-        # 3.2 branch: files at root
-        mv dist public
-        echo "Deployed to root"
-      else
-        # Other branches: create directory structure with branch prefix
-        mkdir -p public/${PAGES_PREFIX}
-        cp -r dist/* public/${PAGES_PREFIX}/
-        echo "Deployed to /${PAGES_PREFIX}/"
-      fi
-    - echo "Contents of public/:"
-    - find public -type f | head -20
+    - mv dist public
   artifacts:
     paths:
       - public
@@ -71,12 +45,8 @@ pages:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "3.2"
-    - if: $CI_COMMIT_BRANCH != "main" && $CI_COMMIT_BRANCH != "3.2"
   script:
     - echo "Deploying to GitLab Pages..."
   artifacts:
     paths:
       - public
-  environment:
-    name: pages/$CI_COMMIT_BRANCH
-    url: $CI_PAGES_URL
