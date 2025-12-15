@@ -29,11 +29,14 @@ build:
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   rules:
     - if: $CI_COMMIT_BRANCH == "3.2"
+    - if: $CI_COMMIT_BRANCH == "feature-stores-entities"
   script:
     - echo "Installing dependencies (including devDependencies for build tools)..."
-    - npm ci --include=dev
+    - npm ci --include=dev --legacy-peer-deps
     - echo "Setting up environment for build..."
     - export PATH="$PWD/node_modules/.bin:$PATH"
+    - echo "Setting base path for GitLab Pages..."
+    - export VITE_BASE_PATH="/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME/"
     - echo "Verifying build tools are available..."
     - which tsc || echo "TypeScript compiler not found - will use npx fallback"
     - echo "Running build process..."
@@ -49,6 +52,7 @@ pages:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "3.2"
+    - if: $CI_COMMIT_BRANCH == "feature-stores-entities"
   script:
     - echo "Deploying to GitLab Pages..."
   artifacts:
