@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   PageSection,
   Title,
-  Text,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   ToolbarFilter,
   SearchInput,
   EmptyState,
-  EmptyStateIcon,
   EmptyStateBody,
   EmptyStateVariant,
   LabelGroup,
@@ -18,9 +17,11 @@ import {
   Flex,
   FlexItem,
   Button,
+  MenuToggle,
+  MenuToggleElement,
   Select,
+  SelectList,
   SelectOption,
-  SelectVariant,
   Pagination,
 } from '@patternfly/react-core';
 import {
@@ -153,9 +154,9 @@ export const EntitiesListPage: React.FC = () => {
             </Title>
           </FlexItem>
           <FlexItem>
-            <Text component="p">
+            <Content component="p">
               Manage and discover feature entities.
-            </Text>
+            </Content>
           </FlexItem>
         </Flex>
       </PageSection>
@@ -170,17 +171,28 @@ export const EntitiesListPage: React.FC = () => {
               categoryName="Filter"
             >
               <Select
-                variant={SelectVariant.single}
                 aria-label="Select filter attribute"
-                onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                onSelect={onFilterSelect}
-                selections={selectedFilter}
                 isOpen={isFilterDropdownOpen}
-                placeholderText="Select filter"
+                selected={selectedFilter}
+                onSelect={onFilterSelect}
+                onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                    isExpanded={isFilterDropdownOpen}
+                    aria-label="Select filter attribute"
+                  >
+                    {selectedFilter}
+                  </MenuToggle>
+                )}
+                shouldFocusToggleOnSelect
               >
-                {columns.map((column) => (
-                  <SelectOption key={column} value={column} />
-                ))}
+                <SelectList>
+                  {columns.map((column) => (
+                    <SelectOption key={column} value={column} />
+                  ))}
+                </SelectList>
               </Select>
             </ToolbarFilter>
             <ToolbarItem variant="search-filter">
@@ -217,8 +229,7 @@ export const EntitiesListPage: React.FC = () => {
       <PageSection>
         {filteredEntities.length === 0 ? (
           // Empty State
-          <EmptyState variant={EmptyStateVariant.sm}>
-            <EmptyStateIcon icon={SearchIcon} />
+          <EmptyState variant={EmptyStateVariant.sm} icon={SearchIcon}>
             <Title headingLevel="h2" size="lg">
               No results found
             </Title>
@@ -258,9 +269,9 @@ export const EntitiesListPage: React.FC = () => {
                           </Button>
                         </FlexItem>
                         <FlexItem>
-                          <Text component="small">
+                          <Content component="small">
                             {entity.description}
-                          </Text>
+                          </Content>
                         </FlexItem>
                       </Flex>
                     </Td>
