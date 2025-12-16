@@ -377,8 +377,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               >
                 <Badge 
                   style={{ 
-                    backgroundColor: '#f0ab00',
-                    color: '#151515',
+                    backgroundColor: '#F32BC4',
+                    color: '#ffffff',
                     fontSize: '10px'
                   }}
                   id={`${itemId}-new-badge`}
