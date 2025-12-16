@@ -43,6 +43,8 @@ build:
     - echo "Preparing files for GitLab Pages..."
     # GitLab Pages expects files in a 'public' directory
     - mv dist public
+    # Copy index.html to 404.html for SPA client-side routing support
+    - cp public/index.html public/404.html
   artifacts:
     paths:
       - public
