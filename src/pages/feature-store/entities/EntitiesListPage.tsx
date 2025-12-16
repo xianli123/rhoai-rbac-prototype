@@ -7,7 +7,6 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-  ToolbarFilter,
   SearchInput,
   EmptyState,
   EmptyStateBody,
@@ -120,12 +119,6 @@ export const EntitiesListPage: React.FC = () => {
     setPage(1);
   };
 
-  const onFilterSelect = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, value: string) => {
-    setSelectedFilter(value);
-    setIsFilterDropdownOpen(false);
-    setPage(1);
-  };
-
   // Handle navigation to entity detail page
   const handleEntityClick = (entityId: string) => {
     navigate(`/develop-and-train/feature-store/entities/${entityId}`);
@@ -146,7 +139,7 @@ export const EntitiesListPage: React.FC = () => {
   return (
     <>
       {/* Page Header Section */}
-      <PageSection variant="light">
+      <PageSection>
         <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl">
@@ -165,16 +158,16 @@ export const EntitiesListPage: React.FC = () => {
       <PageSection padding={{ default: 'noPadding' }}>
         <Toolbar id="entities-toolbar" clearAllFilters={() => setSearchValue('')}>
           <ToolbarContent>
-            <ToolbarFilter
-              chips={searchValue ? [searchValue] : []}
-              deleteChip={() => setSearchValue('')}
-              categoryName="Filter"
-            >
+            <ToolbarItem>
               <Select
                 aria-label="Select filter attribute"
                 isOpen={isFilterDropdownOpen}
                 selected={selectedFilter}
-                onSelect={onFilterSelect}
+                onSelect={(_event, value) => {
+                  setSelectedFilter(value as string);
+                  setIsFilterDropdownOpen(false);
+                  setPage(1);
+                }}
                 onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle
@@ -194,8 +187,8 @@ export const EntitiesListPage: React.FC = () => {
                   ))}
                 </SelectList>
               </Select>
-            </ToolbarFilter>
-            <ToolbarItem variant="search-filter">
+            </ToolbarItem>
+            <ToolbarItem>
               <SearchInput
                 placeholder={`Filter by ${selectedFilter}`}
                 value={searchValue}
@@ -210,7 +203,7 @@ export const EntitiesListPage: React.FC = () => {
                 aria-label={`Filter entities by ${selectedFilter}`}
               />
             </ToolbarItem>
-            <ToolbarItem variant="pagination" alignment={{ default: 'alignRight' }}>
+            <ToolbarItem variant="pagination">
               <Pagination
                 itemCount={filteredEntities.length}
                 perPage={perPage}

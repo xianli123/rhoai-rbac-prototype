@@ -525,8 +525,8 @@ const Dashboard: React.FunctionComponent = () => {
     const aggregatedData: { [key: string]: number } = {};
     
     selectedDeployments.forEach(deployment => {
-      if (modelMetricsData[deployment]) {
-        modelMetricsData[deployment].tokenThroughput.forEach(point => {
+      if ((modelMetricsData as any)[deployment]) {
+        (modelMetricsData as any)[deployment].tokenThroughput.forEach((point: any) => {
           const timeKey = point.x.getTime().toString();
           aggregatedData[timeKey] = (aggregatedData[timeKey] || 0) + point.y;
         });
@@ -546,8 +546,8 @@ const Dashboard: React.FunctionComponent = () => {
     const aggregatedData: { [key: string]: number } = {};
     
     selectedDeployments.forEach(deployment => {
-      if (modelMetricsData[deployment]) {
-        modelMetricsData[deployment].requestQueue.forEach(point => {
+      if ((modelMetricsData as any)[deployment]) {
+        (modelMetricsData as any)[deployment].requestQueue.forEach((point: any) => {
           const timeKey = point.x.getTime().toString();
           aggregatedData[timeKey] = (aggregatedData[timeKey] || 0) + point.y;
         });
@@ -566,8 +566,8 @@ const Dashboard: React.FunctionComponent = () => {
     const aggregatedData: { [key: string]: number } = {};
     
     selectedDeployments.forEach(deployment => {
-      if (modelMetricsData[deployment]) {
-        modelMetricsData[deployment].replicaCount.forEach(point => {
+      if ((modelMetricsData as any)[deployment]) {
+        (modelMetricsData as any)[deployment].replicaCount.forEach((point: any) => {
           const timeKey = point.x.getTime().toString();
           aggregatedData[timeKey] = (aggregatedData[timeKey] || 0) + point.y;
         });
@@ -588,8 +588,8 @@ const Dashboard: React.FunctionComponent = () => {
     const aggregatedData: { [key: string]: { total: number, count: number } } = {};
     
     selectedDeployments.forEach(deployment => {
-      if (modelMetricsData[deployment]) {
-        modelMetricsData[deployment].requestLatency.forEach(point => {
+      if ((modelMetricsData as any)[deployment]) {
+        (modelMetricsData as any)[deployment].requestLatency.forEach((point: any) => {
           const timeKey = point.x.getTime().toString();
           if (!aggregatedData[timeKey]) {
             aggregatedData[timeKey] = { total: 0, count: 0 };

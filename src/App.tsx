@@ -76,7 +76,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   return (
-    <Page header={Header} sidebar={Sidebar}>
+    <Page masthead={Header} sidebar={Sidebar}>
       {children}
     </Page>
   );
