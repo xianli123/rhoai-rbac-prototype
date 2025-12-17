@@ -897,7 +897,7 @@ export const EntitiesListPage: React.FC = () => {
       </PageSection>
 
       {/* Table Section */}
-      <PageSection>
+      <PageSection style={{ backgroundColor: 'var(--pf-t--global--background--color--primary--default)', minHeight: 'calc(100vh - 350px)' }}>
         {sortedEntities.length === 0 ? (
           // Empty State
           <EmptyState variant={EmptyStateVariant.sm} icon={SearchIcon}>
