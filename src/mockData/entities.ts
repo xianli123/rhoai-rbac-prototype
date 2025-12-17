@@ -16,6 +16,7 @@ export interface Entity {
   lastUpdated: string;
   tags: string[];
   usageCode: string;
+  featureStore: string; // Which feature store this entity belongs to
 }
 
 export const mockEntities: Entity[] = [
@@ -31,6 +32,7 @@ export const mockEntities: Entity[] = [
     created: '2024-01-15T08:30:00Z',
     lastUpdated: '2024-12-05T14:22:00Z',
     tags: ['env=production', 'type=pii', 'team=customer-data'],
+    featureStore: 'Customer analytics',
     usageCode: `from feast import FeatureStore
 
 store = FeatureStore(repo_path=".")
@@ -55,6 +57,7 @@ features = store.get_online_features(
     created: '2024-02-20T10:15:00Z',
     lastUpdated: '2024-12-08T09:45:00Z',
     tags: ['env=production', 'team=catalog', 'use_case=inventory'],
+    featureStore: 'Product recommendations',
     usageCode: `from feast import FeatureStore
 
 store = FeatureStore(repo_path=".")
@@ -79,6 +82,7 @@ features = store.get_online_features(
     created: '2024-03-10T12:00:00Z',
     lastUpdated: '2024-12-09T11:30:00Z',
     tags: ['env=production', 'team=analytics', 'use_case=fraud-detection', 'type=real-time'],
+    featureStore: 'Fraud detection',
     usageCode: `from feast import FeatureStore
 
 store = FeatureStore(repo_path=".")
@@ -103,6 +107,7 @@ features = store.get_online_features(
     created: '2024-04-05T09:20:00Z',
     lastUpdated: '2024-12-07T16:15:00Z',
     tags: ['env=production', 'team=logistics', 'use_case=driver-management'],
+    featureStore: 'Fraud detection',
     usageCode: `from feast import FeatureStore
 
 store = FeatureStore(repo_path=".")
@@ -127,6 +132,7 @@ features = store.get_online_features(
     created: '2024-05-12T11:45:00Z',
     lastUpdated: '2024-12-09T08:00:00Z',
     tags: ['env=production', 'team=e-commerce', 'use_case=fulfillment'],
+    featureStore: 'Product recommendations',
     usageCode: `from feast import FeatureStore
 
 store = FeatureStore(repo_path=".")

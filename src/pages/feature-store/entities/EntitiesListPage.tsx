@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   PageSection,
   Title,
@@ -9,6 +9,8 @@ import {
   ToolbarItem,
   ToolbarGroup,
   TextInput,
+  SearchInput,
+  DatePicker,
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
@@ -41,7 +43,7 @@ import {
   Td,
   ThProps,
 } from '@patternfly/react-table';
-import { SearchIcon, TimesIcon, WrenchIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { SearchIcon, WrenchIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { mockEntities, Entity } from '../../../mockData/entities';
 
 // Mock feature views data for popover
@@ -142,6 +144,7 @@ const highlightMatch = (text: string, query: string): React.ReactNode => {
  */
 export const EntitiesListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   
@@ -167,9 +170,20 @@ export const EntitiesListPage: React.FC = () => {
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Feature Store context selector state
-  const [selectedFeatureStore, setSelectedFeatureStore] = useState('All feature stores');
+  // Feature Store context selector state - initialize from URL param if present
+  const [selectedFeatureStore, setSelectedFeatureStore] = useState(() => {
+    const featureStoreParam = searchParams.get('featureStore');
+    return featureStoreParam || 'All feature stores';
+  });
   const [isFeatureStoreOpen, setIsFeatureStoreOpen] = useState(false);
+
+  // Update feature store selection when URL param changes
+  useEffect(() => {
+    const featureStoreParam = searchParams.get('featureStore');
+    if (featureStoreParam) {
+      setSelectedFeatureStore(featureStoreParam);
+    }
+  }, [searchParams]);
 
   // Sorting state
   const [activeSortIndex, setActiveSortIndex] = useState<number | null>(null);
@@ -216,8 +230,13 @@ export const EntitiesListPage: React.FC = () => {
       result.tags.some(tag => tag.toLowerCase().includes(query))
     );
     
-    // Also search entities
-    const entityResults: SearchResult[] = mockEntities
+    // Also search entities (filter by selected feature store if not "All")
+    let entitiesToSearch = mockEntities;
+    if (selectedFeatureStore !== 'All feature stores') {
+      entitiesToSearch = mockEntities.filter(e => e.featureStore === selectedFeatureStore);
+    }
+    
+    const entityResults: SearchResult[] = entitiesToSearch
       .filter(entity => 
         entity.name.toLowerCase().includes(query) ||
         entity.description.toLowerCase().includes(query) ||
@@ -228,14 +247,14 @@ export const EntitiesListPage: React.FC = () => {
         name: entity.name,
         description: entity.description,
         category: 'Entities' as const,
-        featureStore: 'Fraud detection',
+        featureStore: entity.featureStore,
         tags: entity.tags,
       }));
     
     const allResults = [...filteredResults, ...entityResults];
     
     return { results: allResults, total: allResults.length };
-  }, [globalSearchValue]);
+  }, [globalSearchValue, selectedFeatureStore]);
 
   // Group results by category
   const groupedResults = useMemo(() => {
@@ -249,13 +268,20 @@ export const EntitiesListPage: React.FC = () => {
     return groups;
   }, [globalSearchResults]);
 
-  // Filter entities based on active filters
+  // Filter entities based on selected feature store and active filters
   const filteredEntities = useMemo(() => {
-    if (!hasActiveFilters) {
-      return mockEntities;
+    // First filter by feature store
+    let entities = mockEntities;
+    if (selectedFeatureStore !== 'All feature stores') {
+      entities = mockEntities.filter(entity => entity.featureStore === selectedFeatureStore);
     }
     
-    return mockEntities.filter(entity => {
+    // Then apply active filters
+    if (!hasActiveFilters) {
+      return entities;
+    }
+    
+    return entities.filter(entity => {
       const extras = getEntityExtras(entity.id);
       
       // Check each filter category
@@ -292,7 +318,7 @@ export const EntitiesListPage: React.FC = () => {
       
       return true;
     });
-  }, [activeFilters, hasActiveFilters]);
+  }, [activeFilters, hasActiveFilters, selectedFeatureStore]);
 
   // Sorting logic
   const sortedEntities = useMemo(() => {
@@ -421,9 +447,9 @@ export const EntitiesListPage: React.FC = () => {
     setPage(1);
   };
 
-  // Handle navigation to entity detail page
+  // Handle navigation to entity detail page - pass selected feature store
   const handleEntityClick = (entityId: string) => {
-    navigate(`/develop-train/feature-store/entities/${entityId}`);
+    navigate(`/develop-train/feature-store/entities/${entityId}?featureStore=${encodeURIComponent(selectedFeatureStore)}`);
   };
 
   // Handle search result click
@@ -515,8 +541,7 @@ export const EntitiesListPage: React.FC = () => {
                     position="top"
                     triggerRef={searchContainerRef}
                   >
-                    <TextInput
-                      type="search"
+                    <SearchInput
                       aria-label="Global search"
                       placeholder="Search by name, description, or tag (e.g., team=platform)"
                       value={globalSearchValue}
@@ -533,23 +558,10 @@ export const EntitiesListPage: React.FC = () => {
                         // Delay to allow dropdown click
                         setTimeout(() => setIsSearchDropdownOpen(false), 200);
                       }}
-                      customIcon={
-                        globalSearchValue ? (
-                          <Button
-                            variant="plain"
-                            aria-label="Clear search"
-                            onClick={() => {
-                              setGlobalSearchValue('');
-                              setIsSearchDropdownOpen(false);
-                            }}
-                            style={{ padding: 0 }}
-                          >
-                            <TimesIcon />
-                          </Button>
-                        ) : (
-                          <SearchIcon />
-                        )
-                      }
+                      onClear={() => {
+                        setGlobalSearchValue('');
+                        setIsSearchDropdownOpen(false);
+                      }}
                     />
                   </Tooltip>
                   
@@ -570,9 +582,9 @@ export const EntitiesListPage: React.FC = () => {
                       }}
                     >
                       <PanelMain>
-                        <PanelMainBody>
+                        <PanelMainBody style={{ padding: '16px 0' }}>
                           {/* Results count - centered */}
-                          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                          <div style={{ textAlign: 'center', marginBottom: '16px', padding: '0 16px' }}>
                             <Button variant="link" isInline>
                               {globalSearchResults.total} results from All feature stores
                             </Button>
@@ -581,18 +593,18 @@ export const EntitiesListPage: React.FC = () => {
                           <Divider />
                           
                           {globalSearchResults.total === 0 ? (
-                            <Content component="p" style={{ padding: '16px 0' }}>No results found</Content>
+                            <Content component="p" style={{ padding: '16px' }}>No results found</Content>
                           ) : (
                             Object.entries(groupedResults).map(([category, results], categoryIndex) => (
                               <div key={category}>
-                                {categoryIndex > 0 && <Divider style={{ margin: '8px 0' }} />}
-                                <Content component="small" style={{ color: '#6a6e73', fontWeight: 600, marginTop: '12px', marginBottom: '8px', display: 'block' }}>
-                                  {category}
-                                </Content>
-                                {results.map((result, resultIndex) => (
-                                  <React.Fragment key={result.id}>
-                                    {resultIndex > 0 && <Divider style={{ margin: '8px 0' }} />}
+                                {categoryIndex > 0 && <Divider />}
+                                <div style={{ padding: '0 16px' }}>
+                                  <Content component="small" style={{ color: '#6a6e73', fontWeight: 600, marginTop: '12px', marginBottom: '8px', display: 'block' }}>
+                                    {category}
+                                  </Content>
+                                  {results.map((result) => (
                                     <div
+                                      key={result.id}
                                       style={{
                                         padding: '8px 0',
                                         cursor: 'pointer',
@@ -607,13 +619,13 @@ export const EntitiesListPage: React.FC = () => {
                                     >
                                       <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                                         <FlexItem>
-                                          <span style={{ fontWeight: 500 }}>
+                                          <span style={{ fontWeight: 400 }}>
                                             {highlightMatch(result.name, globalSearchValue)}
                                           </span>
                                         </FlexItem>
                                         {result.featureStore && (
                                           <FlexItem>
-                                            <Label isCompact variant="outline">{result.featureStore}</Label>
+                                            <Label isCompact variant="outline" color="blue">{result.featureStore}</Label>
                                           </FlexItem>
                                         )}
                                       </Flex>
@@ -632,8 +644,8 @@ export const EntitiesListPage: React.FC = () => {
                                         </Flex>
                                       )}
                                     </div>
-                                  </React.Fragment>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
                             ))
                           )}
@@ -705,7 +717,7 @@ export const EntitiesListPage: React.FC = () => {
                     <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsMd' }}>
                       {/* Connected workbenches section */}
                       <FlexItem>
-                        <Content component="p" style={{ fontSize: '14px' }}>
+                        <Content component="p" style={{ fontSize: '14px', margin: 0 }}>
                           Workbenches already connected to{' '}
                           {selectedFeatureStore === 'All feature stores' ? (
                             <strong>All feature stores</strong>
@@ -713,15 +725,15 @@ export const EntitiesListPage: React.FC = () => {
                             <>the <strong>{selectedFeatureStore}</strong> feature store</>
                           )}:
                         </Content>
-                        <List isPlain style={{ fontSize: '14px' }}>
+                        <List isPlain style={{ fontSize: '14px', marginTop: 0 }}>
                           {mockConnectedWorkbenches.map((wb, idx) => (
                             <ListItem key={idx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               •{' '}
-                              <Button variant="link" isInline>
+                              <Button variant="link" isInline style={{ fontWeight: 600 }}>
                                 {wb.name} <ExternalLinkAltIcon style={{ marginLeft: '4px' }} />
                               </Button>
                               {' '}in{' '}
-                              <Button variant="link" isInline>{wb.project}</Button>
+                              <Button variant="link" isInline style={{ fontWeight: 600 }}>{wb.project}</Button>
                               {' '}project
                             </ListItem>
                           ))}
@@ -730,7 +742,7 @@ export const EntitiesListPage: React.FC = () => {
                       
                       {/* Projects without workbenches section */}
                       <FlexItem>
-                        <Content component="p" style={{ fontSize: '14px' }}>
+                        <Content component="p" style={{ fontSize: '14px', margin: 0 }}>
                           Projects that can access{' '}
                           {selectedFeatureStore === 'All feature stores' ? (
                             <strong>All feature stores</strong>
@@ -739,11 +751,11 @@ export const EntitiesListPage: React.FC = () => {
                           )}{' '}
                           but do not have connected workbenches:
                         </Content>
-                        <List isPlain style={{ fontSize: '14px' }}>
+                        <List isPlain style={{ fontSize: '14px', marginTop: 0 }}>
                           {mockProjectsWithoutWorkbenches.map((project, idx) => (
                             <ListItem key={idx}>
                               •{' '}
-                              <Button variant="link" isInline>{project.name}</Button>
+                              <Button variant="link" isInline style={{ fontWeight: 600 }}>{project.name}</Button>
                               {' '}project
                             </ListItem>
                           ))}
@@ -807,15 +819,28 @@ export const EntitiesListPage: React.FC = () => {
                 </Select>
               </ToolbarItem>
               <ToolbarItem>
-                <TextInput
-                  type="text"
-                  aria-label={`Filter by ${selectedFilterAttribute}`}
-                  placeholder={`Filter by ${selectedFilterAttribute}`}
-                  value={filterInputValue}
-                  onChange={(_event, value) => setFilterInputValue(value)}
-                  onKeyDown={handleFilterKeyPress}
-                  style={{ minWidth: '250px' }}
-                />
+                {selectedFilterAttribute === 'Created' || selectedFilterAttribute === 'Updated' ? (
+                  <DatePicker
+                    aria-label={`Filter by ${selectedFilterAttribute}`}
+                    placeholder="Select date"
+                    onChange={(_event, value) => {
+                      if (value) {
+                        addFilterValue(value);
+                      }
+                    }}
+                    style={{ minWidth: '250px' }}
+                  />
+                ) : (
+                  <TextInput
+                    type="text"
+                    aria-label={`Filter by ${selectedFilterAttribute}`}
+                    placeholder={`Filter by ${selectedFilterAttribute.toLowerCase()}`}
+                    value={filterInputValue}
+                    onChange={(_event, value) => setFilterInputValue(value)}
+                    onKeyDown={handleFilterKeyPress}
+                    style={{ minWidth: '250px' }}
+                  />
+                )}
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarItem variant="pagination" style={{ marginLeft: 'auto' }}>
