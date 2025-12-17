@@ -249,6 +249,19 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                 >
                   AI Engineer
                 </DropdownItem>
+                <DropdownItem 
+                  key="data-scientist"
+                  icon={<UserIcon />}
+                  onClick={() => {
+                    setUserProfile('Data Scientist');
+                  }}
+                  style={{ 
+                    fontWeight: userProfile === 'Data Scientist' ? '600' : '400',
+                    color: userProfile === 'Data Scientist' ? '#0066cc' : 'inherit'
+                  }}
+                >
+                  Data Scientist
+                </DropdownItem>
                 <Divider component="li" />
                 <DropdownItem 
                   key="profile"
@@ -377,8 +390,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               >
                 <Badge 
                   style={{ 
-                    backgroundColor: '#f0ab00',
-                    color: '#151515',
+                    backgroundColor: '#F32BC4',
+                    color: '#ffffff',
                     fontSize: '10px'
                   }}
                   id={`${itemId}-new-badge`}
