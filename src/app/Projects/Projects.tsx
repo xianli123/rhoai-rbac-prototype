@@ -186,7 +186,7 @@ const Projects: React.FunctionComponent = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection>
         <Flex
           direction={{ default: 'row' }}
           alignItems={{ default: 'alignItemsCenter' }}
@@ -370,7 +370,7 @@ const Projects: React.FunctionComponent = () => {
               </Select>
             </ToolbarItem>
 
-            <ToolbarItem variant="search-filter">
+            <ToolbarItem>
               <SearchInput
                 placeholder="Filter by name"
                 value={filterValue}
@@ -380,13 +380,13 @@ const Projects: React.FunctionComponent = () => {
               />
             </ToolbarItem>
 
-            <ToolbarItem alignment={{ default: 'alignRight' }}>
+            <ToolbarItem>
               <Button variant="primary" id="create-project-button">
                 Create project
               </Button>
             </ToolbarItem>
 
-            <ToolbarItem alignment={{ default: 'alignRight' }} variant="pagination">
+            <ToolbarItem>
               <Pagination
                 itemCount={filteredProjects.length}
                 page={currentPage}
