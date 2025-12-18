@@ -588,9 +588,9 @@ export const EntitiesListPage: React.FC = () => {
                         <PanelMainBody style={{ padding: '16px 0' }}>
                           {/* Results count - centered */}
                           <div style={{ textAlign: 'center', marginBottom: '16px', padding: '0 16px' }}>
-                            <Button variant="link" isInline>
+                            <span style={{ color: 'var(--pf-t--global--text--color--link--default)', textDecoration: 'none' }}>
                               {globalSearchResults.total} results from All feature stores
-                            </Button>
+                            </span>
                           </div>
                           
                           <Divider />
