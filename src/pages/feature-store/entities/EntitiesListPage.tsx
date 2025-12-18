@@ -291,27 +291,27 @@ export const EntitiesListPage: React.FC = () => {
         const matchesAny = Array.from(filterValues).some(filterValue => {
           const searchLower = filterValue.toLowerCase();
           switch (category) {
-            case 'Entities':
-              return entity.name.toLowerCase().includes(searchLower) ||
-                     entity.description.toLowerCase().includes(searchLower);
-            case 'Tags':
-              return entity.tags.some(tag => tag.toLowerCase().includes(searchLower));
-            case 'Join key':
-              return entity.joinKey.toLowerCase().includes(searchLower);
-            case 'Value type':
-              return entity.valueType.toLowerCase().includes(searchLower);
-            case 'Feature views':
-              return extras.featureViewsCount.toString().includes(searchLower);
-            case 'Created':
-              return formatDate(entity.created).toLowerCase().includes(searchLower);
-            case 'Updated':
-              return formatDate(entity.lastUpdated).toLowerCase().includes(searchLower);
-            case 'Owner':
-              return extras.owner.toLowerCase().includes(searchLower);
-            default:
-              return true;
-          }
-        });
+        case 'Entities':
+          return entity.name.toLowerCase().includes(searchLower) ||
+                 entity.description.toLowerCase().includes(searchLower);
+        case 'Tags':
+          return entity.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        case 'Join key':
+          return entity.joinKey.toLowerCase().includes(searchLower);
+        case 'Value type':
+          return entity.valueType.toLowerCase().includes(searchLower);
+        case 'Feature views':
+          return extras.featureViewsCount.toString().includes(searchLower);
+        case 'Created':
+          return formatDate(entity.created).toLowerCase().includes(searchLower);
+        case 'Updated':
+          return formatDate(entity.lastUpdated).toLowerCase().includes(searchLower);
+        case 'Owner':
+          return extras.owner.toLowerCase().includes(searchLower);
+        default:
+          return true;
+      }
+    });
         
         if (!matchesAny) return false;
       }
@@ -528,35 +528,12 @@ export const EntitiesListPage: React.FC = () => {
           <FlexItem>
             <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsFlexStart' }}>
               <FlexItem>
-                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsMd' }}>
-                  <FlexItem>
-                    <div style={{
-                      backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-                      borderRadius: 'var(--pf-t--global--border--radius--small)',
-                      padding: 'var(--pf-t--global--spacer--sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <svg 
-                        viewBox="0 0 40 40" 
-                        fill="currentColor" 
-                        aria-hidden="true" 
-                        role="img" 
-                        width="24" 
-                        height="24"
-                        style={{ color: 'var(--pf-t--global--icon--color--regular)' }}
-                      >
-                        <path d="M28.125,9c0-1.99902-1.62598-3.625-3.625-3.625s-3.625,1.62598-3.625,3.625c0,1.78497,1.29919,3.26373,3,3.56177v2.43823c0,1.30957-1.06543,2.375-2.375,2.375h-6c-1.33502,0-2.53003.57721-3.375,1.48492v-8.29816c1.70081-.29803,3-1.77679,3-3.56177,0-1.99902-1.62598-3.625-3.625-3.625s-3.625,1.62598-3.625,3.625c0,1.78497,1.29919,3.26373,3,3.56177v14.87646c-1.70081.29803-3,1.77679-3,3.56177,0,1.99902,1.62598,3.625,3.625,3.625s3.625-1.62598,3.625-3.625c0-1.78497-1.29919-3.26373-3-3.56177v-3.43823c0-1.86133,1.51416-3.375,3.375-3.375h6c1.99902,0,3.625-1.62598,3.625-3.625v-2.43823c1.70081-.29803,3-1.77679,3-3.56177ZM9.125,7c0-1.30957,1.06543-2.375,2.375-2.375s2.375,1.06543,2.375,2.375-1.06543,2.375-2.375,2.375-2.375-1.06543-2.375-2.375ZM13.875,29c0,1.30957-1.06543,2.375-2.375,2.375s-2.375-1.06543-2.375-2.375,1.06543-2.375,2.375-2.375,2.375,1.06543,2.375,2.375ZM24.5,11.375c-1.30957,0-2.375-1.06543-2.375-2.375s1.06543-2.375,2.375-2.375,2.375,1.06543,2.375,2.375-1.06543,2.375-2.375,2.375Z"></path>
-                      </svg>
-                    </div>
-                  </FlexItem>
-                  <FlexItem>
-                    <Title headingLevel="h1" size="2xl">
-                      Entities
-                    </Title>
-                  </FlexItem>
-                </Flex>
+                <Title headingLevel="h1" size="2xl" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ background: '#f0f0f0', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>
+                    <svg className="pf-v6-svg" viewBox="0 0 40 40" fill="currentColor" aria-hidden="true" role="img" width="1em" height="1em"><path d="M28.125,9c0-1.99902-1.62598-3.625-3.625-3.625s-3.625,1.62598-3.625,3.625c0,1.78497,1.29919,3.26373,3,3.56177v2.43823c0,1.30957-1.06543,2.375-2.375,2.375h-6c-1.33502,0-2.53003.57721-3.375,1.48492v-8.29816c1.70081-.29803,3-1.77679,3-3.56177,0-1.99902-1.62598-3.625-3.625-3.625s-3.625,1.62598-3.625,3.625c0,1.78497,1.29919,3.26373,3,3.56177v14.87646c-1.70081.29803-3,1.77679-3,3.56177,0,1.99902,1.62598,3.625,3.625,3.625s3.625-1.62598,3.625-3.625c0-1.78497-1.29919-3.26373-3-3.56177v-3.43823c0-1.86133,1.51416-3.375,3.375-3.375h6c1.99902,0,3.625-1.62598,3.625-3.625v-2.43823c1.70081-.29803,3-1.77679,3-3.56177ZM9.125,7c0-1.30957,1.06543-2.375,2.375-2.375s2.375,1.06543,2.375,2.375-1.06543,2.375-2.375,2.375-2.375-1.06543-2.375-2.375ZM13.875,29c0,1.30957-1.06543,2.375-2.375,2.375s-2.375-1.06543-2.375-2.375,1.06543-2.375,2.375-2.375,2.375,1.06543,2.375,2.375ZM24.5,11.375c-1.30957,0-2.375-1.06543-2.375-2.375s1.06543-2.375,2.375-2.375,2.375,1.06543,2.375,2.375-1.06543,2.375-2.375,2.375Z"></path></svg>
+                  </div>
+                  Entities
+                </Title>
               </FlexItem>
               
               {/* Global Search Bar - Top Right aligned with header */}
@@ -811,9 +788,9 @@ export const EntitiesListPage: React.FC = () => {
           <ToolbarContent>
             <ToolbarGroup variant="filter-group">
               <ToolbarItem>
-                <Select
-                  aria-label="Select filter attribute"
-                  isOpen={isFilterDropdownOpen}
+              <Select
+                aria-label="Select filter attribute"
+                isOpen={isFilterDropdownOpen}
                   selected={selectedFilterAttribute}
                   onSelect={(_event, value) => {
                     setSelectedFilterAttribute(value as string);
@@ -833,7 +810,7 @@ export const EntitiesListPage: React.FC = () => {
                   shouldFocusToggleOnSelect
                 >
                   <SelectList>
-                    {columns.map((column) => (
+                {columns.map((column) => (
                       <SelectOption 
                         key={column} 
                         value={column}
@@ -843,14 +820,14 @@ export const EntitiesListPage: React.FC = () => {
                       </SelectOption>
                     ))}
                   </SelectList>
-                </Select>
+              </Select>
               </ToolbarItem>
               <ToolbarItem>
                 {selectedFilterAttribute === 'Created' || selectedFilterAttribute === 'Updated' ? (
                   <DatePicker
                     aria-label={`Filter by ${selectedFilterAttribute}`}
                     placeholder="Select date"
-                    onChange={(_event, value) => {
+                onChange={(_event, value) => {
                       if (value) {
                         addFilterValue(value);
                       }
@@ -868,7 +845,7 @@ export const EntitiesListPage: React.FC = () => {
                     style={{ minWidth: '250px' }}
                   />
                 )}
-              </ToolbarItem>
+            </ToolbarItem>
             </ToolbarGroup>
             <ToolbarItem variant="pagination" style={{ marginLeft: 'auto' }}>
               <Pagination
@@ -1019,9 +996,9 @@ export const EntitiesListPage: React.FC = () => {
                               {featureViews.map((view, idx) => (
                                 <ListItem key={idx}>
                                   •{' '}
-                                  <Button 
-                                    variant="link" 
-                                    isInline
+                      <Button
+                        variant="link"
+                        isInline
                                     onClick={() => navigate(`/develop-train/feature-store/feature-views/${view}`)}
                                   >
                                     {view}
@@ -1037,9 +1014,9 @@ export const EntitiesListPage: React.FC = () => {
                         <Button
                           variant="link"
                           isInline
-                        >
-                          {extras.featureViewsCount} feature view{extras.featureViewsCount !== 1 ? 's' : ''}
-                        </Button>
+                      >
+                        {extras.featureViewsCount} feature view{extras.featureViewsCount !== 1 ? 's' : ''}
+                      </Button>
                       </Popover>
                     </Td>
 
