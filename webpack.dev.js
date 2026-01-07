@@ -15,11 +15,20 @@ module.exports = merge(common('development'), {
     port: PORT,
     historyApiFallback: true,
     open: true,
+    hot: true,
+    liveReload: true,
     static: {
       directory: path.resolve(__dirname, 'dist'),
     },
     client: {
       overlay: true,
+      webSocketURL: 'auto://0.0.0.0:0/ws',
+    },
+    watchFiles: {
+      paths: ['src/**/*', 'public/**/*'],
+      options: {
+        usePolling: false,
+      },
     },
   },
   module: {
