@@ -28,6 +28,11 @@ import {
   SelectOption,
   Divider,
   Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Content,
+  ClipboardCopy,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -103,6 +108,66 @@ const mockGroups: Group[] = [
   },
 ];
 
+// Mock data for role details (permissions/rules)
+interface RoleRule {
+  actions: string;
+  apiGroups: string;
+  resources: string;
+  resourceNames: string;
+}
+
+const getRoleRules = (roleName: string): RoleRule[] => {
+  // Mock data - in real app, this would come from API
+  if (roleName === 'Admin') {
+    return [
+      { actions: 'All', apiGroups: 'infrastructure.odh.io', resources: 'aaqs', resourceNames: '-' },
+      { actions: 'create, update, patch, delete', apiGroups: 'infrastructure.odh.io', resources: 'subscriptions', resourceNames: '-' },
+      { actions: 'delete', apiGroups: 'infrastructure.odh.io', resources: 'catalogsources, clusterserviceversions, installplans, subscriptions', resourceNames: '-' },
+      { actions: 'get, list, watch', apiGroups: 'infrastructure.odh.io', resources: 'catalogsources, clusterserviceversions, installplans, operatorgroups, subscriptions', resourceNames: '-' },
+      { actions: 'get, list, watch', apiGroups: 'infrastructure.odh.io', resources: 'packagemanifests,packagemanifests/icon', resourceNames: '-' },
+      { actions: 'get, list, watch', apiGroups: 'apps', resources: 'Deployments', resourceNames: '-' },
+      { actions: 'get, list, watch', apiGroups: '', resources: 'Storage', resourceNames: '-' },
+      { actions: 'All', apiGroups: 'argoproj.io', resources: 'analysistemplates', resourceNames: '-' },
+      { actions: 'get, list, watch', apiGroups: 'cdi.kubevirt.io', resources: 'datavolumes/source', resourceNames: '-' },
+      { actions: 'create', apiGroups: 'cdi.kubevirt.io', resources: 'uploadtokenrequests', resourceNames: '-' },
+    ];
+  }
+  return [
+    { actions: 'get, list, watch', apiGroups: 'apps', resources: 'Deployments', resourceNames: '-' },
+    { actions: 'create, update, patch', apiGroups: 'apps', resources: 'Deployments', resourceNames: '-' },
+  ];
+};
+
+// Mock data for role assignees
+interface RoleAssignee {
+  subject: string;
+  subjectType: 'User' | 'Group';
+  roleBinding: string;
+  dateCreated: string;
+}
+
+const getRoleAssignees = (roleName: string): RoleAssignee[] => {
+  // Mock data - in real app, this would come from API
+  if (roleName === 'Workbench maintainer') {
+    return [
+      { subject: 'Deena', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'Diana', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'Jeff', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'workbench team', subjectType: 'Group', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'youth team', subjectType: 'Group', roleBinding: 'rb-wb-updater-in-cli', dateCreated: '30 Oct 2024' },
+    ];
+  }
+  // Default assignees for other roles
+  return mockUsers
+    .filter(u => u.role === roleName)
+    .map(u => ({ subject: u.name, subjectType: 'User' as const, roleBinding: `rb-${roleName.toLowerCase().replace(/\s+/g, '-')}`, dateCreated: u.dateCreated }))
+    .concat(
+      mockGroups
+        .filter(g => g.role === roleName)
+        .map(g => ({ subject: g.name, subjectType: 'Group' as const, roleBinding: `rb-${roleName.toLowerCase().replace(/\s+/g, '-')}`, dateCreated: g.dateCreated }))
+    );
+};
+
 const ProjectDetail: React.FunctionComponent = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -132,6 +197,11 @@ const ProjectDetail: React.FunctionComponent = () => {
   const [nameFilter, setNameFilter] = React.useState<string>('Name');
   const [isNameFilterOpen, setIsNameFilterOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState<string>('');
+  
+  // Role details modal state
+  const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
+  const [selectedRole, setSelectedRole] = React.useState<{ name: string; roleType: 'openshift-default' | 'openshift-custom' | 'regular' } | null>(null);
+  const [roleModalTabKey, setRoleModalTabKey] = React.useState<string | number>(0);
 
   const toggleKebabMenu = (id: string) => {
     setOpenKebabMenus((prev) => {
@@ -161,23 +231,45 @@ const ProjectDetail: React.FunctionComponent = () => {
     columnIndex,
   });
 
-  const renderRoleBadge = (role: string, roleType: 'openshift-default' | 'openshift-custom' | 'regular') => {
+  const handleRoleClick = (role: string, roleType: 'openshift-default' | 'openshift-custom' | 'regular') => {
+    setSelectedRole({ name: role, roleType });
+    setIsRoleModalOpen(true);
+    setRoleModalTabKey(0);
+  };
+
+  const renderRoleBadge = (
+    role: string, 
+    roleType: 'openshift-default' | 'openshift-custom' | 'regular',
+    subjectType?: 'User' | 'Group',
+    subjectName?: string
+  ) => {
+    const roleNameElement = (
+      <Button
+        variant="link"
+        isInline
+        onClick={() => handleRoleClick(role, roleType)}
+        style={{ padding: 0, fontSize: 'inherit', textDecoration: 'none' }}
+      >
+        {role}
+      </Button>
+    );
+
     if (roleType === 'openshift-default') {
       return (
         <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
-          <span>{role}</span>
+          {roleNameElement}
           <Label color="blue" variant="outline" isCompact>OpenShift default</Label>
         </Flex>
       );
     } else if (roleType === 'openshift-custom') {
       return (
         <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
-          <span>{role}</span>
+          {roleNameElement}
           <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>
         </Flex>
       );
     }
-    return <span>{role}</span>;
+    return roleNameElement;
   };
 
   const handleAssignRoles = () => {
@@ -503,7 +595,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                               data-pf-content="true"
                               className="pf-v6-c-content--p"
                             >
-                              {renderRoleBadge(user.role, user.roleType)}
+                              {renderRoleBadge(user.role, user.roleType, 'User', user.name)}
                             </p>
                           </Td>
                           <Td dataLabel="Date created">
@@ -626,7 +718,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                               data-pf-content="true"
                               className="pf-v6-c-content--p"
                             >
-                              {renderRoleBadge(group.role, group.roleType)}
+                              {renderRoleBadge(group.role, group.roleType, 'Group', group.name)}
                             </p>
                           </Td>
                           <Td dataLabel="Date created">
@@ -693,6 +785,130 @@ const ProjectDetail: React.FunctionComponent = () => {
           <div>Content for {activeTabKey} tab</div>
         )}
       </PageSection>
+
+      {/* Role Details Modal */}
+      <Modal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+        variant="large"
+        aria-labelledby="role-details-modal-title"
+      >
+        <ModalHeader
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span id="role-details-modal-title">{selectedRole?.name}</span>
+              {selectedRole?.roleType === 'openshift-default' && (
+                <Label color="blue" variant="outline">OpenShift default</Label>
+              )}
+              {selectedRole?.roleType === 'openshift-custom' && (
+                <Label color="purple" variant="outline">OpenShift custom</Label>
+              )}
+            </div>
+          }
+          description="Edit the project and manage user access"
+        />
+        <ModalBody>
+          <Tabs
+            activeKey={roleModalTabKey}
+            onSelect={(_event, tabIndex) => setRoleModalTabKey(tabIndex)}
+            aria-label="Role details tabs"
+          >
+            <Tab eventKey={0} title={<TabTitleText>Role details</TabTitleText>}>
+              <div style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+                <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+                  <div style={{ marginBottom: 'var(--pf-v5-global--spacer--xs)' }}>
+                    <Content component="p" style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)', color: 'var(--pf-v5-global--Color--200)' }}>
+                      OpenShift name
+                    </Content>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--pf-v5-global--spacer--sm)' }}>
+                    <ClipboardCopy
+                      hoverTip="Copy"
+                      clickTip="Copied"
+                      isReadOnly
+                    >
+                      {selectedRole?.name.toLowerCase() || ''}
+                    </ClipboardCopy>
+                    {selectedRole?.roleType === 'openshift-default' && (
+                      <Label color="purple" variant="outline">Cluster role</Label>
+                    )}
+                  </div>
+                </div>
+
+                <Table variant="compact" aria-label="Role permissions table">
+                  <Thead>
+                    <Tr>
+                      <Th>Actions</Th>
+                      <Th>API groups</Th>
+                      <Th>Resources</Th>
+                      <Th>
+                        Resource names
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                      </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {selectedRole && getRoleRules(selectedRole.name).map((rule, index) => (
+                      <Tr key={index}>
+                        <Td>{rule.actions}</Td>
+                        <Td>{rule.apiGroups}</Td>
+                        <Td>{rule.resources}</Td>
+                        <Td>{rule.resourceNames}</Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+                {selectedRole && getRoleRules(selectedRole.name).length > 10 && (
+                  <div style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+                    <Button variant="link" isInline>
+                      View more
+                    </Button>
+                    <span style={{ marginLeft: 'var(--pf-v5-global--spacer--sm)', color: 'var(--pf-v5-global--Color--200)' }}>
+                      Showing 10/{getRoleRules(selectedRole.name).length}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Tab>
+            <Tab eventKey={1} title={<TabTitleText>Assignees</TabTitleText>}>
+              <div style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+                <Table variant="compact" aria-label="Role assignees table">
+                  <Thead>
+                    <Tr>
+                      <Th>
+                        Subject
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                      </Th>
+                      <Th>
+                        Subject type
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                      </Th>
+                      <Th>
+                        Role binding
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                      </Th>
+                      <Th>
+                        Date created
+                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                      </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {selectedRole && getRoleAssignees(selectedRole.name).map((assignee, index) => (
+                      <Tr key={index}>
+                        <Td>{assignee.subject}</Td>
+                        <Td>{assignee.subjectType}</Td>
+                        <Td>{assignee.roleBinding}</Td>
+                        <Td>{assignee.dateCreated}</Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </div>
+            </Tab>
+          </Tabs>
+        </ModalBody>
+      </Modal>
     </>
   );
 };
