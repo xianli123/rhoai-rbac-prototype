@@ -671,7 +671,6 @@ const EditRolesPage: React.FunctionComponent = () => {
                             treeRow={{
                               onCollapse: () => toggleRoleExpansion(role.id),
                               rowIndex: rowIndex,
-                              isExpanded: isExpanded,
                               props: {
                                 'aria-level': 1,
                                 'aria-setsize': sortedRoles.length,
