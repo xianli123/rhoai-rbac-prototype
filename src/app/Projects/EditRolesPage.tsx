@@ -25,6 +25,7 @@ import {
   SelectOption,
   MenuToggle,
   MenuToggleElement,
+  Radio,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -38,9 +39,10 @@ import {
 import {
   AngleDownIcon,
   AngleRightIcon,
-  ChevronUpIcon,
   ChevronDownIcon,
+  ChevronUpIcon,
   InfoCircleIcon,
+  OutlinedQuestionCircleIcon,
 } from '@patternfly/react-icons';
 
 interface Role {
@@ -64,98 +66,206 @@ const mockRoles: Role[] = [
   {
     id: '1',
     name: 'custom-pipeline-super-user',
-    description: 'Description goes here.',
+    description: 'Custom OpenShift role with pipeline super user permissions.',
     roleType: 'openshift-custom',
     originallyAssigned: true,
     currentlyAssigned: true,
+    rules: [
+      {
+        actions: ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['tekton.dev'],
+        resources: ['Pipelines'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '2',
     name: 'Deployment maintainer',
-    description: 'Description goes here.',
+    description: 'User can view and manage all model deployments.',
     roleType: 'regular',
     originallyAssigned: true,
     currentlyAssigned: true,
+    rules: [
+      {
+        actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['ModelDeployments'],
+        resourceNames: undefined,
+      },
+      {
+        actions: ['get', 'list', 'patch'],
+        apiGroups: ['api.groups.name.aa'],
+        resources: ['Project'],
+        resourceNames: ['project name'],
+      },
+    ],
   },
   {
     id: '3',
     name: 'Deployment reader',
-    description: 'Description goes here.',
+    description: 'User can view and open model deployments without modifying their configuration.',
     roleType: 'regular',
     originallyAssigned: true,
     currentlyAssigned: true,
+    rules: [
+      {
+        actions: ['get', 'list', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['ModelDeployments'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '4',
     name: 'Workbench maintainer',
-    description: 'Description goes here.',
+    description: 'User can view and manage all workbenches. Applies to all workbenches.',
     roleType: 'regular',
     originallyAssigned: true,
     currentlyAssigned: true,
+    rules: [
+      {
+        actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['Workbenches'],
+        resourceNames: undefined,
+      },
+      {
+        actions: ['get', 'list', 'patch'],
+        apiGroups: ['api.groups.name.aa'],
+        resources: ['Project'],
+        resourceNames: ['project name'],
+      },
+    ],
   },
   {
     id: '5',
     name: 'Workbench reader',
-    description: 'Description goes here.',
+    description: 'User can view and open workbenches without modifying their configuration.',
     roleType: 'regular',
     originallyAssigned: true,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['get', 'list', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['Workbenches'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '6',
     name: 'Workbench updater',
-    description: 'Description goes here.',
+    description: 'User can view workbenches and modify their configuration, but cannot create or delete them.',
     roleType: 'regular',
     originallyAssigned: false,
     currentlyAssigned: true,
+    rules: [
+      {
+        actions: ['get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['Workbenches'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '7',
     name: 'Admin',
-    description: 'Description goes here.',
+    description: 'User can edit the project and manage user access. User can view and manage any project resource.',
     roleType: 'openshift-default',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['*'],
+        resources: ['*'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '8',
     name: 'Contributor',
-    description: 'Description goes here. Truncat...',
+    description: 'User can view and manage any project resource. Users with this role can manage all resources in the namespace, including workbenches, model deployments, and cluster storage, except for permissions controlling.',
     roleType: 'openshift-default',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['Workbenches', 'ModelDeployments', 'Pipelines'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '9',
     name: 'Deployment updater',
-    description: 'Description goes here.',
+    description: 'User can view model deployments and update existing deployments.',
     roleType: 'regular',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['ModelDeployments'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '10',
     name: 'Pipeline maintainer',
-    description: 'Description goes here.',
+    description: 'User can view and manage all pipelines.',
     roleType: 'regular',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['tekton.dev'],
+        resources: ['Pipelines'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '11',
     name: 'Pipeline updater',
-    description: 'Description goes here.',
+    description: 'User can view pipelines and modify their configuration, but cannot create or delete them.',
     roleType: 'regular',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: ['tekton.dev'],
+        resources: ['Pipelines'],
+        resourceNames: undefined,
+      },
+    ],
   },
   {
     id: '12',
     name: 'Pipeline reader',
-    description: 'Description goes here.',
+    description: 'User can view and open pipelines without modifying their configuration.',
     roleType: 'regular',
     originallyAssigned: false,
     currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['get', 'list', 'watch'],
+        apiGroups: ['tekton.dev'],
+        resources: ['Pipelines'],
+        resourceNames: undefined,
+      },
+    ],
   },
 ];
 
@@ -203,6 +313,15 @@ const EditRolesPage: React.FunctionComponent = () => {
       ? mockRoles 
       : mockRoles.filter(role => role.roleType !== 'openshift-custom');
     
+    // Ensure we always return roles, even if filteredRoles is empty
+    if (filteredRoles.length === 0) {
+      return mockRoles.map(role => ({
+        ...role,
+        originallyAssigned: false,
+        currentlyAssigned: false,
+      }));
+    }
+    
     return filteredRoles.map(role => {
       const isAssigned = subjectRoles.includes(role.name);
       return {
@@ -213,19 +332,47 @@ const EditRolesPage: React.FunctionComponent = () => {
     });
   };
   
-  const [roles, setRoles] = React.useState<Role[]>(initializeRoles());
+  const [roles, setRoles] = React.useState<Role[]>(() => {
+    const initialized = initializeRoles();
+    // Fallback to show all roles if initialization returns empty
+    return initialized.length > 0 ? initialized : mockRoles.map(role => ({
+      ...role,
+      originallyAssigned: false,
+      currentlyAssigned: false,
+    }));
+  });
   
   // Re-initialize roles when subject changes or when navigating to this page
   // This ensures we always read the latest shared data
   React.useEffect(() => {
-    setRoles(initializeRoles());
+    const initialized = initializeRoles();
+    // Fallback to show all roles if initialization returns empty
+    if (initialized.length > 0) {
+      setRoles(initialized);
+    } else {
+      setRoles(mockRoles.map(role => ({
+        ...role,
+        originallyAssigned: false,
+        currentlyAssigned: false,
+      })));
+    }
   }, [subjectName, subjectType, searchParams]); // Include searchParams to detect navigation
   const [expandedRoles, setExpandedRoles] = React.useState<Set<string>>(new Set());
   const [statusSortBy, setStatusSortBy] = React.useState<ISortBy>({
     index: 2,
     direction: 'asc',
   });
+  const [roleNameSortBy, setRoleNameSortBy] = React.useState<ISortBy>({
+    index: 1,
+    direction: 'asc',
+  });
+  const [option2StatusSortBy, setOption2StatusSortBy] = React.useState<ISortBy>({
+    index: 3,
+    direction: 'asc',
+  });
+  const [option2ActiveSort, setOption2ActiveSort] = React.useState<'roleName' | 'status'>('roleName');
   const [searchValue, setSearchValue] = React.useState('');
+  const [selectedOption, setSelectedOption] = React.useState<'option1' | 'option2'>('option1');
 
   const toggleRoleExpansion = (roleId: string) => {
     setExpandedRoles((prev) => {
@@ -272,7 +419,7 @@ const EditRolesPage: React.FunctionComponent = () => {
     );
   };
 
-  const getSortedRoles = (): Role[] => {
+  const getSortedRolesOption1 = (): Role[] => {
     const filtered = getFilteredRoles();
     return filtered.sort((a, b) => {
       const statusA = getRoleStatus(a);
@@ -289,12 +436,58 @@ const EditRolesPage: React.FunctionComponent = () => {
     });
   };
 
+  const getSortedRolesOption2 = (): Role[] => {
+    const filtered = getFilteredRoles();
+    return filtered.sort((a, b) => {
+      if (option2ActiveSort === 'status') {
+        const statusA = getRoleStatus(a);
+        const statusB = getRoleStatus(b);
+        const priorityA = getStatusPriority(statusA);
+        const priorityB = getStatusPriority(statusB);
+
+        if (priorityA !== priorityB) {
+          return option2StatusSortBy.direction === 'asc'
+            ? priorityA - priorityB
+            : priorityB - priorityA;
+        }
+        // If status priority is the same, sort by role name as secondary
+        return a.name.localeCompare(b.name);
+      } else {
+        // Sort by role name
+        const comparison = a.name.localeCompare(b.name);
+        return roleNameSortBy.direction === 'asc' ? comparison : -comparison;
+      }
+    });
+  };
+
+  const getSortedRoles = (): Role[] => {
+    return selectedOption === 'option1' ? getSortedRolesOption1() : getSortedRolesOption2();
+  };
+
   const getStatusSortParams = () => ({
     sortBy: statusSortBy,
     onSort: (_event: any, index: number, direction: 'asc' | 'desc') => {
       setStatusSortBy({ index, direction });
     },
     columnIndex: 2,
+  });
+
+  const getRoleNameSortParams = () => ({
+    sortBy: roleNameSortBy,
+    onSort: (_event: any, index: number, direction: 'asc' | 'desc') => {
+      setRoleNameSortBy({ index, direction });
+      setOption2ActiveSort('roleName');
+    },
+    columnIndex: 1,
+  });
+
+  const getOption2StatusSortParams = () => ({
+    sortBy: option2StatusSortBy,
+    onSort: (_event: any, index: number, direction: 'asc' | 'desc') => {
+      setOption2StatusSortBy({ index, direction });
+      setOption2ActiveSort('status');
+    },
+    columnIndex: 3,
   });
 
   const renderRoleBadge = (role: Role) => {
@@ -338,6 +531,35 @@ const EditRolesPage: React.FunctionComponent = () => {
 
   return (
     <>
+      <div style={{ 
+        backgroundColor: '#f0e6ff', 
+        padding: 'var(--pf-v5-global--spacer--md) var(--pf-v5-global--spacer--lg)',
+        borderBottom: '1px solid var(--pf-v5-global--BorderColor--200)'
+      }}>
+        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsMd' }}>
+          <FlexItem>
+            <span style={{ fontWeight: 600 }}>Design Option:</span>
+          </FlexItem>
+          <FlexItem>
+            <Radio
+              isChecked={selectedOption === 'option1'}
+              name="design-option"
+              onChange={() => setSelectedOption('option1')}
+              label="Option 1"
+              id="option1-radio"
+            />
+          </FlexItem>
+          <FlexItem>
+            <Radio
+              isChecked={selectedOption === 'option2'}
+              name="design-option"
+              onChange={() => setSelectedOption('option2')}
+              label="Option 2"
+              id="option2-radio"
+            />
+          </FlexItem>
+        </Flex>
+      </div>
       <div className="pf-v6-c-page__main-breadcrumb">
         <div style={{ padding: 'var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--lg)' }}>
           <Breadcrumb>
@@ -409,89 +631,125 @@ const EditRolesPage: React.FunctionComponent = () => {
               <Thead>
                 <Tr>
                   <Th />
-                  <Th>Role name</Th>
+                  <Th 
+                    sort={selectedOption === 'option2' ? getRoleNameSortParams() : undefined}
+                  >
+                    Role name
+                    {selectedOption === 'option2' && roleNameSortBy.direction === 'desc' && (
+                      <ChevronDownIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)' }} />
+                    )}
+                  </Th>
                   <Th>Description</Th>
-                  <Th sort={getStatusSortParams()}>
+                  <Th sort={selectedOption === 'option1' ? getStatusSortParams() : (selectedOption === 'option2' ? getOption2StatusSortParams() : undefined)}>
                     Status
-                    {statusSortBy.direction === 'desc' && (
+                    {selectedOption === 'option1' && statusSortBy.direction === 'desc' && (
+                      <ChevronDownIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)' }} />
+                    )}
+                    {selectedOption === 'option2' && option2ActiveSort === 'status' && option2StatusSortBy.direction === 'desc' && (
                       <ChevronDownIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)' }} />
                     )}
                   </Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {sortedRoles.map((role, rowIndex) => {
-                  const isExpanded = expandedRoles.has(role.id);
-                  const status = getRoleStatus(role);
-                  const hasRules = role.rules && role.rules.length > 0;
-                  
-                  return (
-                    <React.Fragment key={role.id}>
-                      <Tr>
-                        <Td
-                          treeRow={{
-                            onCollapse: () => toggleRoleExpansion(role.id),
-                            rowIndex: rowIndex,
-                            props: {
-                              'aria-level': 1,
-                              'aria-setsize': sortedRoles.length,
-                              'aria-posinset': rowIndex + 1,
-                            },
-                          }}
-                        >
-                          <div style={{ marginLeft: '0px' }}>
-                            <Checkbox
-                              id={`role-${role.id}`}
-                              isChecked={role.currentlyAssigned}
-                              onChange={() => handleRoleToggle(role.id)}
-                              aria-label={`Select role ${role.name}`}
-                            />
-                          </div>
-                        </Td>
-                        <Td>
-                          <div>
-                            <div>{role.name}</div>
-                            {renderRoleBadge(role) && (
-                              <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
-                                {renderRoleBadge(role)}
-                              </div>
-                            )}
-                          </div>
-                        </Td>
-                        <Td>{role.description}</Td>
-                        <Td>{renderStatusBadge(role)}</Td>
-                      </Tr>
-                      {isExpanded && role.rules && (
-                        <Tr isExpanded={isExpanded}>
-                          <Td colSpan={4}>
-                            <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
-                              <Table variant="compact" aria-label="Role rules">
-                                <Thead>
-                                  <Tr>
-                                    <Th>Actions</Th>
-                                    <Th>API groups</Th>
-                                    <Th>Resources</Th>
-                                    <Th>Resource names</Th>
-                                  </Tr>
-                                </Thead>
-                                <Tbody>
-                                  {role.rules.map((rule, index) => (
-                                    <Tr key={index}>
-                                      <Td>{rule.actions.join(', ')}</Td>
-                                      <Td>{rule.apiGroups.join(', ')}</Td>
-                                      <Td>{rule.resources.join(', ')}</Td>
-                                      <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
-                                    </Tr>
-                                  ))}
-                                </Tbody>
-                              </Table>
+                {sortedRoles.length === 0 ? (
+                  <Tr>
+                    <Td colSpan={4} style={{ textAlign: 'center', padding: 'var(--pf-v5-global--spacer--xl)' }}>
+                      No roles available
+                    </Td>
+                  </Tr>
+                ) : (
+                  sortedRoles.map((role, rowIndex) => {
+                    const isExpanded = expandedRoles.has(role.id);
+                    const status = getRoleStatus(role);
+                    const hasRules = role.rules && role.rules.length > 0;
+                    
+                    return (
+                      <React.Fragment key={role.id}>
+                        <Tr>
+                          <Td
+                            treeRow={{
+                              onCollapse: () => toggleRoleExpansion(role.id),
+                              rowIndex: rowIndex,
+                              isExpanded: isExpanded,
+                              props: {
+                                'aria-level': 1,
+                                'aria-setsize': sortedRoles.length,
+                                'aria-posinset': rowIndex + 1,
+                                'aria-expanded': isExpanded,
+                              },
+                            }}
+                          >
+                            <div style={{ marginLeft: '0px' }}>
+                              <Checkbox
+                                id={`role-${role.id}`}
+                                isChecked={role.currentlyAssigned}
+                                onChange={() => handleRoleToggle(role.id)}
+                                aria-label={`Select role ${role.name}`}
+                              />
                             </div>
                           </Td>
+                          <Td>
+                            <div>
+                              <div>{role.name}</div>
+                              {renderRoleBadge(role) && (
+                                <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
+                                  {renderRoleBadge(role)}
+                                </div>
+                              )}
+                            </div>
+                          </Td>
+                          <Td>{role.description}</Td>
+                          <Td>{renderStatusBadge(role)}</Td>
                         </Tr>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                        {isExpanded && (
+                          <Tr isExpanded={isExpanded}>
+                            <Td colSpan={4}>
+                              <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
+                                <div style={{ marginBottom: 'var(--pf-v5-global--spacer--sm)', fontWeight: 600 }}>
+                                  Rules
+                                </div>
+                                {hasRules && role.rules && role.rules.length > 0 ? (
+                                  <Table variant="compact" aria-label="Role rules">
+                                    <Thead>
+                                      <Tr>
+                                        <Th>Actions</Th>
+                                        <Th>
+                                          API groups
+                                          <ChevronUpIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                                          <ChevronDownIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                                        </Th>
+                                        <Th>Resource type</Th>
+                                        <Th>
+                                          Resource names
+                                          <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                                        </Th>
+                                      </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                      {role.rules.map((rule, index) => (
+                                        <Tr key={index}>
+                                          <Td>{rule.actions.join(', ')}</Td>
+                                          <Td>{rule.apiGroups.join(', ')}</Td>
+                                          <Td>{rule.resources.join(', ')}</Td>
+                                          <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
+                                        </Tr>
+                                      ))}
+                                    </Tbody>
+                                  </Table>
+                                ) : (
+                                  <div style={{ color: 'var(--pf-v5-global--Color--200)', padding: 'var(--pf-v5-global--spacer--sm)' }}>
+                                    No rules available
+                                  </div>
+                                )}
+                              </div>
+                            </Td>
+                          </Tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
+                )}
               </Tbody>
             </Table>
           </StackItem>
