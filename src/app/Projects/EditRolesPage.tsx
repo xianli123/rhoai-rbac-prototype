@@ -531,6 +531,11 @@ const EditRolesPage: React.FunctionComponent = () => {
 
   return (
     <>
+      <style>{`
+        .pf-m-expanded .pf-v6-c-table__toggle-icon svg {
+          transform: rotate(90deg);
+        }
+      `}</style>
       <div style={{ 
         backgroundColor: '#f0e6ff', 
         padding: 'var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--xl)',
@@ -654,7 +659,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               <Tbody>
                 {sortedRoles.length === 0 ? (
                   <Tr>
-                    <Td colSpan={5} style={{ textAlign: 'center', padding: 'var(--pf-v5-global--spacer--xl)' }}>
+                    <Td colSpan={4} style={{ textAlign: 'center', padding: 'var(--pf-v5-global--spacer--xl)' }}>
                       No roles available
                     </Td>
                   </Tr>
@@ -666,22 +671,28 @@ const EditRolesPage: React.FunctionComponent = () => {
                     
                     return (
                       <React.Fragment key={role.id}>
-                        <Tr>
+                        <Tr className={isExpanded ? 'pf-m-expanded' : undefined}>
                           <Td
-                            expand={{
+                            treeRow={{
+                              onCollapse: () => toggleRoleExpansion(role.id),
                               rowIndex: rowIndex,
-                              isExpanded: isExpanded,
-                              onToggle: () => toggleRoleExpansion(role.id),
-                              expandId: `role-expand-${role.id}`,
+                              props: {
+                                'aria-level': 1,
+                                'aria-setsize': sortedRoles.length,
+                                'aria-posinset': rowIndex + 1,
+                                'aria-expanded': isExpanded,
+                              },
                             }}
-                          />
-                          <Td>
-                            <Checkbox
-                              id={`role-${role.id}`}
-                              isChecked={role.currentlyAssigned}
-                              onChange={() => handleRoleToggle(role.id)}
-                              aria-label={`Select role ${role.name}`}
-                            />
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--pf-v5-global--spacer--sm)' }}>
+                              <Checkbox
+                                id={`role-${role.id}`}
+                                isChecked={role.currentlyAssigned}
+                                onChange={() => handleRoleToggle(role.id)}
+                                aria-label={`Select role ${role.name}`}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
                           </Td>
                           <Td>
                             <div>
@@ -698,7 +709,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                         </Tr>
                         {isExpanded && (
                           <Tr isExpanded={isExpanded}>
-                            <Td colSpan={5}>
+                            <Td colSpan={4}>
                               <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
                                 <div style={{ marginBottom: 'var(--pf-v5-global--spacer--sm)', fontWeight: 600 }}>
                                   Rules
