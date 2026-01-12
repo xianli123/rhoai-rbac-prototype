@@ -64,6 +64,7 @@ const mockAvailableRoles: Role[] = [
     name: 'custom-pipeline-super-user',
     description: 'Custom OpenShift role with pipeline super user permissions.',
     roleType: 'openshift-custom',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -79,6 +80,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Deployment maintainer',
     description: 'User can view and manage all model deployments.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -100,6 +102,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Deployment reader',
     description: 'User can view and open model deployments without modifying their configuration.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -115,6 +118,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Workbench maintainer',
     description: 'User can view and manage all workbenches. Applies to all workbenches.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -136,6 +140,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Workbench reader',
     description: 'User can view and open workbenches without modifying their configuration.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -151,6 +156,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Workbench updater',
     description: 'User can view workbenches and modify their configuration, but cannot create or delete them.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -166,6 +172,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Admin',
     description: 'User can edit the project and manage user access. User can view and manage any project resource.',
     roleType: 'openshift-default',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -181,6 +188,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Contributor',
     description: 'User can view and manage any project resource. Users with this role can manage all resources in the namespace, including workbenches, model deployments, and cluster storage, except for permissions controlling.',
     roleType: 'openshift-default',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -196,6 +204,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Deployment updater',
     description: 'User can view model deployments and update existing deployments.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -211,6 +220,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Pipeline maintainer',
     description: 'User can view and manage all pipelines.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -226,6 +236,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Pipeline updater',
     description: 'User can view pipelines and modify their configuration, but cannot create or delete them.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -241,6 +252,7 @@ const mockAvailableRoles: Role[] = [
     name: 'Pipeline reader',
     description: 'User can view and open pipelines without modifying their configuration.',
     roleType: 'regular',
+    originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
       {
@@ -281,18 +293,6 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     direction: 'asc',
   });
   const [rulesPageSize, setRulesPageSize] = React.useState(10);
-
-  // Get subject's current roles from shared data
-  const getSubjectRoles = (): string[] => {
-    if (!selectedSubject) return [];
-    if (subjectType === 'User') {
-      const user = mockUsers.find(u => u.name === selectedSubject);
-      return user?.roles.map(r => r.role) || [];
-    } else {
-      const group = mockGroups.find(g => g.name === selectedSubject);
-      return group?.roles.map(r => r.role) || [];
-    }
-  };
 
   // Get available subjects based on type
   const getAvailableSubjects = (): string[] => {
