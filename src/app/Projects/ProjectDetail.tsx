@@ -174,12 +174,6 @@ const ProjectDetail: React.FunctionComponent = () => {
     setMockGroups([...sharedMockGroups] as Group[]);
   }, [tabParam, searchParams]); // Re-run when URL params change (e.g., when navigating back)
 
-  // Keep Role table comparison on option1 when switching options in Role assignment flow comparison modal
-  React.useEffect(() => {
-    if (isComparisonModalOpen || selectedAssignOption) {
-      setRolesVariant('option1');
-    }
-  }, [isComparisonModalOpen, selectedAssignOption]);
   const [isActionsOpen, setIsActionsOpen] = React.useState(false);
   const [openKebabMenus, setOpenKebabMenus] = React.useState<Set<string>>(new Set());
   const [usersSortBy, setUsersSortBy] = React.useState<ISortBy>({
@@ -213,6 +207,13 @@ const ProjectDetail: React.FunctionComponent = () => {
   const [isOption2ModalOpen, setIsOption2ModalOpen] = React.useState(false);
   const [option2SubjectType, setOption2SubjectType] = React.useState<'User' | 'Group'>('User');
   const [option2SelectedSubject, setOption2SelectedSubject] = React.useState<string | undefined>();
+
+  // Keep Role table comparison on option1 when switching options in Role assignment flow comparison modal
+  React.useEffect(() => {
+    if (isComparisonModalOpen || selectedAssignOption) {
+      setRolesVariant('option1');
+    }
+  }, [isComparisonModalOpen, selectedAssignOption]);
   
   const togglePopover = (popoverId: string) => {
     setOpenPopovers((prev) => {
