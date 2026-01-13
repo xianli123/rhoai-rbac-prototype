@@ -663,7 +663,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               <div className="pf-v6-c-form__group">
                 <div className="pf-v6-c-form__group-label">
                   <label className="pf-v6-c-form__label" htmlFor="subject-type">
-                    <span className="pf-v6-c-form__label-text">Subject type</span>
+                    <span className="pf-v6-c-form__label-text">Subject kind</span>
                   </label>
                 </div>
                 <div className="pf-v6-c-form__group-control">{subjectType}</div>

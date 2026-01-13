@@ -1279,7 +1279,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                         <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
                       </Th>
                       <Th>
-                        Subject type
+                        Subject kind
                         <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
                       </Th>
                       <Th>

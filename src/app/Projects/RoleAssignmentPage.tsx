@@ -313,7 +313,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     }));
   }, [subjectType, selectedSubject]);
 
-  // Reset when subject type changes
+  // Reset when subject kind changes
   React.useEffect(() => {
     setSelectedSubject(undefined);
     setSearchValue('');
@@ -405,18 +405,18 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     const filtered = getFilteredRoles();
     return filtered.sort((a, b) => {
       if (option2ActiveSort === 'status') {
-        const statusA = getRoleStatus(a);
-        const statusB = getRoleStatus(b);
-        const priorityA = getStatusPriority(statusA);
-        const priorityB = getStatusPriority(statusB);
+      const statusA = getRoleStatus(a);
+      const statusB = getRoleStatus(b);
+      const priorityA = getStatusPriority(statusA);
+      const priorityB = getStatusPriority(statusB);
 
-        if (priorityA !== priorityB) {
+      if (priorityA !== priorityB) {
           return option2StatusSortBy.direction === 'asc'
-            ? priorityA - priorityB
-            : priorityB - priorityA;
-        }
+          ? priorityA - priorityB
+          : priorityB - priorityA;
+      }
         // If status priority is the same, sort by role name as secondary
-        return a.name.localeCompare(b.name);
+      return a.name.localeCompare(b.name);
       } else {
         // Sort by role name
         const comparison = a.name.localeCompare(b.name);
@@ -568,24 +568,24 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             <StackItem>
               <Title headingLevel="h2" size="lg">Subject</Title>
               <Form style={{ marginTop: '16px' }}>
-                <FormGroup label="Subject type" fieldId="subject-type">
-                  <Flex spaceItems={{ default: 'spaceItemsLg' }}>
-                    <Radio
-                      id="subject-type-user"
-                      name="subject-type"
-                      label="User"
-                      isChecked={subjectType === 'User'}
-                      onChange={() => setSubjectType('User')}
-                    />
-                    <Radio
-                      id="subject-type-group"
-                      name="subject-type"
-                      label="Group"
-                      isChecked={subjectType === 'Group'}
-                      onChange={() => setSubjectType('Group')}
-                    />
-                  </Flex>
-                </FormGroup>
+                <FormGroup label="Subject kind" fieldId="subject-type">
+                <Flex spaceItems={{ default: 'spaceItemsLg' }}>
+                  <Radio
+                    id="subject-type-user"
+                    name="subject-type"
+                    label="User"
+                    isChecked={subjectType === 'User'}
+                    onChange={() => setSubjectType('User')}
+                  />
+                  <Radio
+                    id="subject-type-group"
+                    name="subject-type"
+                    label="Group"
+                    isChecked={subjectType === 'Group'}
+                    onChange={() => setSubjectType('Group')}
+                  />
+                </Flex>
+              </FormGroup>
 
                 <FormGroup 
                   label={subjectType === 'User' ? 'User name' : 'Group name'} 
@@ -620,28 +620,28 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                       style={{ marginTop: '8px' }}
                     />
                   )}
-                </FormGroup>
-              </Form>
-            </StackItem>
+              </FormGroup>
+            </Form>
+          </StackItem>
 
             {selectedSubject && (
-              <StackItem style={{ marginTop: '40px' }}>
-                <Title headingLevel="h2" size="lg">Role assignment</Title>
-                <Content style={{ marginTop: '16px', marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
-                  Check the role to grant the relevant permissions.
-                </Content>
+          <StackItem style={{ marginTop: '40px' }}>
+            <Title headingLevel="h2" size="lg">Role assignment</Title>
+            <Content style={{ marginTop: '16px', marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+              Check the role to grant the relevant permissions.
+            </Content>
 
-                <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
-                  <SearchInput
-                    placeholder="Find by name"
-                    value={searchValue}
-                    onChange={(_event, value) => setSearchValue(value)}
-                    onClear={() => setSearchValue('')}
-                    aria-label="Find by name"
-                  />
-                </div>
+            <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+              <SearchInput
+                placeholder="Find by name"
+                value={searchValue}
+                onChange={(_event, value) => setSearchValue(value)}
+                onClear={() => setSearchValue('')}
+                aria-label="Find by name"
+              />
+            </div>
 
-                <Table variant="compact" aria-label="Roles table">
+              <Table variant="compact" aria-label="Roles table">
                   <Thead>
                     <Tr>
                       <Th />
@@ -665,15 +665,15 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                       sortedRoles.map((role) => (
                         <Tr key={role.id}>
                           <Td>
-                            <Checkbox
-                              id={`role-${role.id}`}
-                              isChecked={role.currentlyAssigned}
-                              onChange={() => handleRoleToggle(role.id)}
-                              aria-label={`Select role ${role.name}`}
-                            />
-                          </Td>
-                          <Td>
-                            <div>
+                                <Checkbox
+                                  id={`role-${role.id}`}
+                                  isChecked={role.currentlyAssigned}
+                                  onChange={() => handleRoleToggle(role.id)}
+                                  aria-label={`Select role ${role.name}`}
+                                />
+                            </Td>
+                            <Td>
+                              <div>
                               <Button
                                 variant="link"
                                 onClick={() => handleRoleNameClick(role)}
@@ -683,23 +683,23 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                               >
                                 {role.name}
                               </Button>
-                              {renderRoleBadge(role) && (
-                                <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
-                                  {renderRoleBadge(role)}
-                                </div>
-                              )}
-                            </div>
-                          </Td>
-                          <Td>{role.description}</Td>
-                          <Td>{renderStatusBadge(role)}</Td>
-                        </Tr>
+                                {renderRoleBadge(role) && (
+                                  <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
+                                    {renderRoleBadge(role)}
+                                  </div>
+                                )}
+                              </div>
+                            </Td>
+                            <Td>{role.description}</Td>
+                            <Td>{renderStatusBadge(role)}</Td>
+                          </Tr>
                       ))
                     )}
                   </Tbody>
                 </Table>
               </StackItem>
             )}
-          </Stack>
+        </Stack>
         </div>
       </PageSection>
 
