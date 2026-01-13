@@ -1353,16 +1353,7 @@ const ProjectDetail: React.FunctionComponent = () => {
               </FormGroup>
             </Form>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--pf-v5-global--spacer--sm)', marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
-            <Button
-              variant="link"
-              onClick={() => {
-                setIsComparisonModalOpen(false);
-                setSelectedAssignOption(null);
-              }}
-            >
-              Terminate
-            </Button>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 'var(--pf-v5-global--spacer--sm)', marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
             <Button
               variant="primary"
               onClick={() => {
@@ -1379,6 +1370,15 @@ const ProjectDetail: React.FunctionComponent = () => {
               isDisabled={!selectedAssignOption}
             >
               Go ahead
+            </Button>
+            <Button
+              variant="link"
+              onClick={() => {
+                setIsComparisonModalOpen(false);
+                setSelectedAssignOption(null);
+              }}
+            >
+              Terminate
             </Button>
           </div>
         </ModalBody>
