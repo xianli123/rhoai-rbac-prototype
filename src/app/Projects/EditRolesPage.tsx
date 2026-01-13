@@ -604,7 +604,7 @@ const EditRolesPage: React.FunctionComponent = () => {
       `}</style>
       <div style={{ 
         backgroundColor: '#f0e6ff', 
-        padding: '24px',
+        padding: '16px',
         borderBottom: '1px solid var(--pf-v5-global--BorderColor--200)'
       }}>
         <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsLg' }}>
