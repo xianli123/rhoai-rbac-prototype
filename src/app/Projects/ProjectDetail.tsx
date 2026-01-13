@@ -1472,17 +1472,7 @@ const ProjectDetail: React.FunctionComponent = () => {
               </HelperText>
             </FormGroup>
           </Form>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--pf-v5-global--spacer--sm)', marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
-            <Button
-              variant="link"
-              onClick={() => {
-                setIsOption2ModalOpen(false);
-                setOption2SelectedSubject(undefined);
-                setOption2SubjectType('User');
-              }}
-            >
-              Cancel
-            </Button>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 'var(--pf-v5-global--spacer--sm)', marginTop: 'var(--pf-v5-global--spacer--lg)' }}>
             <Button
               variant="primary"
               onClick={() => {
@@ -1496,7 +1486,17 @@ const ProjectDetail: React.FunctionComponent = () => {
               }}
               isDisabled={!option2SelectedSubject}
             >
-              Assign roles
+              Assign role
+            </Button>
+            <Button
+              variant="link"
+              onClick={() => {
+                setIsOption2ModalOpen(false);
+                setOption2SelectedSubject(undefined);
+                setOption2SubjectType('User');
+              }}
+            >
+              Cancel
             </Button>
           </div>
         </ModalBody>
