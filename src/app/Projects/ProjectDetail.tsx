@@ -290,12 +290,10 @@ const ProjectDetail: React.FunctionComponent = () => {
     const content = getLabelPopoverContent('ai');
     const label = (
       <Label
+        color="green"
         variant="filled"
         isCompact
         style={{
-          backgroundColor: '#f5f5f5',
-          borderColor: '#d2d2d2',
-          color: '#000',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
@@ -392,20 +390,170 @@ const ProjectDetail: React.FunctionComponent = () => {
       return roleNameElement;
     }
 
-    // Option 1: Original behavior (keep existing labels)
+    // Option 1: Reuse filled labels with popovers from Option 2
     if (rolesVariant === 'option1') {
       if (roleType === 'openshift-default') {
+        const openshiftPopoverId = `openshift-default-${subjectType}-${subjectName}-${role}`;
+        const openshiftContent = getLabelPopoverContent('openshift-default', role);
+        const openshiftLabel = (
+          <Label 
+            color="blue" 
+            variant="filled" 
+            isCompact
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
+              if (!isCurrentlyOpen) {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(openshiftPopoverId);
+                  return newSet;
+                });
+              }
+            }}
+          >
+            <svg
+              className="pf-v6-svg"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+              aria-hidden="true"
+              role="img"
+              width="1em"
+              height="1em"
+              style={{ width: '12px', height: '12px' }}
+            >
+              <path fill="#BB202A" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+              <path fill="#BB202A" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+              <path fill="#E12634" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+              <path fill="#E12634" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+              <path fill="#E12634" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+              <path fill="#E12634" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+              <path fill="#971B1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+              <path fill="#971B1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+              <path fill="#BB202A" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+            </svg>
+            <span style={{ marginLeft: '4px' }}>OpenShift default</span>
+          </Label>
+        );
+        
+        const openshiftLabelWithPopover = (
+          <Popover
+            headerContent={
+              <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
+            }
+            bodyContent="This is a placeholder. Not real data."
+            showClose
+            isVisible={openPopovers.has(openshiftPopoverId)}
+            shouldOpen={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                if (!newSet.has(openshiftPopoverId)) {
+                  newSet.add(openshiftPopoverId);
+                }
+                return newSet;
+              });
+              return true;
+            }}
+            shouldClose={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(openshiftPopoverId);
+                return newSet;
+              });
+              return true;
+            }}
+          >
+            {openshiftLabel}
+          </Popover>
+        );
+        
         return (
           <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
             {roleNameElement}
-            <Label color="blue" variant="outline" isCompact>OpenShift default</Label>
+            {openshiftLabelWithPopover}
           </Flex>
         );
       } else if (roleType === 'openshift-custom') {
+        const openshiftPopoverId = `openshift-custom-${subjectType}-${subjectName}-${role}`;
+        const openshiftContent = getLabelPopoverContent('openshift-custom', role);
+        const openshiftLabel = (
+          <Label 
+            color="purple" 
+            variant="filled" 
+            isCompact
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
+              if (!isCurrentlyOpen) {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(openshiftPopoverId);
+                  return newSet;
+                });
+              }
+            }}
+          >
+            <svg
+              className="pf-v6-svg"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+              aria-hidden="true"
+              role="img"
+              width="1em"
+              height="1em"
+              style={{ width: '12px', height: '12px' }}
+            >
+              <path fill="#BB202A" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+              <path fill="#BB202A" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+              <path fill="#E12634" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+              <path fill="#E12634" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+              <path fill="#E12634" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+              <path fill="#E12634" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+              <path fill="#971B1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+              <path fill="#971B1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+              <path fill="#BB202A" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+            </svg>
+            <span style={{ marginLeft: '4px' }}>OpenShift custom</span>
+          </Label>
+        );
+        
+        const openshiftLabelWithPopover = (
+          <Popover
+            headerContent={
+              <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
+            }
+            bodyContent="This is a placeholder. Not real data."
+            showClose
+            isVisible={openPopovers.has(openshiftPopoverId)}
+            shouldOpen={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                if (!newSet.has(openshiftPopoverId)) {
+                  newSet.add(openshiftPopoverId);
+                }
+                return newSet;
+              });
+              return true;
+            }}
+            shouldClose={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(openshiftPopoverId);
+                return newSet;
+              });
+              return true;
+            }}
+          >
+            {openshiftLabel}
+          </Popover>
+        );
+        
         return (
           <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
             {roleNameElement}
-            <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>
+            {openshiftLabelWithPopover}
           </Flex>
         );
       }
@@ -608,11 +756,27 @@ const ProjectDetail: React.FunctionComponent = () => {
   };
 
   const handleEditUser = (userId: string, userName: string) => {
-    navigate(`/projects/${projectId}/permissions/edit-roles?subjectType=User&subjectName=${encodeURIComponent(userName)}`);
+    const urlParams = new URLSearchParams({
+      subjectType: 'User',
+      subjectName: userName
+    });
+    // If Option 2 or Option 3 is selected, add parameter to select Option 2 in Edit role assignment page
+    if (rolesVariant === 'option2' || rolesVariant === 'option3') {
+      urlParams.set('designOption', 'option2');
+    }
+    navigate(`/projects/${projectId}/permissions/edit-roles?${urlParams.toString()}`);
   };
 
   const handleEditGroup = (groupId: string, groupName: string) => {
-    navigate(`/projects/${projectId}/permissions/edit-roles?subjectType=Group&subjectName=${encodeURIComponent(groupName)}`);
+    const urlParams = new URLSearchParams({
+      subjectType: 'Group',
+      subjectName: groupName
+    });
+    // If Option 2 or Option 3 is selected, add parameter to select Option 2 in Edit role assignment page
+    if (rolesVariant === 'option2' || rolesVariant === 'option3') {
+      urlParams.set('designOption', 'option2');
+    }
+    navigate(`/projects/${projectId}/permissions/edit-roles?${urlParams.toString()}`);
   };
 
   // User icon component
@@ -689,7 +853,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                 isChecked={rolesVariant === 'option1'}
                 name="roles-variant"
                 onChange={() => setRolesVariant('option1')}
-                label="Option 1 - 3.3 list view"
+                label="Option 1 - Highlight 2 labels"
                 id="option1-radio"
               />
             </FlexItem>
@@ -941,11 +1105,40 @@ const ProjectDetail: React.FunctionComponent = () => {
                     <Thead className="pf-v6-c-table__thead pf-m-nowrap">
                       <Tr>
                         <Th sort={getUsersSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Name</Th>
-                        <Th className="pf-v6-c-table__th pf-m-width-20">
+                        <Th 
+                          className="pf-v6-c-table__th pf-m-width-20"
+                          info={rolesVariant === 'option1' || rolesVariant === 'option2' ? {
+                            popover: (
+                              <Content>
+                                <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
+                                  Roles with different labels come from different sources. The meanings of each label are defined as follows:
+                                </Content>
+                                <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
+                                  {rolesVariant === 'option2' && (
+                                    <Content component="li" className="pf-v6-c-content--li">
+                                      <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                        <strong>AI:</strong> Description
+                                      </Content>
+                                    </Content>
+                                  )}
+                                  <Content component="li" className="pf-v6-c-content--li">
+                                    <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                      <strong>OpenShift default:</strong> Description
+                                    </Content>
+                                  </Content>
+                                  <Content component="li" className="pf-v6-c-content--li">
+                                    <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                      <strong>OpenShift custom:</strong> Description
+                                    </Content>
+                                  </Content>
+                                </Content>
+                              </Content>
+                            ),
+                            ariaLabel: 'Role labels help',
+                            popoverProps: { headerContent: 'Role Labels' }
+                          } : undefined}
+                        >
                           Role
-                          {rolesVariant === 'option2' && (
-                            <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
-                          )}
                         </Th>
                         <Th className="pf-v6-c-table__th pf-m-width-25">Date created</Th>
                         <Th />
@@ -1036,9 +1229,9 @@ const ProjectDetail: React.FunctionComponent = () => {
                                       toggleKebabMenu(`user-${user.id}-${roleIndex}`);
                                     }}
                                   >
-                                    Edit
+                                    Manage roles
                                   </DropdownItem>
-                                  <DropdownItem key="remove">Remove</DropdownItem>
+                                  <DropdownItem key="remove">Unassign</DropdownItem>
                                 </DropdownList>
                               </Dropdown>
                             </Td>
@@ -1086,11 +1279,40 @@ const ProjectDetail: React.FunctionComponent = () => {
                     <Thead className="pf-v6-c-table__thead pf-m-nowrap">
                       <Tr>
                         <Th sort={getGroupsSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Name</Th>
-                        <Th className="pf-v6-c-table__th pf-m-width-20">
+                        <Th 
+                          className="pf-v6-c-table__th pf-m-width-20"
+                          info={rolesVariant === 'option1' || rolesVariant === 'option2' ? {
+                            popover: (
+                              <Content>
+                                <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
+                                  Roles with different labels come from different sources. The meanings of each label are defined as follows:
+                                </Content>
+                                <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
+                                  {rolesVariant === 'option2' && (
+                                    <Content component="li" className="pf-v6-c-content--li">
+                                      <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                        <strong>AI:</strong> Description
+                                      </Content>
+                                    </Content>
+                                  )}
+                                  <Content component="li" className="pf-v6-c-content--li">
+                                    <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                      <strong>OpenShift default:</strong> Description
+                                    </Content>
+                                  </Content>
+                                  <Content component="li" className="pf-v6-c-content--li">
+                                    <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                      <strong>OpenShift custom:</strong> Description
+                                    </Content>
+                                  </Content>
+                                </Content>
+                              </Content>
+                            ),
+                            ariaLabel: 'Role labels help',
+                            popoverProps: { headerContent: 'Role Labels' }
+                          } : undefined}
+                        >
                           Role
-                          {rolesVariant === 'option2' && (
-                            <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
-                          )}
                         </Th>
                         <Th className="pf-v6-c-table__th pf-m-width-25">Date created</Th>
                         <Th />
@@ -1181,9 +1403,9 @@ const ProjectDetail: React.FunctionComponent = () => {
                                       toggleKebabMenu(`group-${group.id}-${roleIndex}`);
                                     }}
                                   >
-                                    Edit
+                                    Manage roles
                                   </DropdownItem>
-                                  <DropdownItem key="remove">Remove</DropdownItem>
+                                  <DropdownItem key="remove">Unassign</DropdownItem>
                                 </DropdownList>
                               </Dropdown>
                             </Td>

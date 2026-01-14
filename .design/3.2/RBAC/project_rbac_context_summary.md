@@ -256,14 +256,17 @@ interface User {
 
 **Label Rendering (Permissions Tab):**
 - `renderAILabel()`: Renders AI label with sparkle icon, wrapped in Popover for Option 2
+  - AI label uses PatternFly `color="green"` prop for green background
+  - Label is filled variant, clickable with popover
 - `renderRoleBadge()`: Renders role name and labels based on variant
-  - Option 1: Original labels (outline variant)
-  - Option 2: All labels (filled variant) with popovers
+  - Option 1: Filled labels (OpenShift default/custom) with popovers, no AI labels
+  - Option 2: All labels (filled variant) with popovers, including AI labels
   - Option 3: No labels
 - `getLabelPopoverContent()`: Returns title and body for popover content
 - Labels use onClick handlers to manually open popovers
 - Popover state managed via `openPopovers` Set and `setOpenPopovers` function
 - Popover uses `shouldOpen`/`shouldClose` callbacks to manage visibility
+- Role column header popover uses PatternFly `Th` component's `info` prop for question mark icon placement
 
 ### Current Branch
 - Branch: `Project-RBAC`
@@ -272,7 +275,49 @@ interface User {
 
 ## Recent Changes (Latest Session)
 
-1. **Assign Roles Flow - Comparison Modal:**
+1. **Permissions Tab - Role List Updates:**
+   - **Option 1 Label Change**: Changed from "Option 1 - 3.3 list view" to "Option 1 - Highlight 2 labels"
+   - **Option 1 Label Enhancement**: 
+     - Reused filled, clickable labels with popovers from Option 2
+     - OpenShift default and OpenShift custom labels now use `variant="filled"` with clickable popovers
+     - Labels match Option 2 styling (filled variant, clickable, with OpenShift icon)
+   - **Role Column Header Popover (Option 1)**:
+     - Added question mark icon after "Role" column header (same as Option 2)
+     - Popover content excludes 'AI: Description' (only shows OpenShift default and OpenShift custom)
+     - Popover content includes: "Roles with different labels come from different sources. The meanings of each label are defined as follows: OpenShift default: Description OpenShift custom: Description"
+     - 8px gap between introductory text and first label description
+   - **Kebab Menu Updates**:
+     - Changed "Edit" to "Manage roles" in kebab menu for all role rows
+     - Changed "Delete" to "Unassign" in kebab menu for all role rows
+   - **Navigation Updates**:
+     - When clicking "Manage roles" from Option 2 or Option 3, navigates to Edit role assignment page with `designOption=option2` parameter
+     - This ensures Option 2 is selected in the Edit role assignment page
+   - **AI Label Color**:
+     - Changed AI label color to green using PatternFly's built-in `color="green"` prop
+     - Applied to both Permissions tab (Option 2) and Edit role assignment page (Option 2)
+
+2. **Edit Role Assignment Page Updates:**
+   - **Page Title Change**: Changed header title from "Edit role assignment" to "Manage roles" (applies to both Option 1 and Option 2)
+   - **Breadcrumb Update**: Changed breadcrumb from "Edit role assignment" to "Manage roles"
+   - **Option Names Update**:
+     - Changed "Sorted by the status" to "Option 1"
+     - Changed "Sorted by role name and status" to "Option 2"
+   - **Subject Section (Option 2)**:
+     - Reused Subject section design from Assign roles page (Option 2)
+     - Subject kind field is hidden in Option 2
+     - User/Group name displayed with icon (16px × 16px, circular background #f5e6d3, 4px gap from name)
+     - Read-only display with styled container matching Assign roles page
+   - **Role Column Header Popover (Option 2)**:
+     - Added question mark icon after "Role" column header (after sorting icon)
+     - Popover content: "Roles with different labels come from different sources. The meanings of each label are defined as follows: AI: Description OpenShift default: Description OpenShift custom: Description"
+     - 8px gap between introductory text and first label description
+   - **Role Labels (Option 2)**:
+     - Added AI label for every role (except roles with "OpenShift custom" label)
+     - For roles with "OpenShift default" label, AI label appears before the OpenShift default label
+     - All labels are filled variant and clickable with popovers
+     - AI label color changed to green (PatternFly `color="green"`)
+
+3. **Assign Roles Flow - Comparison Modal:**
    - Added comparison modal when clicking "Assign roles" button
    - Modal presents two design options (Option 1 and Option 2) as side-by-side cards
    - Each card shows title, description, pros list, and cons list
@@ -283,8 +328,9 @@ interface User {
    - 24px gap between button section and modal body
    - Light purple background (#f0e6ff) for visual distinction
    - Alert message explaining this is for design comparison
+   - Role table comparison stays on option1 when switching options in comparison modal
 
-2. **Option 2 Flow - Subject Selection:**
+4. **Option 2 Flow - Subject Selection:**
    - New modal for selecting subject before navigating to Assign roles page
    - Modal title: "Assign role"
    - Introductory text: "Select the subject first."
@@ -293,7 +339,7 @@ interface User {
    - Buttons aligned to left with 24px gap from modal body
    - Navigates to Assign roles page with URL parameters: `?option=2&subjectType=...&subjectName=...`
 
-3. **Assign Roles Page - Option 2 Updates:**
+5. **Assign Roles Page - Option 2 Updates:**
    - Subject section is read-only when accessed via Option 2 flow
    - Subject kind field is hidden in Option 2
    - User/Group name displayed with icon instead of input field
@@ -303,12 +349,12 @@ interface User {
    - 4px gap between icon and name text
    - Icons conditionally rendered based on `subjectType` (User or Group)
 
-4. **Assign Roles Page - Option 1 Updates:**
+6. **Assign Roles Page - Option 1 Updates:**
    - Warning alert added when user/group is selected: "Switching to a different user will discard any changes you've made in the Role assignment section."
    - Alert uses `AlertVariant.warning` and appears below helper text
    - User name field is now required (red asterisk via `isRequired` prop on FormGroup)
 
-5. **Modal Button Alignment:**
+7. **Modal Button Alignment:**
    - All modals now have action buttons aligned to the left
    - 24px gap between button section and modal body in all modals
 
@@ -317,37 +363,63 @@ interface User {
 1. **Permissions Tab - Role Table Variants:**
    - **Variant Switcher**: Added "Role table comparison" section above breadcrumb with light purple background (#f0e6ff)
      - Section title: "Role table comparison"
-     - Option 1: "Option 1 - 3.3 list view" (original behavior)
+     - Option 1: "Option 1 - Highlight 2 labels" (updated from "Option 1 - 3.3 list view")
      - Option 2: "Option 2 - Display label on every role" (all labels shown)
      - Option 3: "Option 3 - Don't show any labels in the list view" (no labels)
      - 24px gap between each option, 16px padding in section
-   - **Option 1 (Original)**: 
-     - Keeps existing label behavior (OpenShift default/custom labels only where applicable)
-     - Labels use `variant="outline"`
+   - **Option 1 (Highlight 2 Labels)**: 
+     - Reuses filled, clickable labels with popovers from Option 2
+     - OpenShift default and OpenShift custom labels use `variant="filled"` with clickable popovers
+     - Labels include OpenShift icon (red circle with 'O' path) before text
+     - 4px gap between icon and text in OpenShift labels
+     - Question mark icon added after "Role" column header (same as Option 2)
+     - Popover content excludes 'AI: Description' (only shows OpenShift default and OpenShift custom)
+     - **Label Popovers**: OpenShift labels are clickable and show popovers
+       - Popover header: Title text only (no Alert icon), semibold (fontWeight: 600)
+       - Popover body: "This is a placeholder. Not real data."
+       - Popover includes close button (X) via `showClose` prop
+       - Popover state managed with `openPopovers` Set and `togglePopover` function
    - **Option 2 (All Labels)**:
      - All labels use `variant="filled"`
      - AI label added to all roles (including Admin and Contributor before OpenShift default label)
-     - AI label: compact, gray background (#f5f5f5), with sparkle icon SVG
+     - AI label: compact, green background (PatternFly `color="green"`), with sparkle icon SVG
      - OpenShift default/custom labels: include OpenShift icon (red circle with 'O' path) before text
      - 4px gap between icon and text in OpenShift labels
      - 4px gap between AI label and OpenShift label when both present
-     - Question mark icon added after "Role" column header (only in Option 2)
+     - Question mark icon added after "Role" column header
      - **Label Popovers**: All labels are clickable and show popovers
        - Popover header: Title text only (no Alert icon), semibold (fontWeight: 600)
        - Popover body: "This is a placeholder. Not real data."
        - Popover includes close button (X) via `showClose` prop
        - Popover state managed with `openPopovers` Set and `togglePopover` function
+     - **Role Column Header Popover**: Question mark icon triggers popover with content explaining all label types (AI, OpenShift default, OpenShift custom)
    - **Option 3 (No Labels)**:
      - All labels removed from role display
      - Only role names shown
+     - When clicking "Manage roles", navigates to Edit role assignment page with Option 2 selected
 
 2. **Edit Role Assignment Page Enhancements:**
+   - **Page Title**: Changed from "Edit role assignment" to "Manage roles" (applies to both options)
    - **Design Option Toggle**: Added comparison between two design options
-     - Toggle section with light purple background above breadcrumb
-     - Option 1: "Sorted by the status" (original behavior)
-     - Option 2: "Sorted by role name and status" (new alphabetical sorting)
+     - Toggle section with light purple background above breadcrumb (16px padding on all sides)
+     - Option 1: "Option 1" (updated from "Sorted by the status")
+     - Option 2: "Option 2" (updated from "Sorted by role name and status")
      - Both options support Status column sorting
      - Option 2 supports Role name column sorting
+   - **Subject Section (Option 2)**:
+     - Subject kind field is hidden in Option 2
+     - User/Group name displayed with icon (16px × 16px, circular background #f5e6d3, 4px gap from name)
+     - Read-only display with styled container matching Assign roles page
+     - Icons conditionally rendered based on `subjectType` (User or Group)
+   - **Role Column Header Popover (Option 2)**:
+     - Question mark icon added after "Role" column header (after sorting icon)
+     - Popover content: "Roles with different labels come from different sources. The meanings of each label are defined as follows: AI: Description OpenShift default: Description OpenShift custom: Description"
+     - 8px gap between introductory text and first label description
+   - **Role Labels (Option 2)**:
+     - AI label added for every role (except roles with "OpenShift custom" label)
+     - For roles with "OpenShift default" label, AI label appears before the OpenShift default label
+     - All labels are filled variant and clickable with popovers
+     - AI label color: green (PatternFly `color="green"`)
    - **Expandable Rules Section**: 
      - All roles have expandable rows using PatternFly `treeRow` prop
      - Expandable content shows rules table with Actions, API groups, Resource type, Resource names
@@ -414,3 +486,30 @@ interface User {
 - Test role assignment workflows end-to-end
 - Ensure all edge cases are handled
 - Verify data persistence across page navigations
+
+## Latest Updates (Current Session)
+
+1. **Permissions Tab - Option 1 Enhancements:**
+   - Changed option label from "Option 1 - 3.3 list view" to "Option 1 - Highlight 2 labels"
+   - Updated Option 1 to reuse filled, clickable labels with popovers from Option 2
+   - OpenShift default and OpenShift custom labels now use filled variant with clickable popovers
+   - Added question mark popover to Role column header (same as Option 2)
+   - Popover content for Option 1 excludes 'AI: Description' (only shows OpenShift labels)
+
+2. **Edit Role Assignment Page - Updates:**
+   - Changed page title from "Edit role assignment" to "Manage roles"
+   - Changed option names: "Sorted by the status" → "Option 1", "Sorted by role name and status" → "Option 2"
+   - Updated Subject section in Option 2 to match Assign roles page design (with icon, read-only)
+   - Added Role column header popover with question mark icon (Option 2)
+   - Added AI labels to all roles in Option 2 (except OpenShift custom roles)
+   - AI label appears before OpenShift default label when both present
+   - Changed AI label color to green using PatternFly's `color="green"` prop
+
+3. **Kebab Menu Updates:**
+   - Changed "Edit" to "Manage roles" in kebab menu
+   - Changed "Delete" to "Unassign" in kebab menu
+   - Navigation from Option 2/3 leads to Edit role assignment page with Option 2 selected
+
+4. **AI Label Color:**
+   - Changed all AI labels to green using PatternFly's built-in `color="green"` prop
+   - Applied in both Permissions tab (Option 2) and Edit role assignment page (Option 2)

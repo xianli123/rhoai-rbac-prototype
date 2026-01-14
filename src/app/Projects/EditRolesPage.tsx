@@ -279,6 +279,7 @@ const EditRolesPage: React.FunctionComponent = () => {
   
   const subjectType = searchParams.get('subjectType') || 'User';
   const subjectName = searchParams.get('subjectName') || '';
+  const designOptionFromUrl = searchParams.get('designOption');
   
   // Get current shared data dynamically (will be updated when roles are saved)
   const getMockUsersData = () => mockUsers.map(u => ({ name: u.name, roles: u.roles }));
@@ -360,6 +361,14 @@ const EditRolesPage: React.FunctionComponent = () => {
       })));
     }
   }, [subjectName, subjectType, searchParams]); // Include searchParams to detect navigation
+  
+  // Update selectedOption when URL parameter changes
+  React.useEffect(() => {
+    if (designOptionFromUrl === 'option2') {
+      setSelectedOption('option2');
+    }
+  }, [designOptionFromUrl]);
+  
   const [expandedRoles, setExpandedRoles] = React.useState<Set<string>>(new Set());
   const [statusSortBy, setStatusSortBy] = React.useState<ISortBy>({
     index: 2,
@@ -375,7 +384,10 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
   const [option2ActiveSort, setOption2ActiveSort] = React.useState<'roleName' | 'status'>('roleName');
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedOption, setSelectedOption] = React.useState<'option1' | 'option2'>('option1');
+  const [selectedOption, setSelectedOption] = React.useState<'option1' | 'option2'>(() => {
+    // If URL parameter indicates option2, use that; otherwise default to option1
+    return designOptionFromUrl === 'option2' ? 'option2' : 'option1';
+  });
   const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
   const [selectedRoleForModal, setSelectedRoleForModal] = React.useState<Role | null>(null);
   const [rulesSortBy, setRulesSortBy] = React.useState<ISortBy>({
@@ -383,6 +395,114 @@ const EditRolesPage: React.FunctionComponent = () => {
     direction: 'asc',
   });
   const [rulesPageSize, setRulesPageSize] = React.useState(10);
+  const [openPopovers, setOpenPopovers] = React.useState<Set<string>>(new Set());
+
+  const getLabelPopoverContent = (labelType: 'ai' | 'openshift-default' | 'openshift-custom', roleName?: string) => {
+    switch (labelType) {
+      case 'ai':
+        return {
+          title: 'AI Role',
+          body: 'This role is an AI-generated role that provides intelligent access control based on usage patterns and requirements. AI roles are automatically created and optimized to match your project\'s specific needs.',
+        };
+      case 'openshift-default':
+        return {
+          title: 'OpenShift Default Role',
+          body: 'OpenShift default roles are predefined roles provided by the OpenShift platform. These roles have standard permissions that cannot be modified. They are maintained by the platform and provide consistent access control across all projects.',
+          roleName: roleName,
+        };
+      case 'openshift-custom':
+        return {
+          title: 'OpenShift Custom Role',
+          body: 'OpenShift custom roles are user-defined roles created within the OpenShift platform. These roles can be customized to meet specific project requirements and provide fine-grained access control tailored to your organization\'s needs.',
+          roleName: roleName,
+        };
+      default:
+        return { title: '', body: '' };
+    }
+  };
+
+  const renderAILabel = (popoverId: string) => {
+    const isOpen = openPopovers.has(popoverId);
+    const content = getLabelPopoverContent('ai');
+    const label = (
+      <Label
+        color="green"
+        variant="filled"
+        isCompact
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: '2px 8px',
+          borderRadius: '16px',
+          cursor: 'pointer',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isOpen) {
+            setOpenPopovers((prev) => {
+              const newSet = new Set(prev);
+              newSet.add(popoverId);
+              return newSet;
+            });
+          }
+        }}
+      >
+        <svg
+          className="pf-v6-svg"
+          viewBox="0 0 32 32"
+          fill="currentColor"
+          aria-hidden="true"
+          role="img"
+          width="1em"
+          height="1em"
+          style={{ width: '12px', height: '12px' }}
+        >
+          <path
+            xmlns="http://www.w3.org/2000/svg"
+            className="st1"
+            d="M26.037,16.962c-5.905-.468-10.531-5.094-11-11-.042-.52-.517-.961-1.038-.961s-.997.442-1.038.962c-.468,5.905-5.094,10.531-11,11-.52.042-.961.517-.961,1.038s.442.997.962,1.038c5.905.468,10.531,5.094,11,11,.042.52.517.961,1.038.961s.997-.442,1.038-.962c.468-5.905,5.094-10.531,10.999-10.999,0,0,0,0,0,0,.52-.042.961-.517.961-1.038s-.442-.997-.962-1.038ZM14,25.764c-1.413-3.545-4.219-6.352-7.764-7.764,3.545-1.413,6.352-4.219,7.764-7.764,1.413,3.545,4.219,6.352,7.764,7.764-3.545,1.413-6.352,4.219-7.764,7.764ZM30.096,6.025c-1.55-.346-2.775-1.571-3.123-3.125-.104-.458-.504-.778-.974-.778s-.87.32-.975.781c-.346,1.55-1.571,2.775-3.125,3.123-.458.104-.778.504-.778.974s.32.87.781.975c1.55.346,2.775,1.571,3.123,3.125.104.458.504.778.974.778s.87-.32.975-.781c.346-1.55,1.571-2.775,3.122-3.122,0,0,.002,0,.003,0,.458-.104.778-.504.778-.974s-.32-.87-.781-.975ZM26,8.917c-.481-.778-1.139-1.436-1.917-1.917.778-.481,1.436-1.139,1.917-1.917.481.778,1.139,1.436,1.917,1.917-.778.481-1.436,1.139-1.917,1.917Z"
+          />
+        </svg>
+        AI
+      </Label>
+    );
+    
+    if (selectedOption === 'option2') {
+      return (
+        <Popover
+          headerContent={
+            <div style={{ fontWeight: 600 }}>{content.title}</div>
+          }
+          bodyContent="This is a placeholder. Not real data."
+          showClose
+          isVisible={isOpen}
+          shouldOpen={() => {
+            setOpenPopovers((prev) => {
+              const newSet = new Set(prev);
+              if (!newSet.has(popoverId)) {
+                newSet.add(popoverId);
+              }
+              return newSet;
+            });
+            return true;
+          }}
+          shouldClose={() => {
+            setOpenPopovers((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(popoverId);
+              return newSet;
+            });
+            return true;
+          }}
+        >
+          {label}
+        </Popover>
+      );
+    }
+    
+    return label;
+  };
 
   const toggleRoleExpansion = (roleId: string) => {
     setExpandedRoles((prev) => {
@@ -501,11 +621,188 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
 
   const renderRoleBadge = (role: Role) => {
-    if (role.roleType === 'openshift-default') {
-      return <Label color="blue" variant="outline" isCompact>OpenShift default</Label>;
-    } else if (role.roleType === 'openshift-custom') {
-      return <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>;
+    // Option 1: Original behavior (keep existing labels)
+    if (selectedOption === 'option1') {
+      if (role.roleType === 'openshift-default') {
+        return <Label color="blue" variant="outline" isCompact>OpenShift default</Label>;
+      } else if (role.roleType === 'openshift-custom') {
+        return <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>;
+      }
+      return null;
     }
+
+    // Option 2: With all labels (add AI label for regular roles and OpenShift default roles)
+    if (selectedOption === 'option2') {
+      if (role.roleType === 'openshift-default') {
+        // For OpenShift default roles, show AI label before OpenShift default label
+        const aiPopoverId = `ai-edit-${role.id}`;
+        const openshiftPopoverId = `openshift-default-edit-${role.id}`;
+        const openshiftContent = getLabelPopoverContent('openshift-default', role.name);
+        const openshiftLabel = (
+          <Label 
+            color="blue" 
+            variant="filled" 
+            isCompact
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
+              if (!isCurrentlyOpen) {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(openshiftPopoverId);
+                  return newSet;
+                });
+              }
+            }}
+          >
+            <svg
+              className="pf-v6-svg"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+              aria-hidden="true"
+              role="img"
+              width="1em"
+              height="1em"
+              style={{ width: '12px', height: '12px' }}
+            >
+              <path fill="#BB202A" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+              <path fill="#BB202A" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+              <path fill="#E12634" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+              <path fill="#E12634" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+              <path fill="#E12634" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+              <path fill="#E12634" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+              <path fill="#971B1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+              <path fill="#971B1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+              <path fill="#BB202A" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+            </svg>
+            <span style={{ marginLeft: '4px' }}>OpenShift default</span>
+          </Label>
+        );
+        
+        const openshiftLabelWithPopover = (
+          <Popover
+            headerContent={
+              <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
+            }
+            bodyContent="This is a placeholder. Not real data."
+            showClose
+            isVisible={openPopovers.has(openshiftPopoverId)}
+            shouldOpen={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                if (!newSet.has(openshiftPopoverId)) {
+                  newSet.add(openshiftPopoverId);
+                }
+                return newSet;
+              });
+              return true;
+            }}
+            shouldClose={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(openshiftPopoverId);
+                return newSet;
+              });
+              return true;
+            }}
+          >
+            {openshiftLabel}
+          </Popover>
+        );
+        
+        return (
+          <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
+            {renderAILabel(aiPopoverId)}
+            <div style={{ width: '4px' }} />
+            {openshiftLabelWithPopover}
+          </Flex>
+        );
+      } else if (role.roleType === 'openshift-custom') {
+        // OpenShift custom roles don't get AI label
+        const openshiftPopoverId = `openshift-custom-edit-${role.id}`;
+        const openshiftContent = getLabelPopoverContent('openshift-custom', role.name);
+        const openshiftLabel = (
+          <Label 
+            color="purple" 
+            variant="filled" 
+            isCompact
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
+              if (!isCurrentlyOpen) {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(openshiftPopoverId);
+                  return newSet;
+                });
+              }
+            }}
+          >
+            <svg
+              className="pf-v6-svg"
+              viewBox="0 0 100 100"
+              fill="currentColor"
+              aria-hidden="true"
+              role="img"
+              width="1em"
+              height="1em"
+              style={{ width: '12px', height: '12px' }}
+            >
+              <path fill="#BB202A" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+              <path fill="#BB202A" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+              <path fill="#E12634" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+              <path fill="#E12634" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+              <path fill="#E12634" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+              <path fill="#E12634" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+              <path fill="#971B1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+              <path fill="#971B1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+              <path fill="#BB202A" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+            </svg>
+            <span style={{ marginLeft: '4px' }}>OpenShift custom</span>
+          </Label>
+        );
+        
+        const openshiftLabelWithPopover = (
+          <Popover
+            headerContent={
+              <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
+            }
+            bodyContent="This is a placeholder. Not real data."
+            showClose
+            isVisible={openPopovers.has(openshiftPopoverId)}
+            shouldOpen={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                if (!newSet.has(openshiftPopoverId)) {
+                  newSet.add(openshiftPopoverId);
+                }
+                return newSet;
+              });
+              return true;
+            }}
+            shouldClose={() => {
+              setOpenPopovers((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(openshiftPopoverId);
+                return newSet;
+              });
+              return true;
+            }}
+          >
+            {openshiftLabel}
+          </Popover>
+        );
+        
+        return openshiftLabelWithPopover;
+      } else {
+        // Regular role - add AI label
+        const aiPopoverId = `ai-edit-${role.id}`;
+        return renderAILabel(aiPopoverId);
+      }
+    }
+
     return null;
   };
 
@@ -616,7 +913,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               isChecked={selectedOption === 'option1'}
               name="design-option"
               onChange={() => setSelectedOption('option1')}
-              label="Sorted by the status"
+              label="Option 1"
               id="option1-radio"
             />
           </FlexItem>
@@ -625,7 +922,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               isChecked={selectedOption === 'option2'}
               name="design-option"
               onChange={() => setSelectedOption('option2')}
-              label="Sorted by role name and status"
+              label="Option 2"
               id="option2-radio"
             />
           </FlexItem>
@@ -640,14 +937,14 @@ const EditRolesPage: React.FunctionComponent = () => {
             <BreadcrumbItem>
               <Link to={`/projects/${projectId}`}>{projectId}</Link>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>Edit role assignment</BreadcrumbItem>
+            <BreadcrumbItem isActive>Manage roles</BreadcrumbItem>
           </Breadcrumb>
         </div>
       </div>
 
       <PageSection>
         <Title headingLevel="h1" size="2xl">
-          Edit role assignment
+          Manage roles
         </Title>
         <Content style={{ marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
           Description goes here.
@@ -660,15 +957,17 @@ const EditRolesPage: React.FunctionComponent = () => {
             <StackItem>
               <Title headingLevel="h2" size="lg">Subject</Title>
             <Form style={{ marginTop: '16px' }}>
-              <div className="pf-v6-c-form__group">
-                <div className="pf-v6-c-form__group-label">
-                  <label className="pf-v6-c-form__label" htmlFor="subject-type">
-                    <span className="pf-v6-c-form__label-text">Subject kind</span>
-                  </label>
+              {selectedOption !== 'option2' && (
+                <div className="pf-v6-c-form__group">
+                  <div className="pf-v6-c-form__group-label">
+                    <label className="pf-v6-c-form__label" htmlFor="subject-type">
+                      <span className="pf-v6-c-form__label-text">Subject kind</span>
+                    </label>
+                  </div>
+                  <div className="pf-v6-c-form__group-control">{subjectType}</div>
                 </div>
-                <div className="pf-v6-c-form__group-control">{subjectType}</div>
-              </div>
-              <div className="pf-v6-c-form__group" style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+              )}
+              <div className="pf-v6-c-form__group" style={{ marginTop: selectedOption !== 'option2' ? 'var(--pf-v5-global--spacer--md)' : '0px' }}>
                 <div className="pf-v6-c-form__group-label">
                   <label className="pf-v6-c-form__label" htmlFor="subject-name">
                     <span className="pf-v6-c-form__label-text">
@@ -677,7 +976,57 @@ const EditRolesPage: React.FunctionComponent = () => {
                     <span style={{ color: 'var(--pf-v5-global--danger-color--100)' }}> *</span>
                   </label>
                 </div>
-                <div className="pf-v6-c-form__group-control">{subjectName || `Select ${subjectType.toLowerCase()}`}</div>
+                <div className="pf-v6-c-form__group-control">
+                  {selectedOption === 'option2' ? (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: 'var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--md)',
+                      backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)',
+                      border: '1px solid var(--pf-v5-global--BorderColor--300)',
+                      borderRadius: 'var(--pf-v5-global--BorderRadius--sm)',
+                      color: 'var(--pf-v5-global--Color--100)'
+                    }}>
+                      {subjectType === 'User' ? (
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '8px',
+                          background: 'var(--ai-user--BackgroundColor, #f5e6d3)',
+                          color: 'var(--ai-user--IconColor, #000)',
+                          flexShrink: 0
+                        }}>
+                          <svg className="pf-v6-svg" viewBox="0 0 36 36" fill="currentColor" aria-hidden="true" role="img" width="16px" height="16px" style={{ width: '16px', height: '16px' }}>
+                            <path d="M21.32,17.8C27.8,14.41,25.42,4.39,18,4.38s-9.8,10-3.32,13.42A13.63,13.63,0,0,0,4.38,31a.61.61,0,0,0,.62.62H31a.61.61,0,0,0,.62-.62A13.63,13.63,0,0,0,21.32,17.8Zm-9.2-6.3c.25-7.76,11.51-7.76,11.76,0C23.63,19.26,12.37,19.26,12.12,11.5ZM5.64,30.38C7,14.79,29.05,14.8,30.36,30.38Z"></path>
+                          </svg>
+                        </div>
+                      ) : (
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '8px',
+                          background: 'var(--ai-group--BackgroundColor, #f5e6d3)',
+                          color: 'var(--ai-group--IconColor, #000)',
+                          flexShrink: 0
+                        }}>
+                          <svg className="pf-v6-svg" viewBox="0 0 36 36" fill="currentColor" aria-hidden="true" role="img" width="16px" height="16px" style={{ width: '16px', height: '16px' }}>
+                            <path d="m 27.87,23.29 a 3.86,3.86 0 1 0 -4.74,0 A 7.11,7.11 0 0 0 18.38,30 0.61,0.61 0 0 0 19,30.62 H 32 A 0.63,0.63 0 0 0 32.63,30 7.13,7.13 0 0 0 27.87,23.29 Z m -5,-3 a 2.62,2.62 0 0 1 5.24,0 2.62,2.62 0 0 1 -5.23,-0.04 z m -3.22,9.13 c 0.84,-6.94 10.84,-6.93 11.68,0 z M 16,19.38 a 0.62,0.62 0 0 0 0,1.24 h 4 a 0.62,0.62 0 0 0 0,-1.24 z m -2.63,-4 a 6,6 0 0 1 9.48,0.18 0.61,0.61 0 0 0 0.66,-0.07 c 1.07,-1 -2.27,-3 -3.13,-3.21 a 3.86,3.86 0 1 0 -4.76,0 c -0.86,0.25 -4.2,2.18 -3.13,3.21 a 0.62,0.62 0 0 0 0.88,-0.11 z m 2,-6.13 a 2.62,2.62 0 0 1 5.24,0 2.62,2.62 0 0 1 -5.23,0 z m -2.5,14.04 a 3.86,3.86 0 1 0 -4.74,0 A 7.11,7.11 0 0 0 3.38,30 0.61,0.61 0 0 0 4,30.62 H 17 A 0.63,0.63 0 0 0 17.63,30 7.13,7.13 0 0 0 12.87,23.29 Z m -5,-3 a 2.62,2.62 0 0 1 5.24,0 2.62,2.62 0 0 1 -5.23,-0.04 z m -3.21,9.09 c 0.84,-6.94 10.84,-6.93 11.68,0 z"></path>
+                          </svg>
+                        </div>
+                      )}
+                      <span>{subjectName || `Select ${subjectType.toLowerCase()}`}</span>
+                    </div>
+                  ) : (
+                    <div>{subjectName || `Select ${subjectType.toLowerCase()}`}</div>
+                  )}
+                </div>
               </div>
             </Form>
           </StackItem>
@@ -704,8 +1053,36 @@ const EditRolesPage: React.FunctionComponent = () => {
                   <Th />
                   <Th 
                     sort={selectedOption === 'option2' ? getRoleNameSortParams() : undefined}
+                    info={selectedOption === 'option2' ? {
+                      popover: (
+                        <Content>
+                          <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
+                            Roles with different labels come from different sources. The meanings of each label are defined as follows:
+                          </Content>
+                          <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
+                            <Content component="li" className="pf-v6-c-content--li">
+                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                <strong>AI:</strong> Description
+                              </Content>
+                            </Content>
+                            <Content component="li" className="pf-v6-c-content--li">
+                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                <strong>OpenShift default:</strong> Description
+                              </Content>
+                            </Content>
+                            <Content component="li" className="pf-v6-c-content--li">
+                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                <strong>OpenShift custom:</strong> Description
+                              </Content>
+                            </Content>
+                          </Content>
+                        </Content>
+                      ),
+                      ariaLabel: 'Role labels help',
+                      popoverProps: { headerContent: 'Role Labels' }
+                    } : undefined}
                   >
-                    Role name
+                    {selectedOption === 'option2' ? 'Role' : 'Role name'}
                   </Th>
                   <Th>Description</Th>
                   <Th sort={selectedOption === 'option1' ? getStatusSortParams() : (selectedOption === 'option2' ? getOption2StatusSortParams() : undefined)}>
@@ -763,8 +1140,8 @@ const EditRolesPage: React.FunctionComponent = () => {
                             </Td>
                           )}
                           <Td>
-                            <div>
-                              {selectedOption === 'option2' ? (
+                            {selectedOption === 'option2' ? (
+                              <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
                                 <Button
                                   variant="link"
                                   onClick={() => handleRoleNameClick(role)}
@@ -774,15 +1151,29 @@ const EditRolesPage: React.FunctionComponent = () => {
                                 >
                                   {role.name}
                                 </Button>
-                              ) : (
+                                {(() => {
+                                  const badge = renderRoleBadge(role);
+                                  return badge ? (
+                                    <>
+                                      <div style={{ width: '4px' }} />
+                                      {badge}
+                                    </>
+                                  ) : null;
+                                })()}
+                              </Flex>
+                            ) : (
+                              <div>
                                 <div>{role.name}</div>
-                              )}
-                              {renderRoleBadge(role) && (
-                                <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
-                                  {renderRoleBadge(role)}
-                                </div>
-                              )}
-                            </div>
+                                {(() => {
+                                  const badge = renderRoleBadge(role);
+                                  return badge ? (
+                                    <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
+                                      {badge}
+                                    </div>
+                                  ) : null;
+                                })()}
+                              </div>
+                            )}
                           </Td>
                           <Td>{role.description}</Td>
                           <Td>{renderStatusBadge(role)}</Td>
