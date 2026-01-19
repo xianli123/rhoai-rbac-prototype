@@ -647,3 +647,19 @@ interface User {
     - Added question mark icon with popover after "Date created" column header in both Users and Groups tables
     - Added sorting icon next to "Date created" column header (in front of question mark)
     - Tables now support sorting by date created
+
+18. **Save Confirmation Modal - Description Update:**
+    - Updated modal description to show specific role names and user/group names being affected
+    - Single role: "The **'Role NAME'** role was assigned to **'User name'** from OpenShift. It cannot be reassigned from OpenShift AI."
+    - Multiple roles: Shows list of all roles being removed with user/group name
+    - Role names and user/group names displayed in semi-bold (font-weight: 600)
+    - Applied in both Assign roles page and Manage roles page
+
+19. **Save Confirmation Modal - Type-to-Confirm Field:**
+    - Added type-to-confirm input field to prevent accidental role removal
+    - Prompt text: "Type **'[user/group name]'** to confirm removal:"
+    - User must type exact user/group name (e.g., "Gary" or "DataScience-group")
+    - Remove button is disabled until correct name is entered
+    - Input is cleared when modal is closed or cancelled
+    - Applied in both Assign roles page and Manage roles page
+    - Ensures user intent before removing OpenShift custom roles that cannot be re-added

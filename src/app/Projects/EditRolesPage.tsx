@@ -29,6 +29,7 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  TextInput,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -439,6 +440,8 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
   const [rulesPageSize, setRulesPageSize] = React.useState(10);
   const [openPopovers, setOpenPopovers] = React.useState<Set<string>>(new Set());
+  const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = React.useState(false);
+  const [confirmInputValue, setConfirmInputValue] = React.useState('');
 
   const getLabelPopoverContent = (labelType: 'ai' | 'openshift-default' | 'openshift-custom', roleName?: string) => {
     switch (labelType) {
@@ -1043,18 +1046,83 @@ const EditRolesPage: React.FunctionComponent = () => {
 
   const renderStatusBadge = (role: Role) => {
     const status = getRoleStatus(role);
+    const isOpenShiftCustom = role.roleType === 'openshift-custom';
     
     // If role was originally assigned but is now deselected
     if (role.originallyAssigned && !role.currentlyAssigned) {
+      const warningPopoverId = `warning-unassign-${role.id}`;
+      const isWarningOpen = openPopovers.has(warningPopoverId);
+      
+      const warningIcon = isOpenShiftCustom ? (
+        <Popover
+          headerContent={<div style={{ fontWeight: 600 }}>Warning</div>}
+          bodyContent="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
+          showClose
+          isVisible={isWarningOpen}
+          shouldOpen={() => {
+            setOpenPopovers((prev) => {
+              const newSet = new Set(prev);
+              if (!newSet.has(warningPopoverId)) {
+                newSet.add(warningPopoverId);
+              }
+              return newSet;
+            });
+            return true;
+          }}
+          shouldClose={() => {
+            setOpenPopovers((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(warningPopoverId);
+              return newSet;
+            });
+            return true;
+          }}
+        >
+          <span
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const isCurrentlyOpen = openPopovers.has(warningPopoverId);
+              if (!isCurrentlyOpen) {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(warningPopoverId);
+                  return newSet;
+                });
+              }
+            }}
+          >
+            <svg
+              className="pf-v6-svg"
+              viewBox="0 0 512 512"
+              fill="#C9190B"
+              aria-hidden="true"
+              role="img"
+              width="1em"
+              height="1em"
+              style={{ color: '#C9190B' }}
+            >
+              <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+            </svg>
+          </span>
+        </Popover>
+      ) : null;
+      
       // For Option 3, only show "Unassigning" label
       if (selectedOption === 'option3') {
-        return <Label color="orange" variant="outline" isCompact>Unassigning</Label>;
+        return (
+          <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <Label color="orange" variant="outline" isCompact>Unassigning</Label>
+            {warningIcon}
+          </Flex>
+        );
       }
       // For other options, show both labels
       return (
         <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
           <Label color="green" variant="outline" isCompact>Currently assigned</Label>
           <Label color="orange" variant="outline" isCompact>Unassigning</Label>
+          {warningIcon}
         </Flex>
       );
     }
@@ -1126,6 +1194,43 @@ const EditRolesPage: React.FunctionComponent = () => {
     return role.currentlyAssigned !== role.originallyAssigned;
   });
 
+  // Check if any OpenShift custom roles are being removed
+  const hasOpenShiftCustomRolesBeingRemoved = (): boolean => {
+    return roles.some(role => 
+      role.roleType === 'openshift-custom' && 
+      role.originallyAssigned && 
+      !role.currentlyAssigned
+    );
+  };
+
+  // Handle save action
+  const handleSave = () => {
+    // Check if any OpenShift custom roles are being removed
+    if (hasOpenShiftCustomRolesBeingRemoved()) {
+      setIsSaveConfirmModalOpen(true);
+    } else {
+      performSave();
+    }
+  };
+
+  // Perform the actual save operation
+  const performSave = () => {
+    // Get all currently assigned roles
+    const assignedRoles = roles
+      .filter(role => role.currentlyAssigned)
+      .map(role => role.name);
+    
+    // Update shared data
+    if (subjectType === 'User') {
+      updateUserRoles(subjectName, assignedRoles);
+    } else {
+      updateGroupRoles(subjectName, assignedRoles);
+    }
+    
+    // Navigate back to permissions tab
+    navigate(`/projects/${projectId}?tab=permissions`);
+  };
+
   return (
     <>
       <style>{`
@@ -1164,14 +1269,14 @@ const EditRolesPage: React.FunctionComponent = () => {
                   isExpanded={isDesignOptionDropdownOpen}
                   style={{ minWidth: '450px' }}
                 >
-                  {selectedOption === 'option1' ? 'Option 1' : selectedOption === 'option2' ? 'Option 2' : '[UX recommended] Option 3 - Show role labels in a separate column'}
+                  {selectedOption === 'option1' ? 'Option 1' : selectedOption === 'option2' ? 'Option 2' : '[UXD recommended] Option 3 - Show role labels in a separate column'}
                 </MenuToggle>
               )}
             >
               <SelectList>
                 <SelectOption value="option1">Option 1</SelectOption>
                 <SelectOption value="option2">Option 2</SelectOption>
-                <SelectOption value="option3">[UX recommended] Option 3 - Show role labels in a separate column</SelectOption>
+                <SelectOption value="option3">[UXD recommended] Option 3 - Show role labels in a separate column</SelectOption>
               </SelectList>
             </Select>
           </FlexItem>
@@ -1549,22 +1654,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                   <div className="pf-v6-c-action-list__item">
                     <Button
                       variant="primary"
-                      onClick={() => {
-                        // Get all currently assigned roles
-                        const assignedRoles = roles
-                          .filter(role => role.currentlyAssigned)
-                          .map(role => role.name);
-                        
-                        // Update shared data
-                        if (subjectType === 'User') {
-                          updateUserRoles(subjectName, assignedRoles);
-                        } else {
-                          updateGroupRoles(subjectName, assignedRoles);
-                        }
-                        
-                        // Navigate back to permissions tab
-                        navigate(`/projects/${projectId}?tab=permissions`);
-                      }}
+                      onClick={handleSave}
                       isDisabled={!hasChanges}
                       data-testid="submit-button"
                       id="save-button"
@@ -1669,6 +1759,105 @@ const EditRolesPage: React.FunctionComponent = () => {
             </div>
           )}
         </ModalBody>
+      </Modal>
+
+      {/* Save Confirmation Modal for OpenShift Custom Roles */}
+      <Modal
+        isOpen={isSaveConfirmModalOpen}
+        onClose={() => {
+          setIsSaveConfirmModalOpen(false);
+          setConfirmInputValue('');
+        }}
+        variant="small"
+        aria-labelledby="save-confirm-modal-title"
+      >
+        <ModalHeader
+          title="Confirm role removal"
+          titleIconVariant="warning"
+        />
+        <ModalBody style={{ marginBottom: '0' }}>
+          <Stack hasGutter>
+            <StackItem>
+              <Content>
+                {(() => {
+                  const removedRoles = roles.filter(role => 
+                    role.roleType === 'openshift-custom' && 
+                    role.originallyAssigned && 
+                    !role.currentlyAssigned
+                  );
+                  
+                  if (removedRoles.length === 1) {
+                    return (
+                      <>
+                        The <span style={{ fontWeight: 600 }}>'{removedRoles[0].name}'</span> role was assigned to{' '}
+                        <span style={{ fontWeight: 600 }}>'{subjectName}'</span> from OpenShift. It cannot be reassigned from OpenShift AI.
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        The following roles were assigned to <span style={{ fontWeight: 600 }}>'{subjectName}'</span> from OpenShift and cannot be reassigned from OpenShift AI:
+                        <ul style={{ marginTop: '8px', marginBottom: '0' }}>
+                          {removedRoles.map((role, index) => (
+                            <li key={index}>
+                              <span style={{ fontWeight: 600 }}>'{role.name}'</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    );
+                  }
+                })()}
+              </Content>
+            </StackItem>
+            <StackItem>
+              <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                <FlexItem>
+                  <div>Type <strong>'{subjectName}'</strong> to confirm removal:</div>
+                </FlexItem>
+                <FlexItem>
+                  <TextInput
+                    id="remove-confirm-input"
+                    data-testid="remove-confirm-input"
+                    aria-label="Remove confirmation input"
+                    type="text"
+                    value={confirmInputValue}
+                    onChange={(_event, value) => setConfirmInputValue(value)}
+                  />
+                </FlexItem>
+              </Flex>
+            </StackItem>
+          </Stack>
+        </ModalBody>
+        <div style={{ padding: '24px' }}>
+          <div className="pf-v6-c-action-list">
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="primary"
+                isDanger
+                isDisabled={confirmInputValue !== subjectName}
+                onClick={() => {
+                  setIsSaveConfirmModalOpen(false);
+                  setConfirmInputValue('');
+                  performSave();
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsSaveConfirmModalOpen(false);
+                  setConfirmInputValue('');
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
       </Modal>
     </>
   );

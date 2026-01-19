@@ -27,6 +27,7 @@ import {
   ModalHeader,
   ModalBody,
   Popover,
+  TextInput,
 } from '@patternfly/react-core';
 import {
   OutlinedQuestionCircleIcon,
@@ -338,6 +339,13 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   const [rulesPageSize, setRulesPageSize] = React.useState(10);
   const [openPopovers, setOpenPopovers] = React.useState<Set<string>>(new Set());
   const [typeaheadInputValue, setTypeaheadInputValue] = React.useState<string>('');
+  const [isDiscardModalOpen, setIsDiscardModalOpen] = React.useState(false);
+  const [pendingSubject, setPendingSubject] = React.useState<string | undefined>(undefined);
+  const [pendingSubjectType, setPendingSubjectType] = React.useState<'User' | 'Group' | undefined>(undefined);
+  const [shouldPreserveRoles, setShouldPreserveRoles] = React.useState(false);
+  const [typeaheadKey, setTypeaheadKey] = React.useState(0);
+  const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = React.useState(false);
+  const [confirmInputValue, setConfirmInputValue] = React.useState('');
 
   // Get available subjects based on type
   const getAvailableSubjects = (): string[] => {
@@ -346,6 +354,61 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     } else {
       return mockGroups.map(g => g.name);
     }
+  };
+
+  // Check if a subject is an existing user/group
+  const isExistingSubject = (subjectName: string): boolean => {
+    const availableSubjects = getAvailableSubjects();
+    return availableSubjects.includes(subjectName);
+  };
+
+  // Handle subject type change with confirmation if there are changes
+  const handleSubjectTypeChange = (newType: 'User' | 'Group') => {
+    // If there are changes and a subject is selected, show confirmation modal
+    if (hasChanges && selectedSubject) {
+      setPendingSubjectType(newType);
+      setIsDiscardModalOpen(true);
+    } else {
+      // No changes or no subject, change directly
+      setSubjectType(newType);
+    }
+  };
+
+  // Check if any OpenShift custom roles are being removed
+  const hasOpenShiftCustomRolesBeingRemoved = (): boolean => {
+    return roles.some(role => 
+      role.roleType === 'openshift-custom' && 
+      role.originallyAssigned && 
+      !role.currentlyAssigned
+    );
+  };
+
+  // Handle save action
+  const handleSave = () => {
+    // Check if any OpenShift custom roles are being removed
+    if (hasOpenShiftCustomRolesBeingRemoved()) {
+      setIsSaveConfirmModalOpen(true);
+    } else {
+      performSave();
+    }
+  };
+
+  // Perform the actual save operation
+  const performSave = () => {
+    // Get all currently assigned roles
+    const assignedRoles = roles
+      .filter(role => role.currentlyAssigned)
+      .map(role => role.name);
+    
+    // Update shared data
+    if (subjectType === 'User' && selectedSubject) {
+      updateUserRoles(selectedSubject, assignedRoles);
+    } else if (subjectType === 'Group' && selectedSubject) {
+      updateGroupRoles(selectedSubject, assignedRoles);
+    }
+    
+    // Navigate back to permissions tab
+    navigate(`/projects/${projectId}?tab=permissions`);
   };
 
   // Create typeahead options
@@ -412,12 +475,19 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         originallyAssigned: false, 
         currentlyAssigned: false 
       })));
+      setShouldPreserveRoles(false);
     }
   }, [subjectType, isOption2]);
 
   // Initialize roles when subject is selected
   React.useEffect(() => {
     if (selectedSubject) {
+      // If we should preserve roles (switching from new user to new user), skip reset
+      if (shouldPreserveRoles) {
+        setShouldPreserveRoles(false); // Reset the flag
+        return;
+      }
+      
       // Get subject's current roles from shared data
       let subjectRoles: string[] = [];
       let isExistingSubject = false;
@@ -833,6 +903,71 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     
     // If role was originally assigned but is now deselected, only show "Unassigning" label
     if (role.originallyAssigned && !role.currentlyAssigned) {
+      const isOpenShiftCustom = role.roleType === 'openshift-custom';
+      
+      if (isOpenShiftCustom) {
+        const warningPopoverId = `warning-unassign-${role.id}`;
+        const isWarningOpen = openPopovers.has(warningPopoverId);
+        
+        return (
+          <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
+            <Label color="orange" variant="outline" isCompact>Unassigning</Label>
+            <Popover
+              headerContent={<div style={{ fontWeight: 600 }}>Warning</div>}
+              bodyContent="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
+              showClose
+              isVisible={isWarningOpen}
+              shouldOpen={() => {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  if (!newSet.has(warningPopoverId)) {
+                    newSet.add(warningPopoverId);
+                  }
+                  return newSet;
+                });
+                return true;
+              }}
+              shouldClose={() => {
+                setOpenPopovers((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.delete(warningPopoverId);
+                  return newSet;
+                });
+                return true;
+              }}
+            >
+              <span
+                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const isCurrentlyOpen = openPopovers.has(warningPopoverId);
+                  if (!isCurrentlyOpen) {
+                    setOpenPopovers((prev) => {
+                      const newSet = new Set(prev);
+                      newSet.add(warningPopoverId);
+                      return newSet;
+                    });
+                  }
+                }}
+              >
+                <svg
+                  className="pf-v6-svg"
+                  viewBox="0 0 512 512"
+                  fill="#C9190B"
+                  aria-hidden="true"
+                  role="img"
+                  width="1em"
+                  height="1em"
+                  style={{ color: '#C9190B' }}
+                >
+                  <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
+                </svg>
+              </span>
+            </Popover>
+          </Flex>
+        );
+      }
+      
       return <Label color="orange" variant="outline" isCompact>Unassigning</Label>;
     }
     
@@ -953,14 +1088,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                     name="subject-type"
                     label="User"
                     isChecked={subjectType === 'User'}
-                    onChange={() => setSubjectType('User')}
+                    onChange={() => handleSubjectTypeChange('User')}
                   />
                   <Radio
                     id="subject-type-group"
                     name="subject-type"
                     label="Group"
                     isChecked={subjectType === 'Group'}
-                    onChange={() => setSubjectType('Group')}
+                    onChange={() => handleSubjectTypeChange('Group')}
                   />
                 </Flex>
               </FormGroup>
@@ -1020,7 +1155,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   ) : (
                     <>
                       <TypeaheadSelect
-                        key={`${subjectType}-${selectedSubject || 'none'}`}
+                        key={`${subjectType}-${selectedSubject || 'none'}-${typeaheadKey}`}
                         initialOptions={typeaheadOptions}
                         placeholder={`Select ${subjectType.toLowerCase()}`}
                         noOptionsFoundMessage={(filter) => `No ${subjectType.toLowerCase()} was found for "${filter}"`}
@@ -1029,8 +1164,16 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                           setTypeaheadInputValue(value || '');
                         }}
                         onClearSelection={() => {
-                          setSelectedSubject(undefined);
-                          setTypeaheadInputValue('');
+                          // If there are changes, show confirmation modal
+                          if (hasChanges && selectedSubject) {
+                            setPendingSubject(undefined); // Pending clear action
+                            setIsDiscardModalOpen(true);
+                          } else {
+                            // No changes, clear directly
+                            setSelectedSubject(undefined);
+                            setTypeaheadInputValue('');
+                            setShouldPreserveRoles(false);
+                          }
                         }}
                         onSelect={(_ev, selection) => {
                           let selectedValue = String(selection);
@@ -1039,13 +1182,54 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                             return;
                           }
                           // If the selection is a create option (starts with "Assign role to"), extract just the value
-                          if (selectedValue.startsWith('Assign role to "') && selectedValue.endsWith('"')) {
+                          const isCreateOption = selectedValue.startsWith('Assign role to "') && selectedValue.endsWith('"');
+                          if (isCreateOption) {
                             selectedValue = selectedValue.slice('Assign role to "'.length, -1);
                           }
-                          // Clear the input value so the dropdown shows the selected value, not the input
-                          setTypeaheadInputValue('');
-                          setSelectedSubject(selectedValue);
-                          // If it's a new subject (not in the list), it will be created when saved
+                          
+                          // Check if we need to show confirmation modal
+                          let shouldShowModal = false;
+                          let preserveRoles = false;
+                          
+                          // Only check if there are changes AND a subject is already selected
+                          if (hasChanges && selectedSubject) {
+                            const currentIsExisting = isExistingSubject(selectedSubject);
+                            const newIsExisting = isExistingSubject(selectedValue);
+                            
+                            // Case 1: New user → New user (with changes): No modal, preserve roles
+                            if (!currentIsExisting && !newIsExisting) {
+                              shouldShowModal = false;
+                              preserveRoles = true;
+                            }
+                            // Case 2: New user → Existing user (with changes): Show modal
+                            else if (!currentIsExisting && newIsExisting) {
+                              shouldShowModal = true;
+                            }
+                            // Case 3: Existing user → New user (with changes): Show modal
+                            else if (currentIsExisting && !newIsExisting) {
+                              shouldShowModal = true;
+                            }
+                            // Case 4: Existing user → Existing user (with changes): Show modal
+                            else if (currentIsExisting && newIsExisting) {
+                              shouldShowModal = true;
+                            }
+                          }
+                          // If no changes or no selected subject yet: Always proceed without modal
+                          
+                          if (shouldShowModal) {
+                            // Store the pending subject and open modal
+                            setPendingSubject(selectedValue);
+                            setIsDiscardModalOpen(true);
+                          } else {
+                            // Clear the input value so the dropdown shows the selected value, not the input
+                            setTypeaheadInputValue('');
+                            // Set flag to preserve roles if needed
+                            if (preserveRoles) {
+                              setShouldPreserveRoles(true);
+                            }
+                            setSelectedSubject(selectedValue);
+                            // If it's a new subject (not in the list), it will be created when saved
+                          }
                         }}
                         isCreatable={false}
                       />
@@ -1217,22 +1401,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   <div className="pf-v6-c-action-list__item">
                     <Button
                       variant="primary"
-                      onClick={() => {
-                        // Get all currently assigned roles
-                        const assignedRoles = roles
-                          .filter(role => role.currentlyAssigned)
-                          .map(role => role.name);
-                        
-                        // Update shared data
-                        if (subjectType === 'User' && selectedSubject) {
-                          updateUserRoles(selectedSubject, assignedRoles);
-                        } else if (subjectType === 'Group' && selectedSubject) {
-                          updateGroupRoles(selectedSubject, assignedRoles);
-                        }
-                        
-                        // Navigate back to permissions tab
-                        navigate(`/projects/${projectId}?tab=permissions`);
-                      }}
+                      onClick={handleSave}
                       isDisabled={!hasChanges || !selectedSubject}
                       data-testid="submit-button"
                       id="save-button"
@@ -1337,6 +1506,184 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             </div>
           )}
         </ModalBody>
+      </Modal>
+
+      {/* Discard Changes Confirmation Modal */}
+      <Modal
+        isOpen={isDiscardModalOpen}
+        onClose={() => {
+          setIsDiscardModalOpen(false);
+          setPendingSubject(undefined);
+          setPendingSubjectType(undefined);
+          setShouldPreserveRoles(false);
+          setTypeaheadInputValue(''); // Clear input to revert to original selection
+          setTypeaheadKey(prev => prev + 1); // Force TypeaheadSelect to re-render with original value
+        }}
+        variant="small"
+        aria-labelledby="discard-changes-modal-title"
+      >
+        <ModalHeader
+          title="Discard changes"
+          titleIconVariant="warning"
+        />
+        <ModalBody style={{ marginBottom: '0' }}>
+          <Content>
+            {pendingSubjectType
+              ? `Switching the subject kind will discard any changes you've made in the Role assignment section.`
+              : pendingSubject === undefined
+              ? `Clearing the ${subjectType.toLowerCase()} selection will discard any changes you've made in the Role assignment section.`
+              : pendingSubject && isExistingSubject(pendingSubject)
+              ? `Switching to a different existing ${subjectType.toLowerCase()} will discard any changes you've made in the Role assignment section.`
+              : `Switching to a new ${subjectType.toLowerCase()} will discard any changes you've made in the Role assignment section.`}
+          </Content>
+        </ModalBody>
+        <div style={{ padding: '24px' }}>
+          <div className="pf-v6-c-action-list">
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="primary"
+                isDanger
+                onClick={() => {
+                  // Proceed with the change or clear action
+                  if (pendingSubjectType) {
+                    // Subject type change
+                    setSubjectType(pendingSubjectType);
+                    setPendingSubjectType(undefined);
+                  } else if (pendingSubject === undefined) {
+                    // Clear action
+                    setSelectedSubject(undefined);
+                    setTypeaheadInputValue('');
+                    setShouldPreserveRoles(false);
+                  } else {
+                    // Switch to new subject
+                    setTypeaheadInputValue('');
+                    setShouldPreserveRoles(false); // Don't preserve roles when discarding
+                    setSelectedSubject(pendingSubject);
+                  }
+                  setIsDiscardModalOpen(false);
+                  setPendingSubject(undefined);
+                }}
+              >
+                Discard
+              </Button>
+            </div>
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsDiscardModalOpen(false);
+                  setPendingSubject(undefined);
+                  setPendingSubjectType(undefined);
+                  setShouldPreserveRoles(false);
+                  setTypeaheadInputValue(''); // Clear input to revert to original selection
+                  setTypeaheadKey(prev => prev + 1); // Force TypeaheadSelect to re-render with original value
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Save Confirmation Modal for OpenShift Custom Roles */}
+      <Modal
+        isOpen={isSaveConfirmModalOpen}
+        onClose={() => {
+          setIsSaveConfirmModalOpen(false);
+          setConfirmInputValue('');
+        }}
+        variant="small"
+        aria-labelledby="save-confirm-modal-title"
+      >
+        <ModalHeader
+          title="Confirm role removal"
+          titleIconVariant="warning"
+        />
+        <ModalBody style={{ marginBottom: '0' }}>
+          <Stack hasGutter>
+            <StackItem>
+              <Content>
+                {(() => {
+                  const removedRoles = roles.filter(role => 
+                    role.roleType === 'openshift-custom' && 
+                    role.originallyAssigned && 
+                    !role.currentlyAssigned
+                  );
+                  const subjectName = selectedSubject || '';
+                  
+                  if (removedRoles.length === 1) {
+                    return (
+                      <>
+                        The <span style={{ fontWeight: 600 }}>'{removedRoles[0].name}'</span> role was assigned to{' '}
+                        <span style={{ fontWeight: 600 }}>'{subjectName}'</span> from OpenShift. It cannot be reassigned from OpenShift AI.
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        The following roles were assigned to <span style={{ fontWeight: 600 }}>'{subjectName}'</span> from OpenShift and cannot be reassigned from OpenShift AI:
+                        <ul style={{ marginTop: '8px', marginBottom: '0' }}>
+                          {removedRoles.map((role, index) => (
+                            <li key={index}>
+                              <span style={{ fontWeight: 600 }}>'{role.name}'</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    );
+                  }
+                })()}
+              </Content>
+            </StackItem>
+            <StackItem>
+              <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                <FlexItem>
+                  <div>Type <strong>'{selectedSubject || ''}'</strong> to confirm removal:</div>
+                </FlexItem>
+                <FlexItem>
+                  <TextInput
+                    id="remove-confirm-input"
+                    data-testid="remove-confirm-input"
+                    aria-label="Remove confirmation input"
+                    type="text"
+                    value={confirmInputValue}
+                    onChange={(_event, value) => setConfirmInputValue(value)}
+                  />
+                </FlexItem>
+              </Flex>
+            </StackItem>
+          </Stack>
+        </ModalBody>
+        <div style={{ padding: '24px' }}>
+          <div className="pf-v6-c-action-list">
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="primary"
+                isDanger
+                isDisabled={confirmInputValue !== selectedSubject}
+                onClick={() => {
+                  setIsSaveConfirmModalOpen(false);
+                  setConfirmInputValue('');
+                  performSave();
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+            <div className="pf-v6-c-action-list__item">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsSaveConfirmModalOpen(false);
+                  setConfirmInputValue('');
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
       </Modal>
     </>
   );

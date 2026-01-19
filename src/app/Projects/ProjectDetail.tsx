@@ -1223,14 +1223,14 @@ const ProjectDetail: React.FunctionComponent = () => {
                     isExpanded={isRolesVariantDropdownOpen}
                     style={{ minWidth: '450px' }}
                   >
-                    {rolesVariant === 'option1' ? 'Option 1 - Highlight 2 labels' : rolesVariant === 'option2' ? 'Option 2 - Display label on every role' : '[UX recommended] Option 3 - Only show the labels and explanation when selecting roles'}
+                    {rolesVariant === 'option1' ? 'Option 1 - Highlight 2 labels' : rolesVariant === 'option2' ? 'Option 2 - Display label on every role' : '[UXD recommended] Option 3 - Only show the labels and explanation when selecting roles'}
                   </MenuToggle>
                 )}
               >
                 <SelectList>
                   <SelectOption value="option1">Option 1 - Highlight 2 labels</SelectOption>
                   <SelectOption value="option2">Option 2 - Display label on every role</SelectOption>
-                  <SelectOption value="option3">[UX recommended] Option 3 - Only show the labels and explanation when selecting roles</SelectOption>
+                  <SelectOption value="option3">[UXD recommended] Option 3 - Only show the labels and explanation when selecting roles</SelectOption>
                 </SelectList>
               </Select>
             </FlexItem>
@@ -1980,14 +1980,17 @@ const ProjectDetail: React.FunctionComponent = () => {
                 <CardHeader
                   selectableActions={{
                     selectableActionId: 'option1-checkbox',
-                    selectableActionAriaLabel: 'Select Option 1 [UX recommended]',
+                    selectableActionAriaLabel: 'Select Option 1 [UXD recommended]',
                     name: 'assign-option',
                     isChecked: selectedAssignOption === 'option1',
                     onChange: () => setSelectedAssignOption('option1'),
                   }}
                 >
                   <CardTitle>
-                    <Title headingLevel="h2" size="lg">Option 1 [UX recommended]</Title>
+                    <Title headingLevel="h2" size="lg">Option 1</Title>
+                    <div style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)', color: 'var(--pf-v5-global--Color--200)', marginTop: '4px' }}>
+                      [UXD recommended]
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardBody style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
