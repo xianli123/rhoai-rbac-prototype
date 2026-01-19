@@ -547,3 +547,103 @@ interface User {
    - Changed from radio buttons to dropdown (matching Manage roles page)
    - Option 3 is selected by default
    - Changed Option 3 text from "Option 3 - Don't show any labels in the list view" to "[UX recommended] Option 3 - Only show the labels and explanation when selecting roles"
+
+## Latest Session Updates (Current)
+
+1. **OpenShift Custom Roles Filtering Fix:**
+   - Fixed bug where all OpenShift custom roles were showing when user had any OpenShift custom role
+   - Now only shows the specific OpenShift custom roles that the user/group actually has
+   - Example: Gary has "k8sreal-name-is-here" - only this role shows, not "custom-pipeline-super-user"
+   - Logic changed from "show all or none" to "show only specific roles user has"
+
+2. **Missing Roles Added:**
+   - Added "k8sreal-name-is-here" (OpenShift custom role) to mockAvailableRoles in both RoleAssignmentPage and EditRolesPage
+   - Added "Deployments access" (regular role) to mockAvailableRoles in both pages
+   - These roles were in Gary's data but missing from available roles array
+
+3. **Role Assignment Flow Comparison Modal Restored:**
+   - Re-enabled comparison modal when clicking "Assign roles" button
+   - Modal opens first to let users choose between Option 1 and Option 2 flows
+   - Had been temporarily hidden for testing
+
+4. **Dynamic Alert Text Based on Subject Type:**
+   - Alert in button bar section now changes based on subject kind
+   - User: "Make sure to inform the specified user about the updated role assignments."
+   - Group: "Make sure to inform the specified group about the updated role assignments."
+   - Applied in both Assign roles page and Manage roles page
+
+5. **Role Details Modal - Role Type Labels in Header:**
+   - Added role type labels after role name in modal header
+   - Labels reuse same design as Role assignment table labels
+   - Labels are clickable and trigger popovers
+   - OpenShift default roles: Show "AI role" (green) + "OpenShift default role" (blue)
+   - OpenShift custom roles: Show "OpenShift custom role" (purple)
+   - Regular roles: Show "AI role" (green)
+   - All labels use filled variant and include appropriate icons
+
+6. **AI Label Text Update:**
+   - Changed all AI labels from "AI" to "AI role"
+   - Applied across all pages: Permissions tab, Assign roles page, Manage roles page, Role details modal
+
+7. **Modal Label Popover Fix:**
+   - Fixed labels in role details modal header to properly trigger popovers on click
+   - Simplified implementation using `isVisible` and `onHide` (removed `shouldOpen` callback)
+   - Label is now inside Popover component
+   - onClick handler toggles popover state directly
+   - Added `e.preventDefault()` to prevent default behavior
+   - All labels (AI role, OpenShift default role, OpenShift custom role) now work consistently
+
+8. **Warning Alert Removed:**
+   - Removed warning alert "Switching to a different user will discard any changes you've made in the Role assignment section."
+   - Alert was shown in Assign roles page (Option 1) when a user/group was selected
+   - User feedback indicated this warning was unnecessary
+
+9. **Status and Label Text Updates:**
+   - **Column Header**: Changed "Status" to "Assignment status" in both Assign roles and Manage roles pages
+   - **Status Labels**: 
+     - "To be assigned" → "Assigning"
+     - "To be removed" / "To be unassigned" → "Unassigning"
+     - "Currently assigned" → No change
+   - Applied in both Assign roles page and Manage roles page (all options)
+
+10. **Alert in Button Bar Section:**
+    - Updated alert in both Assign roles and Manage roles pages
+    - Removed alert body content
+    - Alert title: "Make sure to inform the specified user about the updated role assignments." (or "group" for groups)
+    - Fixed width: 840px
+    - Alert uses info variant and is inline
+
+11. **Page Descriptions Added:**
+    - **Assign roles page**: Added description under header title: "Choose a user or group, then assign or manage roles to define their permissions."
+    - **Subject section**: Added description under "Subject" title: "Select a subject with existing roles or enter a new user."
+    - 8px gap added between description and first input field
+
+12. **Role Assignment Section Spacing:**
+    - Added 8px vertical gap between description "Check the role to grant the relevant permissions." and search bar
+    - Applied in both Assign roles page and Manage roles page
+
+13. **Removed "Please select" Alert:**
+    - Removed inline alert "Please select a user or group before assigning roles."
+    - Alert was shown in Assign roles page when no subject was selected
+    - Simplified UI by removing this redundant message
+
+14. **Role Type Label Text Updates:**
+    - "AI" → "AI role"
+    - "OpenShift default" → "OpenShift default role"
+    - "OpenShift custom" → "OpenShift custom role"
+    - Applied in Role assignment table of both Assign roles page and Manage roles page (Option 3 - Role type column)
+
+15. **Option 1 Title in Comparison Modal:**
+    - Changed "Option 1" to "Option 1 [UX recommended]" in Role assignment flow comparison modal
+    - Indicates Option 1 is the recommended approach
+
+16. **Role Details Modal - Assignees Tab Updates:**
+    - All columns in Assignees table are now sortable (Subject, Subject kind, Role binding, Date created)
+    - Removed question mark icons from all column headers (except Date created)
+    - Added question mark icon with popover after Date created column header
+    - Popover explains: "Date when the role assignment was created."
+
+17. **Permissions Tab - Date Created Column:**
+    - Added question mark icon with popover after "Date created" column header in both Users and Groups tables
+    - Added sorting icon next to "Date created" column header (in front of question mark)
+    - Tables now support sorting by date created

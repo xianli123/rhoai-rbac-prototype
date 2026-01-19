@@ -264,6 +264,38 @@ const mockAvailableRoles: Role[] = [
       },
     ],
   },
+  {
+    id: '13',
+    name: 'k8sreal-name-is-here',
+    description: 'Custom OpenShift role with Kubernetes specific permissions.',
+    roleType: 'openshift-custom',
+    originallyAssigned: false,
+    currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+        apiGroups: [''],
+        resources: ['pods', 'services'],
+        resourceNames: undefined,
+      },
+    ],
+  },
+  {
+    id: '14',
+    name: 'Deployments access',
+    description: 'User can access and interact with deployments.',
+    roleType: 'regular',
+    originallyAssigned: false,
+    currentlyAssigned: false,
+    rules: [
+      {
+        actions: ['get', 'list', 'watch'],
+        apiGroups: ['api.groups.name'],
+        resources: ['Deployments'],
+        resourceNames: undefined,
+      },
+    ],
+  },
 ];
 
 const RoleAssignmentPage: React.FunctionComponent = () => {
@@ -399,16 +431,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         subjectRoles = group?.roles.map(r => r.role) || [];
       }
       
-      // Check if subject has any OpenShift custom roles
-      const hasOpenShiftCustomRole = subjectRoles.some(roleName => {
+      // Get the specific OpenShift custom roles that the subject has
+      const subjectOpenShiftCustomRoles = subjectRoles.filter(roleName => {
         const role = mockAvailableRoles.find(r => r.name === roleName);
         return role?.roleType === 'openshift-custom';
       });
       
-      // Filter out OpenShift custom roles if subject is new or doesn't have any OpenShift custom roles
-      const filteredRoles = (!isExistingSubject || !hasOpenShiftCustomRole)
-        ? mockAvailableRoles.filter(role => role.roleType !== 'openshift-custom')
-        : mockAvailableRoles;
+      // Filter roles: exclude OpenShift custom roles that the subject doesn't have
+      const filteredRoles = mockAvailableRoles.filter(role => {
+        // If it's not an OpenShift custom role, always include it
+        if (role.roleType !== 'openshift-custom') {
+          return true;
+        }
+        // If it's an OpenShift custom role, only include it if the subject has it
+        return subjectOpenShiftCustomRoles.includes(role.name);
+      });
       
       setRoles(filteredRoles.map(role => {
         const isAssigned = subjectRoles.includes(role.name);
@@ -439,17 +476,17 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     if (role.currentlyAssigned && role.originallyAssigned) {
       return 'Currently assigned';
     } else if (role.currentlyAssigned && !role.originallyAssigned) {
-      return 'To be assigned';
+      return 'Assigning';
     } else if (!role.currentlyAssigned && role.originallyAssigned) {
-      return 'To be unassigned';
+      return 'Unassigning';
     }
     return '---';
   };
 
   const getStatusPriority = (status: string): number => {
     if (status === 'Currently assigned') return 1;
-    if (status === 'To be assigned') return 2;
-    if (status === 'To be unassigned') return 3;
+    if (status === 'Assigning') return 2;
+    if (status === 'Unassigning') return 3;
     return 4; // '---'
   };
 
@@ -464,30 +501,30 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     const filtered = getFilteredRoles();
     return filtered.sort((a, b) => {
       if (option2ActiveSort === 'status') {
-        const statusA = getRoleStatus(a);
-        const statusB = getRoleStatus(b);
+      const statusA = getRoleStatus(a);
+      const statusB = getRoleStatus(b);
         
-        // Special handling: "To be unassigned" roles maintain their alphabetical order
+        // Special handling: "Unassigning" roles maintain their alphabetical order
         // Treat them as priority 1 (same as "Currently assigned") but keep their relative order
-        const isUnassignedA = statusA === 'To be unassigned';
-        const isUnassignedB = statusB === 'To be unassigned';
+        const isUnassignedA = statusA === 'Unassigning';
+        const isUnassignedB = statusB === 'Unassigning';
         
-        // If both are "To be unassigned", maintain alphabetical order
+        // If both are "Unassigning", maintain alphabetical order
         if (isUnassignedA && isUnassignedB) {
           return a.name.localeCompare(b.name);
         }
         
-        // If one is "To be unassigned", treat it as priority 1 (same as "Currently assigned")
+        // If one is "Unassigning", treat it as priority 1 (same as "Currently assigned")
         const priorityA = isUnassignedA ? 1 : getStatusPriority(statusA);
         const priorityB = isUnassignedB ? 1 : getStatusPriority(statusB);
 
-        if (priorityA !== priorityB) {
+      if (priorityA !== priorityB) {
           return option2StatusSortBy.direction === 'asc'
-            ? priorityA - priorityB
-            : priorityB - priorityA;
-        }
+          ? priorityA - priorityB
+          : priorityB - priorityA;
+      }
         // If status priority is the same, sort by role name as secondary
-        return a.name.localeCompare(b.name);
+      return a.name.localeCompare(b.name);
       } else {
         // Sort by role name
         const comparison = a.name.localeCompare(b.name);
@@ -584,7 +621,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             d="M26.037,16.962c-5.905-.468-10.531-5.094-11-11-.042-.52-.517-.961-1.038-.961s-.997.442-1.038.962c-.468,5.905-5.094,10.531-11,11-.52.042-.961.517-.961,1.038s.442.997.962,1.038c5.905.468,10.531,5.094,11,11,.042.52.517.961,1.038.961s.997-.442,1.038-.962c.468-5.905,5.094-10.531,10.999-10.999,0,0,0,0,0,0,.52-.042.961-.517.961-1.038s-.442-.997-.962-1.038ZM14,25.764c-1.413-3.545-4.219-6.352-7.764-7.764,3.545-1.413,6.352-4.219,7.764-7.764,1.413,3.545,4.219,6.352,7.764,7.764-3.545,1.413-6.352,4.219-7.764,7.764ZM30.096,6.025c-1.55-.346-2.775-1.571-3.123-3.125-.104-.458-.504-.778-.974-.778s-.87.32-.975.781c-.346,1.55-1.571,2.775-3.125,3.123-.458.104-.778.504-.778.974s.32.87.781.975c1.55.346,2.775,1.571,3.123,3.125.104.458.504.778.974.778s.87-.32.975-.781c.346-1.55,1.571-2.775,3.122-3.122,0,0,.002,0,.003,0,.458-.104.778-.504.778-.974s-.32-.87-.781-.975ZM26,8.917c-.481-.778-1.139-1.436-1.917-1.917.778-.481,1.436-1.139,1.917-1.917.481.778,1.139,1.436,1.917,1.917-.778.481-1.436,1.139-1.917,1.917Z"
           />
         </svg>
-        AI
+        AI role
       </Label>
     );
     
@@ -664,7 +701,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             <path fill="#1F1F1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
             <path fill="#1F1F1F" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
           </svg>
-          <span style={{ marginLeft: '4px' }}>OpenShift default</span>
+          <span style={{ marginLeft: '4px' }}>OpenShift default role</span>
         </Label>
       );
       
@@ -748,7 +785,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             <path fill="#1F1F1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
             <path fill="#1F1F1F" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
           </svg>
-          <span style={{ marginLeft: '4px' }}>OpenShift custom</span>
+          <span style={{ marginLeft: '4px' }}>OpenShift custom role</span>
         </Label>
       );
       
@@ -794,17 +831,17 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   const renderStatusBadge = (role: Role) => {
     const status = getRoleStatus(role);
     
-    // If role was originally assigned but is now deselected, only show "To be unassigned" label
+    // If role was originally assigned but is now deselected, only show "Unassigning" label
     if (role.originallyAssigned && !role.currentlyAssigned) {
-      return <Label color="orange" variant="outline" isCompact>To be unassigned</Label>;
+      return <Label color="orange" variant="outline" isCompact>Unassigning</Label>;
     }
     
     // Otherwise show single status label
     if (status === 'Currently assigned') {
       return <Label color="green" variant="outline" isCompact>{status}</Label>;
-    } else if (status === 'To be assigned') {
+    } else if (status === 'Assigning') {
       return <Label color="blue" variant="outline" isCompact>{status}</Label>;
-    } else if (status === 'To be unassigned') {
+    } else if (status === 'Unassigning') {
       return <Label color="orange" variant="outline" isCompact>{status}</Label>;
     }
     return <span style={{ color: 'var(--pf-v5-global--Color--200)' }}>---</span>;
@@ -894,6 +931,9 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         <Title headingLevel="h1" size="2xl">
           Assign roles
         </Title>
+        <Content style={{ marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
+          Choose a user or group, then assign or manage roles to define their permissions.
+        </Content>
       </PageSection>
 
       <PageSection isFilled>
@@ -901,6 +941,9 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           <Stack hasGutter>
             <StackItem>
               <Title headingLevel="h2" size="lg">Subject</Title>
+              <Content style={{ marginTop: '8px' }}>
+                Select a subject with existing roles or enter a new user.
+              </Content>
               <Form style={{ marginTop: '16px' }}>
                 {!isOption2 && (
                   <FormGroup label="Subject kind" fieldId="subject-type">
@@ -1013,24 +1056,6 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                             : 'Only groups with existing roles are listed. To add someone new, enter their group name.'}
                         </HelperTextItem>
                       </HelperText>
-                      {!selectedSubject && (
-                        <Alert 
-                          variant={AlertVariant.info} 
-                          isInline 
-                          isPlain
-                          title="Please select a user or group before assigning roles."
-                          style={{ marginTop: '8px' }}
-                        />
-                      )}
-                      {!isOption2 && selectedSubject && (
-                        <Alert 
-                          variant={AlertVariant.warning} 
-                          isInline 
-                          isPlain
-                          title="Switching to a different user will discard any changes you've made in the Role assignment section."
-                          style={{ marginTop: '8px' }}
-                        />
-                      )}
                     </>
                   )}
               </FormGroup>
@@ -1040,7 +1065,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             {selectedSubject && (
           <StackItem style={{ marginTop: '40px' }}>
             <Title headingLevel="h2" size="lg">Role assignment</Title>
-            <Content style={{ marginTop: '16px', marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+            <Content style={{ marginTop: '16px', marginBottom: '8px' }}>
               Check the role to grant the relevant permissions.
             </Content>
 
@@ -1125,7 +1150,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         Role type
                       </Th>
                       <Th sort={getOption2StatusSortParams()}>
-                        Status
+                        Assignment status
                       </Th>
                     </Tr>
                   </Thead>
@@ -1168,7 +1193,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                     )}
                   </Tbody>
                 </Table>
-              </StackItem>
+          </StackItem>
             )}
         </Stack>
         </div>
@@ -1177,8 +1202,12 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
       <PageSection className="pf-m-sticky-bottom">
         <div className="pf-v6-l-stack pf-m-gutter">
           <div className="pf-v6-l-stack__item">
-            <Alert variant={AlertVariant.info} isInline title="Information">
-              Make sure to inform newly added user about the updated project access.
+            <Alert 
+              variant={AlertVariant.info} 
+              isInline 
+              title={`Make sure to inform the specified ${subjectType.toLowerCase()} about the updated role assignments.`} 
+              style={{ width: '840px' }}
+            >
             </Alert>
           </div>
           <div className="pf-v6-l-stack__item">
