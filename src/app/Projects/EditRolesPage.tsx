@@ -30,6 +30,7 @@ import {
   ModalHeader,
   ModalBody,
   TextInput,
+  Tooltip,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -594,14 +595,14 @@ const EditRolesPage: React.FunctionComponent = () => {
     } else if (!role.currentlyAssigned && role.originallyAssigned) {
       return 'Unassigning';
     }
-    return '--';
+    return '-';
   };
 
   const getStatusPriority = (status: string): number => {
     if (status === 'Currently assigned') return 1;
     if (status === 'Assigning') return 2;
     if (status === 'Unassigning') return 3;
-    return 4; // '--'
+    return 4; // '-'
   };
 
   const getFilteredRoles = (): Role[] => {
@@ -701,11 +702,11 @@ const EditRolesPage: React.FunctionComponent = () => {
   const renderRoleBadge = (role: Role) => {
     // Option 1: Original behavior (keep existing labels)
     if (selectedOption === 'option1') {
-      if (role.roleType === 'openshift-default') {
-        return <Label color="blue" variant="outline" isCompact>OpenShift default</Label>;
-      } else if (role.roleType === 'openshift-custom') {
-        return <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>;
-      }
+    if (role.roleType === 'openshift-default') {
+      return <Label color="blue" variant="outline" isCompact>OpenShift default</Label>;
+    } else if (role.roleType === 'openshift-custom') {
+      return <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>;
+    }
       return null;
     }
 
@@ -1066,47 +1067,12 @@ const EditRolesPage: React.FunctionComponent = () => {
     
     // If role was originally assigned but is now deselected
     if (role.originallyAssigned && !role.currentlyAssigned) {
-      const warningPopoverId = `warning-unassign-${role.id}`;
-      const isWarningOpen = openPopovers.has(warningPopoverId);
-      
       const warningIcon = isOpenShiftCustom ? (
-        <Popover
-          headerContent={<div style={{ fontWeight: 600 }}>Warning</div>}
-          bodyContent="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
-          showClose
-          isVisible={isWarningOpen}
-          shouldOpen={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              if (!newSet.has(warningPopoverId)) {
-                newSet.add(warningPopoverId);
-              }
-              return newSet;
-            });
-            return true;
-          }}
-          shouldClose={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              newSet.delete(warningPopoverId);
-              return newSet;
-            });
-            return true;
-          }}
+        <Tooltip
+          content="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
         >
           <span
-            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              const isCurrentlyOpen = openPopovers.has(warningPopoverId);
-              if (!isCurrentlyOpen) {
-                setOpenPopovers((prev) => {
-                  const newSet = new Set(prev);
-                  newSet.add(warningPopoverId);
-                  return newSet;
-                });
-              }
-            }}
+            style={{ display: 'inline-flex', alignItems: 'center' }}
           >
             <svg
               className="pf-v6-svg"
@@ -1121,7 +1087,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
             </svg>
           </span>
-        </Popover>
+        </Tooltip>
       ) : null;
       
       // For Option 3, only show "Unassigning" label
@@ -1151,7 +1117,7 @@ const EditRolesPage: React.FunctionComponent = () => {
     } else if (status === 'Unassigning') {
       return <Label color="red" variant="outline" isCompact>{status}</Label>;
     }
-    return <span style={{ color: 'var(--pf-v5-global--Color--200)' }}>--</span>;
+    return <span style={{ color: 'var(--pf-v5-global--Color--200)' }}>-</span>;
   };
 
   const handleRoleNameClick = (role: Role) => {
@@ -1328,14 +1294,14 @@ const EditRolesPage: React.FunctionComponent = () => {
               <Title headingLevel="h2" size="lg">Subject</Title>
             <Form style={{ marginTop: '16px' }}>
               {selectedOption !== 'option2' && selectedOption !== 'option3' && (
-                <div className="pf-v6-c-form__group">
-                  <div className="pf-v6-c-form__group-label">
-                    <label className="pf-v6-c-form__label" htmlFor="subject-type">
+              <div className="pf-v6-c-form__group">
+                <div className="pf-v6-c-form__group-label">
+                  <label className="pf-v6-c-form__label" htmlFor="subject-type">
                       <span className="pf-v6-c-form__label-text">Subject kind</span>
-                    </label>
-                  </div>
-                  <div className="pf-v6-c-form__group-control">{subjectType}</div>
+                  </label>
                 </div>
+                <div className="pf-v6-c-form__group-control">{subjectType}</div>
+              </div>
               )}
               <div className="pf-v6-c-form__group" style={{ marginTop: (selectedOption !== 'option2' && selectedOption !== 'option3') ? 'var(--pf-v5-global--spacer--md)' : '0px' }}>
                 <div className="pf-v6-c-form__group-label">
@@ -1489,7 +1455,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                       Role type
                     </Th>
                   )}
-                  <Th sort={selectedOption === 'option1' ? getStatusSortParams() : ((selectedOption === 'option2' || selectedOption === 'option3') ? getOption2StatusSortParams() : undefined)}>
+                  <Th sort={selectedOption === 'option1' ? getStatusSortParams() : ((selectedOption === 'option2' || selectedOption === 'option3') ? getOption2StatusSortParams() : undefined)} modifier="nowrap">
                     Assignment status
                   </Th>
                 </Tr>
@@ -1503,36 +1469,36 @@ const EditRolesPage: React.FunctionComponent = () => {
                   </Tr>
                 ) : (
                   sortedRoles.map((role, rowIndex) => {
-                    const isExpanded = expandedRoles.has(role.id);
-                    const status = getRoleStatus(role);
-                    const hasRules = role.rules && role.rules.length > 0;
-                    
-                    return (
-                      <React.Fragment key={role.id}>
+                  const isExpanded = expandedRoles.has(role.id);
+                  const status = getRoleStatus(role);
+                  const hasRules = role.rules && role.rules.length > 0;
+                  
+                  return (
+                    <React.Fragment key={role.id}>
                         <Tr className={isExpanded ? 'pf-m-expanded' : undefined}>
                           {selectedOption === 'option1' ? (
-                            <Td
-                              treeRow={{
-                                onCollapse: () => toggleRoleExpansion(role.id),
-                                rowIndex: rowIndex,
-                                props: {
-                                  'aria-level': 1,
-                                  'aria-setsize': sortedRoles.length,
-                                  'aria-posinset': rowIndex + 1,
+                        <Td
+                          treeRow={{
+                            onCollapse: () => toggleRoleExpansion(role.id),
+                            rowIndex: rowIndex,
+                            props: {
+                              'aria-level': 1,
+                              'aria-setsize': sortedRoles.length,
+                              'aria-posinset': rowIndex + 1,
                                   'aria-expanded': isExpanded,
-                                },
-                              }}
-                            >
+                            },
+                          }}
+                        >
                               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--pf-v5-global--spacer--sm)' }}>
-                                <Checkbox
-                                  id={`role-${role.id}`}
-                                  isChecked={role.currentlyAssigned}
-                                  onChange={() => handleRoleToggle(role.id)}
-                                  aria-label={`Select role ${role.name}`}
+                            <Checkbox
+                              id={`role-${role.id}`}
+                              isChecked={role.currentlyAssigned}
+                              onChange={() => handleRoleToggle(role.id)}
+                              aria-label={`Select role ${role.name}`}
                                   onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                            </Td>
+                            />
+                          </div>
+                        </Td>
                           ) : (
                             <Td>
                               <Checkbox
@@ -1576,39 +1542,39 @@ const EditRolesPage: React.FunctionComponent = () => {
                                 {role.name}
                               </Button>
                             ) : (
-                              <div>
-                                <div>{role.name}</div>
+                          <div>
+                            <div>{role.name}</div>
                                 {(() => {
                                   const badge = renderRoleBadge(role);
                                   return badge ? (
-                                    <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
+                              <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
                                       {badge}
-                                    </div>
+                              </div>
                                   ) : null;
                                 })()}
-                              </div>
+                          </div>
                             )}
-                          </Td>
-                          <Td>{role.description}</Td>
+                        </Td>
+                        <Td>{role.description}</Td>
                           {selectedOption === 'option3' && (
                             <Td>
                               {renderRoleTypeLabels(role)}
                             </Td>
                           )}
-                          <Td>{renderStatusBadge(role)}</Td>
-                        </Tr>
+                        <Td>{renderStatusBadge(role)}</Td>
+                      </Tr>
                         {isExpanded && selectedOption === 'option1' && (
-                          <Tr isExpanded={isExpanded}>
-                            <Td colSpan={4}>
-                              <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
+                        <Tr isExpanded={isExpanded}>
+                          <Td colSpan={4}>
+                            <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
                                 <div style={{ marginBottom: 'var(--pf-v5-global--spacer--sm)', fontWeight: 600 }}>
                                   Rules
                                 </div>
                                 {hasRules && role.rules && role.rules.length > 0 ? (
-                                  <Table variant="compact" aria-label="Role rules">
-                                    <Thead>
-                                      <Tr>
-                                        <Th>Actions</Th>
+                              <Table variant="compact" aria-label="Role rules">
+                                <Thead>
+                                  <Tr>
+                                    <Th>Actions</Th>
                                         <Th>
                                           API groups
                                           <ChevronUpIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
@@ -1619,30 +1585,30 @@ const EditRolesPage: React.FunctionComponent = () => {
                                           Resource names
                                           <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
                                         </Th>
-                                      </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                      {role.rules.map((rule, index) => (
-                                        <Tr key={index}>
-                                          <Td>{rule.actions.join(', ')}</Td>
-                                          <Td>{rule.apiGroups.join(', ')}</Td>
-                                          <Td>{rule.resources.join(', ')}</Td>
-                                          <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
-                                        </Tr>
-                                      ))}
-                                    </Tbody>
-                                  </Table>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  {role.rules.map((rule, index) => (
+                                    <Tr key={index}>
+                                      <Td>{rule.actions.join(', ')}</Td>
+                                      <Td>{rule.apiGroups.join(', ')}</Td>
+                                      <Td>{rule.resources.join(', ')}</Td>
+                                      <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
+                                    </Tr>
+                                  ))}
+                                </Tbody>
+                              </Table>
                                 ) : (
                                   <div style={{ color: 'var(--pf-v5-global--Color--200)', padding: 'var(--pf-v5-global--spacer--sm)' }}>
                                     No rules available
                                   </div>
                                 )}
-                              </div>
-                            </Td>
-                          </Tr>
-                        )}
-                      </React.Fragment>
-                    );
+                            </div>
+                          </Td>
+                        </Tr>
+                      )}
+                    </React.Fragment>
+                  );
                   })
                 )}
               </Tbody>

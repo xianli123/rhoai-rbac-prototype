@@ -1052,7 +1052,8 @@ const ProjectDetail: React.FunctionComponent = () => {
   };
 
   const handleAssignRoles = () => {
-    setIsComparisonModalOpen(true);
+    // Navigate directly to Assign roles page (Option 2 is hidden)
+    navigate(`/projects/${projectId}/permissions/assign-roles`);
   };
 
   // Helper function to get available subjects for Option 2 modal
@@ -2019,7 +2020,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                 isSelectable
                 isSelected={selectedAssignOption === 'option2'}
                 onClick={() => setSelectedAssignOption('option2')}
-                style={{ cursor: 'pointer', flex: 1, height: '100%', display: 'flex', flexDirection: 'column' }}
+                style={{ cursor: 'pointer', flex: 1, height: '100%', display: 'none', flexDirection: 'column' }}
               >
                 <CardHeader
                   selectableActions={{

@@ -28,6 +28,7 @@ import {
   ModalBody,
   Popover,
   TextInput,
+  Tooltip,
 } from '@patternfly/react-core';
 import {
   OutlinedQuestionCircleIcon,
@@ -566,14 +567,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     } else if (!role.currentlyAssigned && role.originallyAssigned) {
       return 'Unassigning';
     }
-    return '--';
+    return '-';
   };
 
   const getStatusPriority = (status: string): number => {
     if (status === 'Currently assigned') return 1;
     if (status === 'Assigning') return 2;
     if (status === 'Unassigning') return 3;
-    return 4; // '--'
+    return 4; // '-'
   };
 
   const getFilteredRoles = (): Role[] => {
@@ -922,49 +923,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
       const isOpenShiftCustom = role.roleType === 'openshift-custom';
       
       if (isOpenShiftCustom) {
-        const warningPopoverId = `warning-unassign-${role.id}`;
-        const isWarningOpen = openPopovers.has(warningPopoverId);
-        
         return (
           <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
             <Label color="red" variant="outline" isCompact>Unassigning</Label>
-            <Popover
-              headerContent={<div style={{ fontWeight: 600 }}>Warning</div>}
-              bodyContent="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
-              showClose
-              isVisible={isWarningOpen}
-              shouldOpen={() => {
-                setOpenPopovers((prev) => {
-                  const newSet = new Set(prev);
-                  if (!newSet.has(warningPopoverId)) {
-                    newSet.add(warningPopoverId);
-                  }
-                  return newSet;
-                });
-                return true;
-              }}
-              shouldClose={() => {
-                setOpenPopovers((prev) => {
-                  const newSet = new Set(prev);
-                  newSet.delete(warningPopoverId);
-                  return newSet;
-                });
-                return true;
-              }}
+            <Tooltip
+              content="Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
             >
               <span
-                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const isCurrentlyOpen = openPopovers.has(warningPopoverId);
-                  if (!isCurrentlyOpen) {
-                    setOpenPopovers((prev) => {
-                      const newSet = new Set(prev);
-                      newSet.add(warningPopoverId);
-                      return newSet;
-                    });
-                  }
-                }}
+                style={{ display: 'inline-flex', alignItems: 'center' }}
               >
                 <svg
                   className="pf-v6-svg"
@@ -979,7 +945,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   <path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z" />
                 </svg>
               </span>
-            </Popover>
+            </Tooltip>
           </Flex>
         );
       }
@@ -995,7 +961,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     } else if (status === 'Unassigning') {
       return <Label color="red" variant="outline" isCompact>{status}</Label>;
     }
-    return <span style={{ color: 'var(--pf-v5-global--Color--200)' }}>--</span>;
+    return <span style={{ color: 'var(--pf-v5-global--Color--200)' }}>-</span>;
   };
 
   const handleRoleNameClick = (role: Role) => {
@@ -1262,8 +1228,8 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             </Form>
           </StackItem>
 
-            {selectedSubject && (
-          <StackItem style={{ marginTop: '40px' }}>
+          {/* Role assignment section - always takes up space, but content is hidden when no subject selected */}
+          <StackItem style={{ marginTop: '40px', visibility: selectedSubject ? 'visible' : 'hidden' }}>
             <Title headingLevel="h2" size="lg">Role assignment</Title>
             <Content style={{ marginTop: '16px', marginBottom: '8px' }}>
               Check the role to grant the relevant permissions.
@@ -1349,7 +1315,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                       >
                         Role type
                       </Th>
-                      <Th sort={getOption2StatusSortParams()}>
+                      <Th sort={getOption2StatusSortParams()} modifier="nowrap">
                         Assignment status
                       </Th>
                     </Tr>
@@ -1394,7 +1360,6 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   </Tbody>
                 </Table>
           </StackItem>
-            )}
         </Stack>
         </div>
       </PageSection>

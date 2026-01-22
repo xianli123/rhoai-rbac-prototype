@@ -693,3 +693,37 @@ interface User {
     - Changed description under 'Subject' title from "Select a subject with existing roles or enter a new user" to "Select a subject with existing roles or enter a new subject"
     - Uses more consistent terminology (subject encompasses both users and groups)
     - Improves UI accuracy and clarity
+
+25. **Assign Roles Page - Role Assignment Section Layout:**
+    - Changed Role assignment section to always occupy space in the layout
+    - Uses `visibility: hidden` when no subject is selected (instead of conditional rendering)
+    - Keeps the space reserved so buttons section appears at the bottom of the page
+    - When subject is selected, section becomes visible (`visibility: visible`)
+    - Improves UX by keeping buttons section at consistent position (bottom of page) when no subject selected
+
+26. **Assignment Status Column Header - Prevent Truncation:**
+    - Added `modifier="nowrap"` to the Assignment status column header `<Th>` component
+    - Prevents text wrapping and truncation of the column header
+    - Applied in both Assign roles page and Manage roles page
+    - Ensures "Assignment status" text displays completely
+
+27. **Assignment Status Empty Indicator - Changed from '--' to '-':**
+    - Changed empty status indicator from double dash ('--') to single dash ('-')
+    - Applied in both Assign roles page and Manage roles page
+    - Displayed when a role has no assignment status (not currently assigned, not assigning, not unassigning)
+    - Provides cleaner, more minimal visual appearance
+
+28. **Unassigning Warning Icon - Changed from Popover to Tooltip:**
+    - Changed exclamation icon interaction from click-to-open Popover to hover-to-show Tooltip
+    - Applied when deselecting currently assigned OpenShift custom roles
+    - Tooltip message: "Once this OpenShift custom role is unassigned, it cannot be added back through the RHOAI UI."
+    - Simplified user experience - no click required, immediate feedback on hover
+    - Removed complex state management for popover open/close
+    - Applied in both Assign roles page and Manage roles page
+
+29. **Role Assignment Flow - Hidden Option 2:**
+    - Hidden Option 2 card in the "Role assignment flow comparison" modal using `display: 'none'`
+    - Updated `handleAssignRoles` to navigate directly to Assign roles page (Option 1)
+    - Clicking "Assign roles" button now bypasses the comparison modal and goes directly to the Assign roles page
+    - Option 2 code remains in place (not deleted), just hidden for potential future use
+    - Simplified user flow by removing intermediate modal step
