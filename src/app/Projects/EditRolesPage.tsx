@@ -1099,12 +1099,7 @@ const EditRolesPage: React.FunctionComponent = () => {
       return (
           <Popover
             position="bottom"
-            bodyContent={
-              <div>
-                <div style={{ marginBottom: '8px' }}>Role cannot be re-assigned in OpenShift AI</div>
-                <div>OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again.</div>
-              </div>
-            }
+            bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
             showClose
             isVisible={openPopovers.has(helpTextPopoverId)}
             shouldClose={() => {
