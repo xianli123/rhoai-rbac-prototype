@@ -667,9 +667,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   };
 
   const renderAILabel = (popoverId: string) => {
-    const isOpen = openPopovers.has(popoverId);
-    const content = getLabelPopoverContent('ai');
-    const label = (
+    return (
       <Label
         color="grey"
         variant="outline"
@@ -680,17 +678,6 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           gap: '4px',
           padding: '2px 8px',
           borderRadius: '16px',
-          cursor: 'pointer',
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!isOpen) {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              newSet.add(popoverId);
-              return newSet;
-            });
-          }
         }}
       >
         <svg
@@ -712,62 +699,18 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         AI role
       </Label>
     );
-    
-    return (
-      <Popover
-        headerContent={
-          <div style={{ fontWeight: 600 }}>{content.title}</div>
-        }
-        bodyContent="This is a placeholder. Not real data."
-        showClose
-        isVisible={isOpen}
-        shouldOpen={() => {
-          setOpenPopovers((prev) => {
-            const newSet = new Set(prev);
-            if (!newSet.has(popoverId)) {
-              newSet.add(popoverId);
-            }
-            return newSet;
-          });
-          return true;
-        }}
-        shouldClose={() => {
-          setOpenPopovers((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(popoverId);
-            return newSet;
-          });
-          return true;
-        }}
-      >
-        {label}
-      </Popover>
-    );
   };
 
   const renderRoleTypeLabels = (role: Role) => {
     if (role.roleType === 'openshift-default') {
       // For OpenShift default roles, show AI label and OpenShift default label
       const aiPopoverId = `ai-assign-${role.id}`;
-      const openshiftPopoverId = `openshift-default-assign-${role.id}`;
-      const openshiftContent = getLabelPopoverContent('openshift-default', role.name);
       const openshiftLabel = (
         <Label 
           color="grey" 
           variant="outline" 
           isCompact
-          style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
-            if (!isCurrentlyOpen) {
-              setOpenPopovers((prev) => {
-                const newSet = new Set(prev);
-                newSet.add(openshiftPopoverId);
-                return newSet;
-              });
-            }
-          }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
         >
           <svg
             className="pf-v6-svg"
@@ -793,65 +736,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         </Label>
       );
       
-      const openshiftLabelWithPopover = (
-        <Popover
-          headerContent={
-            <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
-          }
-          bodyContent="This is a placeholder. Not real data."
-          showClose
-          isVisible={openPopovers.has(openshiftPopoverId)}
-          shouldOpen={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              if (!newSet.has(openshiftPopoverId)) {
-                newSet.add(openshiftPopoverId);
-              }
-              return newSet;
-            });
-            return true;
-          }}
-          shouldClose={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              newSet.delete(openshiftPopoverId);
-              return newSet;
-            });
-            return true;
-          }}
-        >
-          {openshiftLabel}
-        </Popover>
-      );
-      
       return (
         <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
           {renderAILabel(aiPopoverId)}
           <div style={{ width: '4px' }} />
-          {openshiftLabelWithPopover}
+          {openshiftLabel}
         </Flex>
       );
     } else if (role.roleType === 'openshift-custom') {
       // OpenShift custom roles don't get AI label
-      const openshiftPopoverId = `openshift-custom-assign-${role.id}`;
-      const openshiftContent = getLabelPopoverContent('openshift-custom', role.name);
       const openshiftLabel = (
         <Label 
           color="grey" 
           variant="outline" 
           isCompact
-          style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            const isCurrentlyOpen = openPopovers.has(openshiftPopoverId);
-            if (!isCurrentlyOpen) {
-              setOpenPopovers((prev) => {
-                const newSet = new Set(prev);
-                newSet.add(openshiftPopoverId);
-                return newSet;
-              });
-            }
-          }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
         >
           <svg
             className="pf-v6-svg"
@@ -877,38 +776,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         </Label>
       );
       
-      const openshiftLabelWithPopover = (
-        <Popover
-          headerContent={
-            <div style={{ fontWeight: 600 }}>{openshiftContent.title}</div>
-          }
-          bodyContent="This is a placeholder. Not real data."
-          showClose
-          isVisible={openPopovers.has(openshiftPopoverId)}
-          shouldOpen={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              if (!newSet.has(openshiftPopoverId)) {
-                newSet.add(openshiftPopoverId);
-              }
-              return newSet;
-            });
-            return true;
-          }}
-          shouldClose={() => {
-            setOpenPopovers((prev) => {
-              const newSet = new Set(prev);
-              newSet.delete(openshiftPopoverId);
-              return newSet;
-            });
-            return true;
-          }}
-        >
-          {openshiftLabel}
-        </Popover>
-      );
-      
-      return openshiftLabelWithPopover;
+      return openshiftLabel;
     } else {
       // Regular role - add AI label
       const aiPopoverId = `ai-assign-${role.id}`;
@@ -1477,10 +1345,10 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span id="role-rules-modal-title">{selectedRoleForModal?.name}</span>
               {selectedRoleForModal?.roleType === 'openshift-default' && (
-                <Label color="blue" variant="outline">OpenShift default</Label>
+                <Label color="grey" variant="outline">OpenShift default role</Label>
               )}
               {selectedRoleForModal?.roleType === 'openshift-custom' && (
-                <Label color="purple" variant="outline">OpenShift custom</Label>
+                <Label color="grey" variant="outline">OpenShift custom role</Label>
               )}
             </div>
           }
