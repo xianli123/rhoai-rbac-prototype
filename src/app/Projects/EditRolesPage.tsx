@@ -1107,12 +1107,13 @@ const EditRolesPage: React.FunctionComponent = () => {
             }
             showClose
             isVisible={openPopovers.has(helpTextPopoverId)}
-            onHide={() => {
+            shouldClose={() => {
               setOpenPopovers((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(helpTextPopoverId);
                 return newSet;
               });
+              return true;
             }}
           >
             {helpTextSpan}
@@ -1132,12 +1133,13 @@ const EditRolesPage: React.FunctionComponent = () => {
                 bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
                 showClose
                 isVisible={openPopovers.has(unassigningPopoverId)}
-                onHide={() => {
+                shouldClose={() => {
                   setOpenPopovers((prev) => {
                     const newSet = new Set(prev);
                     newSet.delete(unassigningPopoverId);
                     return newSet;
                   });
+                  return true;
                 }}
               >
                 <Label 
@@ -1184,12 +1186,13 @@ const EditRolesPage: React.FunctionComponent = () => {
               bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
               showClose
               isVisible={openPopovers.has(unassigningPopoverId)}
-              onHide={() => {
+              shouldClose={() => {
                 setOpenPopovers((prev) => {
                   const newSet = new Set(prev);
                   newSet.delete(unassigningPopoverId);
                   return newSet;
                 });
+                return true;
               }}
             >
               <Label 
