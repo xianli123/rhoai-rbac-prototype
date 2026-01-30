@@ -1126,40 +1126,43 @@ const EditRolesPage: React.FunctionComponent = () => {
         if (isOpenShiftCustom) {
           const unassigningPopoverId = `unassigning-popover-${role.id}`;
           return (
-            <Popover
-              position="bottom"
-              bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
-              showClose
-              isVisible={openPopovers.has(unassigningPopoverId)}
-              onHide={() => {
-                setOpenPopovers((prev) => {
-                  const newSet = new Set(prev);
-                  newSet.delete(unassigningPopoverId);
-                  return newSet;
-                });
-              }}
-            >
-              <Label 
-                color="red" 
-                variant="filled" 
-                isCompact 
-                style={{ cursor: 'pointer' }}
-                onClick={(e) => {
-                  e.stopPropagation();
+            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+              <Popover
+                position="bottom"
+                bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
+                showClose
+                isVisible={openPopovers.has(unassigningPopoverId)}
+                onHide={() => {
                   setOpenPopovers((prev) => {
                     const newSet = new Set(prev);
-                    if (newSet.has(unassigningPopoverId)) {
-                      newSet.delete(unassigningPopoverId);
-                    } else {
-                      newSet.add(unassigningPopoverId);
-                    }
+                    newSet.delete(unassigningPopoverId);
                     return newSet;
                   });
                 }}
               >
-                Unassigning
-              </Label>
-            </Popover>
+                <Label 
+                  color="red" 
+                  variant="filled" 
+                  isCompact 
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenPopovers((prev) => {
+                      const newSet = new Set(prev);
+                      if (newSet.has(unassigningPopoverId)) {
+                        newSet.delete(unassigningPopoverId);
+                      } else {
+                        newSet.add(unassigningPopoverId);
+                      }
+                      return newSet;
+                    });
+                  }}
+                >
+                  Unassigning
+                </Label>
+              </Popover>
+              {helpTextElement}
+            </Flex>
           );
         }
         return (
