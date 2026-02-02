@@ -48,6 +48,7 @@ import {
   AngleRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ExclamationCircleIcon,
   InfoCircleIcon,
   OutlinedQuestionCircleIcon,
 } from '@patternfly/react-icons';
@@ -461,6 +462,8 @@ const EditRolesPage: React.FunctionComponent = () => {
   const [openPopovers, setOpenPopovers] = React.useState<Set<string>>(new Set());
   const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = React.useState(false);
   const [allTreeItemsExpanded, setAllTreeItemsExpanded] = React.useState(true);
+  const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set(['assigning-roles', 'unassigning-roles']));
+  const [confirmInputValue, setConfirmInputValue] = React.useState('');
 
   const getLabelPopoverContent = (labelType: 'ai' | 'openshift-default' | 'openshift-custom', roleName?: string) => {
     switch (labelType) {
@@ -951,7 +954,7 @@ const EditRolesPage: React.FunctionComponent = () => {
         const unassigningPopoverId = `unassigning-popover-${role.id}`;
         return (
           <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-            <Label color="green" variant="outline" isCompact>Currently assigned</Label>
+          <Label color="green" variant="outline" isCompact>Currently assigned</Label>
             <Popover
               position="bottom"
               bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
@@ -1638,7 +1641,8 @@ const EditRolesPage: React.FunctionComponent = () => {
         isOpen={isSaveConfirmModalOpen}
         onClose={() => {
           setIsSaveConfirmModalOpen(false);
-          setAllTreeItemsExpanded(true);
+          setExpandedGroups(new Set(['assigning-roles', 'unassigning-roles']));
+          setConfirmInputValue('');
         }}
         variant="small"
         aria-labelledby="save-confirm-modal-title"
@@ -1655,116 +1659,230 @@ const EditRolesPage: React.FunctionComponent = () => {
               </Content>
             </StackItem>
             <StackItem>
-              <Button
-                variant="link"
-                isInline
-                style={{ padding: 0, fontSize: 'inherit' }}
-                onClick={() => setAllTreeItemsExpanded(!allTreeItemsExpanded)}
-              >
-                {allTreeItemsExpanded ? 'Collapse all' : 'Expand all'}
-              </Button>
-            </StackItem>
-            <StackItem>
               {(() => {
                 const assigningRoles = roles.filter(role => !role.originallyAssigned && role.currentlyAssigned);
                 const unassigningRoles = roles.filter(role => role.originallyAssigned && !role.currentlyAssigned);
-                const unassigningAIRoles = unassigningRoles.filter(role => role.roleType !== 'openshift-custom');
                 const unassigningOpenShiftCustomRoles = unassigningRoles.filter(role => role.roleType === 'openshift-custom');
+                const isAssigningExpanded = expandedGroups.has('assigning-roles');
+                const isUnassigningExpanded = expandedGroups.has('unassigning-roles');
                 
-                const treeData: TreeViewDataItem[] = [];
-                
-                // Add "Assigning roles" section if there are any
-                if (assigningRoles.length > 0) {
-                  treeData.push({
-                    name: (
-                      <span>
-                        <span style={{ fontWeight: 600 }}>Assigning roles</span>
-                        <Label isCompact style={{ marginLeft: '8px' }}>{assigningRoles.length}</Label>
-                      </span>
-                    ),
-                    id: 'assigning-roles',
-                    children: assigningRoles.map((role, index) => ({
-                      name: role.name,
-                      id: `assigning-${role.id}-${index}`,
-                    })),
-                    defaultExpanded: true,
-                  });
-                }
-                
-                // Add "Unassigning roles" section if there are any
-                if (unassigningRoles.length > 0) {
-                  const unassigningChildren: TreeViewDataItem[] = [];
-                  
-                  // Add AI roles subcategory
-                  if (unassigningAIRoles.length > 0) {
-                    unassigningChildren.push({
-                      name: (
-                        <span>
-                          <span style={{ fontWeight: 600 }}>AI roles</span>
-                          <Label isCompact style={{ marginLeft: '8px' }}>{unassigningAIRoles.length}</Label>
-                        </span>
-                      ),
-                      id: 'unassigning-ai-roles',
-                      children: unassigningAIRoles.map((role, index) => ({
-                        name: role.name,
-                        id: `unassigning-ai-${role.id}-${index}`,
-                      })),
-                      defaultExpanded: true,
-                    });
+                // Helper function to render role type labels
+                const renderRoleTypeLabelForModal = (role: Role) => {
+                  if (role.roleType === 'openshift-default') {
+                    const aiPopoverId = `ai-modal-${role.id}`;
+                    const openshiftLabel = (
+                      <Label 
+                        color="grey" 
+                        variant="outline" 
+                        isCompact
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <svg
+                          className="pf-v6-svg"
+                          viewBox="0 0 100 100"
+                          fill="currentColor"
+                          aria-hidden="true"
+                          role="img"
+                          width="1em"
+                          height="1em"
+                          style={{ width: '12px', height: '12px' }}
+                        >
+                          <path fill="#1F1F1F" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+                          <path fill="#1F1F1F" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+                          <path fill="#1F1F1F" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+                          <path fill="#1F1F1F" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+                          <path fill="#1F1F1F" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+                          <path fill="#1F1F1F" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+                          <path fill="#1F1F1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+                          <path fill="#1F1F1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+                          <path fill="#1F1F1F" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+                        </svg>
+                        <span style={{ marginLeft: '4px' }}>OpenShift default role</span>
+                      </Label>
+                    );
+                    return (
+                      <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        {renderAILabel(aiPopoverId)}
+                        <div style={{ width: '4px' }} />
+                        {openshiftLabel}
+                      </Flex>
+                    );
+                  } else if (role.roleType === 'openshift-custom') {
+                    const isUnassigning = role.originallyAssigned && !role.currentlyAssigned;
+                    const openshiftLabel = (
+                      <Label 
+                        color="grey" 
+                        variant="outline" 
+                        isCompact
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <svg
+                          className="pf-v6-svg"
+                          viewBox="0 0 100 100"
+                          fill="currentColor"
+                          aria-hidden="true"
+                          role="img"
+                          width="1em"
+                          height="1em"
+                          style={{ width: '12px', height: '12px' }}
+                        >
+                          <path fill="#1F1F1F" d="M29,45.3L13,51.1c0.2,2.6,0.6,5.1,1.3,7.6l15.3-5.6C29,50.6,28.8,47.9,29,45.3"/>
+                          <path fill="#1F1F1F" d="M100,27.5c-1.1-2.3-2.4-4.5-3.9-6.7L80,26.7c1.9,1.9,3.4,4.1,4.7,6.4L100,27.5z"/>
+                          <path fill="#1F1F1F" d="M64.7,23c3.3,1.6,6.2,3.7,8.7,6.2l16.1-5.8C85,17.1,78.9,11.8,71.5,8.4c-22.9-10.7-50.3-0.7-61,22.2 C7,38,5.7,45.9,6.3,53.5l16.1-5.8c0.3-3.5,1.1-7,2.7-10.3C32,22.5,49.8,16,64.7,23"/>
+                          <path fill="#1F1F1F" d="M15.3,58.4L0,63.9c1.4,5.6,3.8,10.8,7.2,15.5l16-5.8C19.1,69.4,16.3,64.1,15.3,58.4"/>
+                          <path fill="#1F1F1F" d="M81.8,52.3c-0.3,3.5-1.1,7-2.7,10.3C72.1,77.5,54.4,84,39.5,77c-3.3-1.6-6.3-3.7-8.7-6.2l-16,5.8 c4.4,6.2,10.5,11.5,17.9,14.9c22.9,10.7,50.3,0.7,61-22.2c3.5-7.4,4.7-15.3,4.1-22.9L81.8,52.3z"/>
+                          <path fill="#1F1F1F" d="M85.7,32.7l-15.3,5.6c2.8,5.1,4.2,10.9,3.7,16.8l16-5.8C89.8,43.5,88.3,37.9,85.7,32.7"/>
+                          <path fill="#1F1F1F" d="M29,48.5c0-1.1,0-2.1,0.1-3.2L13,51.1c0.1,1,0.2,2.1,0.4,3.1L29,48.5z"/>
+                          <path fill="#1F1F1F" d="M97.7,23.3c-0.5-0.8-1-1.6-1.6-2.4L80,26.7c0.7,0.7,1.4,1.5,2,2.3L97.7,23.3z"/>
+                          <path fill="#1F1F1F" d="M14.7,76.7c1.2,1.7,2.6,3.4,4.1,5l17.4-6.4c-2-1.3-3.9-2.8-5.5-4.4L14.7,76.7z M97.8,46.5l-16,5.8 c-0.2,2.3-0.6,4.6-1.4,6.9l17.4-6.4C98,50.7,98,48.6,97.8,46.5"/>
+                        </svg>
+                        <span style={{ marginLeft: '4px' }}>OpenShift custom role</span>
+                      </Label>
+                    );
+                    
+                    if (isUnassigning) {
+                      return (
+                        <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
+                          {openshiftLabel}
+                          <Tooltip content="Role can only be re-assigned in OpenShift">
+                            <ExclamationCircleIcon style={{ color: 'var(--pf-t--global--text--color--status--danger--default)', fontSize: '16px' }} />
+                          </Tooltip>
+                        </Flex>
+                      );
+                    }
+                    
+                    return openshiftLabel;
+                  } else {
+                    const aiPopoverId = `ai-modal-${role.id}`;
+                    return renderAILabel(aiPopoverId);
                   }
-                  
-                  // Add OpenShift custom roles subcategory
-                  if (unassigningOpenShiftCustomRoles.length > 0) {
-                    unassigningChildren.push({
-                      name: (
-                        <span>
-                          <span style={{ fontWeight: 600 }}>OpenShift custom roles</span>
-                          <Label isCompact style={{ marginLeft: '8px' }}>{unassigningOpenShiftCustomRoles.length}</Label>
-                        </span>
-                      ),
-                      id: 'unassigning-openshift-custom-roles',
-                      children: unassigningOpenShiftCustomRoles.map((role, index) => ({
-                        name: role.name,
-                        id: `unassigning-openshift-custom-${role.id}-${index}`,
-                      })),
-                      defaultExpanded: true,
-                    });
-                  }
-                  
-                  treeData.push({
-                    name: (
-                      <span>
-                        <span style={{ fontWeight: 600 }}>Unassigning roles</span>
-                        <Label isCompact style={{ marginLeft: '8px' }}>{unassigningRoles.length}</Label>
-                      </span>
-                    ),
-                    id: 'unassigning-roles',
-                    children: unassigningChildren,
-                    defaultExpanded: true,
-                  });
-                }
+                };
                 
-                return <TreeView hasAnimations hasGuides aria-label="Role assignment changes" data={treeData} allExpanded={allTreeItemsExpanded} />;
+                return (
+                  <Stack hasGutter>
+                    {/* Assigning roles group */}
+                    {assigningRoles.length > 0 && (
+                      <StackItem>
+                        <Stack hasGutter>
+                          <StackItem>
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() => {
+                                setExpandedGroups(prev => {
+                                  const newSet = new Set(prev);
+                                  if (newSet.has('assigning-roles')) {
+                                    newSet.delete('assigning-roles');
+                                  } else {
+                                    newSet.add('assigning-roles');
+                                  }
+                                  return newSet;
+                                });
+                              }}
+                              style={{ padding: 0, fontSize: 'inherit' }}
+                            >
+                              {isAssigningExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+                              <span style={{ marginLeft: '4px' }}>Assigning roles</span>
+                              <Label isCompact style={{ marginLeft: '8px' }}>{assigningRoles.length}</Label>
+                            </Button>
+                          </StackItem>
+                          {isAssigningExpanded && (
+                            <StackItem style={{ marginLeft: '24px' }}>
+                              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {assigningRoles.map((role) => (
+                                  <li key={role.id} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>{role.name}</span>
+                                    {renderRoleTypeLabelForModal(role)}
+                                  </li>
+                                ))}
+                              </ul>
+                            </StackItem>
+                          )}
+                        </Stack>
+                      </StackItem>
+                    )}
+                    
+                    {/* Unassigning roles group */}
+                    {unassigningRoles.length > 0 && (
+                      <StackItem>
+                        <Stack hasGutter>
+                          <StackItem>
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() => {
+                                setExpandedGroups(prev => {
+                                  const newSet = new Set(prev);
+                                  if (newSet.has('unassigning-roles')) {
+                                    newSet.delete('unassigning-roles');
+                                  } else {
+                                    newSet.add('unassigning-roles');
+                                  }
+                                  return newSet;
+                                });
+                              }}
+                              style={{ padding: 0, fontSize: 'inherit' }}
+                            >
+                              {isUnassigningExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+                              <span style={{ marginLeft: '4px' }}>Unassigning roles</span>
+                              <Label isCompact style={{ marginLeft: '8px' }}>{unassigningRoles.length}</Label>
+                            </Button>
+                          </StackItem>
+                          {isUnassigningExpanded && (
+                            <StackItem style={{ marginLeft: '24px' }}>
+                              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {unassigningRoles.map((role) => (
+                                  <li key={role.id} style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>{role.name}</span>
+                                    {renderRoleTypeLabelForModal(role)}
+                                  </li>
+                                ))}
+                              </ul>
+                            </StackItem>
+                          )}
+                          {/* Alert for OpenShift custom roles under Unassigning roles group */}
+                          {unassigningOpenShiftCustomRoles.length > 0 && (
+                            <StackItem>
+                              <Alert
+                                variant="danger"
+                                isInline
+                                title="The OpenShift custom roles were assigned from OpenShift. You need to contact your admin to reassign them outside the OpenShift AI once you unassign them."
+                              />
+                            </StackItem>
+                          )}
+                        </Stack>
+                      </StackItem>
+                    )}
+                  </Stack>
+                );
               })()}
             </StackItem>
             
-            {/* Conditional Alert for OpenShift Custom Roles */}
+            {/* Type-to-confirm section - show if all currently assigned roles are being unassigned */}
             {(() => {
-              const unassigningOpenShiftCustomRoles = roles.filter(role => 
-                role.roleType === 'openshift-custom' && 
-                role.originallyAssigned && 
-                !role.currentlyAssigned
-              );
+              const originallyAssignedRoles = roles.filter(role => role.originallyAssigned);
+              const currentlyAssignedRoles = roles.filter(role => role.currentlyAssigned);
+              const willLoseAllRoles = originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0;
               
-              if (unassigningOpenShiftCustomRoles.length > 0) {
+              if (willLoseAllRoles) {
                 return (
-                  <StackItem>
-                    <Alert
-                      variant="danger"
-                      isInline
-                      title="The OpenShift custom roles were assigned from OpenShift. You need to contact your admin to reassign them outside the OpenShift AI once you unassign them."
-                    />
-                  </StackItem>
+                  <>
+                    <StackItem>
+                      <Content>
+                        <span style={{ fontWeight: 600 }}>{subjectName}</span> will lose all permissions and be removed from the current project. Type <span style={{ fontWeight: 600 }}>{subjectName}</span> to confirm deletion:
+                      </Content>
+                    </StackItem>
+                    <StackItem>
+                      <FormGroup fieldId="confirm-input">
+                        <TextInput
+                          id="confirm-input"
+                          value={confirmInputValue}
+                          onChange={(_, value) => setConfirmInputValue(value)}
+                          aria-label="Confirmation input"
+                        />
+                      </FormGroup>
+                    </StackItem>
+                  </>
                 );
               }
               return null;
@@ -1777,9 +1895,25 @@ const EditRolesPage: React.FunctionComponent = () => {
               <Button
                 variant="primary"
                 onClick={() => {
+                  const originallyAssignedRoles = roles.filter(role => role.originallyAssigned);
+                  const currentlyAssignedRoles = roles.filter(role => role.currentlyAssigned);
+                  const willLoseAllRoles = originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0;
+                  
+                  if (willLoseAllRoles && confirmInputValue !== subjectName) {
+                    return; // Don't proceed if confirmation doesn't match
+                  }
+                  
                   setIsSaveConfirmModalOpen(false);
+                  setExpandedGroups(new Set(['assigning-roles', 'unassigning-roles']));
+                  setConfirmInputValue('');
                   performSave();
                 }}
+                isDisabled={(() => {
+                  const originallyAssignedRoles = roles.filter(role => role.originallyAssigned);
+                  const currentlyAssignedRoles = roles.filter(role => role.currentlyAssigned);
+                  const willLoseAllRoles = originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0;
+                  return willLoseAllRoles && confirmInputValue !== subjectName;
+                })()}
               >
                 Confirm
               </Button>
@@ -1789,6 +1923,8 @@ const EditRolesPage: React.FunctionComponent = () => {
                 variant="link"
                 onClick={() => {
                   setIsSaveConfirmModalOpen(false);
+                  setExpandedGroups(new Set(['assigning-roles', 'unassigning-roles']));
+                  setConfirmInputValue('');
                 }}
               >
                 Cancel

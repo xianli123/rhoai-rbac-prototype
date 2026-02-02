@@ -805,3 +805,86 @@ interface User {
       - Click "Expand all": All nodes expand, button becomes "Collapse all"
       - Modal close: Resets to `true` (expanded) for next open
     - Applied in both Assign roles page and Manage roles page modals
+
+34. **Role Type Labels - Removed Popover Functionality:**
+    - Removed all popover functionality from role type labels across all pages
+    - Labels are now non-clickable (removed `cursor: pointer`, `onClick` handlers, and `Popover` wrappers)
+    - Applied to "AI role", "OpenShift default role", and "OpenShift custom role" labels
+    - Affected pages:
+      - Assign roles page (Role assignment table)
+      - Manage roles page (Role assignment table)
+      - Role details modal (header labels)
+    - Labels maintain their visual appearance (outlined gray) but are now static/informational only
+
+35. **Changes Confirmation Modal - New Expandable Group Pattern:**
+    - **Replaced TreeView with Custom Expandable Groups**:
+      - Removed PatternFly TreeView component
+      - Implemented custom expandable/collapsible groups using link buttons
+      - Two main groups: "Assigning roles" and "Unassigning roles"
+    - **Group Headers**:
+      - Use link button variant with expand/collapse icons (AngleDownIcon/AngleRightIcon)
+      - Display count badge after group name (e.g., "Assigning roles 2")
+      - Groups expanded by default (`expandedGroups` state initialized with both groups)
+      - Clicking header toggles expansion state
+    - **Role Items Display**:
+      - Roles displayed in unordered list (`<ul>`) with no list style
+      - Each role shows: role name + role type labels
+      - Role type labels rendered inline with role name (AI role, OpenShift default role, OpenShift custom role)
+      - 8px gap between role name and labels
+      - 24px left margin for list items (indentation)
+    - **OpenShift Custom Roles Alert**:
+      - Alert moved to appear under "Unassigning roles" group
+      - Alert remains visible even when "Unassigning roles" group is collapsed
+      - Alert text: "The OpenShift custom roles were assigned from OpenShift. You need to contact your admin to reassign them outside the OpenShift AI once you unassign them."
+      - Only shows when there are OpenShift custom roles being unassigned
+      - Left-aligned with Confirm button (no left margin)
+    - **State Management**:
+      - Added `expandedGroups` state: `Set<string>` tracking which groups are expanded
+      - Initial state: `new Set(['assigning-roles', 'unassigning-roles'])` (both expanded)
+      - State resets when modal closes
+    - **Removed Features**:
+      - Removed "Collapse all" / "Expand all" button (replaced by individual group toggles)
+      - Removed TreeView component and related imports
+      - Removed `allTreeItemsExpanded` state (no longer needed)
+    - Applied in both Assign roles page and Manage roles page
+
+36. **Changes Confirmation Modal - Type-to-Confirm for All Role Removal:**
+    - **Detection Logic**:
+      - Detects when all currently assigned roles are being unassigned
+      - Condition: `originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0`
+      - Shows type-to-confirm section only in this scenario
+    - **Type-to-Confirm Section**:
+      - Single paragraph combining both messages:
+        - "[Subject Name] will lose all permissions and be removed from the current project. Type [Subject Name] to confirm deletion:"
+      - Subject name appears semibold (`fontWeight: 600`) in both occurrences
+      - TextInput field below the paragraph for confirmation
+      - FormGroup without label (label text is in paragraph above)
+    - **Confirm Button Behavior**:
+      - Disabled when type-to-confirm is required and input doesn't match subject name
+      - Only enabled when: `confirmInputValue === subjectName`
+      - Prevents accidental removal of all roles
+    - **State Management**:
+      - Added `confirmInputValue` state for the input field
+      - State cleared when modal closes or cancels
+    - Applied in both Assign roles page and Manage roles page
+
+37. **Changes Confirmation Modal - Red Exclamation Icon for Unassigned OpenShift Custom Roles:**
+    - **Visual Indicator**:
+      - Red exclamation icon appears after "OpenShift custom role" label in the role list
+      - Only shown when OpenShift custom role is being unassigned
+      - Icon: `ExclamationCircleIcon` from PatternFly icons
+      - Color: Red using PatternFly danger color variable (`var(--pf-t--global--text--color--status--danger--default)`)
+      - Size: 16px font size
+    - **Tooltip on Hover**:
+      - Tooltip appears when hovering over the exclamation icon
+      - Tooltip content: "Role can only be re-assigned in OpenShift"
+      - Uses PatternFly `Tooltip` component
+      - Icon wrapped in Tooltip component
+    - **Implementation**:
+      - Added to `renderRoleTypeLabelForModal` function
+      - Checks if role is being unassigned: `role.originallyAssigned && !role.currentlyAssigned`
+      - For OpenShift custom roles being unassigned, returns Flex container with label + icon
+      - For other cases, returns just the label
+    - **Imports Added**:
+      - `ExclamationCircleIcon` from `@patternfly/react-icons`
+    - Applied in both Assign roles page and Manage roles page confirmation modals
