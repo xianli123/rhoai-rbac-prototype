@@ -1912,7 +1912,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                   const originallyAssignedRoles = roles.filter(role => role.originallyAssigned);
                   const currentlyAssignedRoles = roles.filter(role => role.currentlyAssigned);
                   const willLoseAllRoles = originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0;
-                  return willLoseAllRoles && confirmInputValue !== subjectName;
+                  return !!(willLoseAllRoles && confirmInputValue !== subjectName);
                 })()}
               >
                 Confirm

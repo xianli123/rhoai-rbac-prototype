@@ -1774,7 +1774,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   const originallyAssignedRoles = roles.filter(role => role.originallyAssigned);
                   const currentlyAssignedRoles = roles.filter(role => role.currentlyAssigned);
                   const willLoseAllRoles = originallyAssignedRoles.length > 0 && currentlyAssignedRoles.length === 0;
-                  return willLoseAllRoles && selectedSubject && confirmInputValue !== selectedSubject;
+                  return !!(willLoseAllRoles && selectedSubject && confirmInputValue !== selectedSubject);
                 })()}
               >
                 Confirm
