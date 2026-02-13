@@ -6,10 +6,14 @@ import {
   Content,
   Breadcrumb,
   BreadcrumbItem,
-  PageBreadcrumb,
   Button,
-  Split,
-  SplitItem,
+  Flex,
+  FlexItem,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  MenuToggle,
+  MenuToggleElement,
   Tabs,
   Tab,
   TabTitleText,
@@ -21,6 +25,7 @@ import {
   DescriptionListDescription,
   Label,
 } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 // Mock data - should match Roles.tsx
@@ -128,6 +133,7 @@ const RoleDetails: React.FunctionComponent = () => {
   const { roleId } = useParams<{ roleId: string }>();
   const navigate = useNavigate();
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
+  const [isActionsOpen, setIsActionsOpen] = React.useState(false);
 
   useDocumentTitle('Role Details');
 
@@ -154,51 +160,80 @@ const RoleDetails: React.FunctionComponent = () => {
     ? 'OpenShift' 
     : 'User created';
 
-  const breadcrumb = (
-    <PageBreadcrumb>
-      <Breadcrumb>
-        <BreadcrumbItem>
-          <Link to="/settings/user-management/roles">Roles</Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem isActive>{roleDisplayName}</BreadcrumbItem>
-      </Breadcrumb>
-    </PageBreadcrumb>
-  );
-
   return (
     <>
-      <div style={{ backgroundColor: 'rgb(245, 245, 245)', minHeight: '100vh' }}>
-        <div className="detail-page-header" style={{ padding: 'var(--pf-v5-global--spacer--lg)' }}>
-          {breadcrumb}
-          <Split hasGutter style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
-            <SplitItem isFilled>
-              <Title headingLevel="h1" size="2xl">{roleDisplayName}</Title>
-            </SplitItem>
-            <SplitItem>
-              <Button variant="primary" onClick={() => navigate(`/settings/user-management/roles/${roleId}/edit`)}>
-                Edit Role
-              </Button>
-            </SplitItem>
-            <SplitItem>
-              <Button variant="link" onClick={() => navigate('/settings/user-management/roles')}>
-                Back
-              </Button>
-            </SplitItem>
-          </Split>
-
-          <Tabs
-            activeKey={activeTabKey}
-            onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
-            aria-label="Role details tabs"
-          >
-            <Tab eventKey={0} title={<TabTitleText>General</TabTitleText>} />
-            <Tab eventKey={1} title={<TabTitleText>YAML</TabTitleText>} />
-            <Tab eventKey={2} title={<TabTitleText>Permissions</TabTitleText>} />
-            <Tab eventKey={3} title={<TabTitleText>Role assignments</TabTitleText>} />
-          </Tabs>
+      <div className="pf-v6-c-page__main-breadcrumb">
+        <div style={{ padding: 'var(--pf-v5-global--spacer--lg) var(--pf-v5-global--spacer--lg)' }}>
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <Link to="/settings/user-management/roles">Roles</Link>
+            </BreadcrumbItem>
+            <BreadcrumbItem isActive>{roleDisplayName}</BreadcrumbItem>
+          </Breadcrumb>
         </div>
+      </div>
 
-        <div className="detail-page-content" style={{ padding: 'var(--pf-v5-global--spacer--lg)' }}>
+      <PageSection>
+        <Flex
+          direction={{ default: 'row' }}
+          alignItems={{ default: 'alignItemsCenter' }}
+          justifyContent={{ default: 'justifyContentSpaceBetween' }}
+        >
+          <FlexItem>
+            <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+              <FlexItem>
+                <Title headingLevel="h1" size="2xl">
+                  {roleDisplayName}
+                </Title>
+              </FlexItem>
+              <FlexItem>
+                <OutlinedQuestionCircleIcon style={{ color: 'var(--pf-v5-global--Color--200)' }} />
+              </FlexItem>
+            </Flex>
+          </FlexItem>
+          <FlexItem>
+            <Dropdown
+              isOpen={isActionsOpen}
+              onSelect={() => setIsActionsOpen(false)}
+              onOpenChange={(isOpen: boolean) => setIsActionsOpen(isOpen)}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setIsActionsOpen(!isActionsOpen)}
+                  isExpanded={isActionsOpen}
+                  variant="secondary"
+                >
+                  Actions
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>
+                <DropdownItem key="edit" onClick={() => navigate(`/settings/user-management/roles/${roleId}/edit`)}>
+                  Edit Role
+                </DropdownItem>
+                <DropdownItem key="duplicate">Duplicate role</DropdownItem>
+                <DropdownItem key="delete">Delete</DropdownItem>
+              </DropdownList>
+            </Dropdown>
+          </FlexItem>
+        </Flex>
+      </PageSection>
+
+      <PageSection type="tabs" padding={{ default: 'noPadding' }}>
+        <Tabs
+          activeKey={activeTabKey}
+          onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
+          aria-label="Role details tabs"
+          role="region"
+        >
+          <Tab eventKey={0} title={<TabTitleText>General</TabTitleText>} />
+          <Tab eventKey={1} title={<TabTitleText>YAML</TabTitleText>} />
+          <Tab eventKey={2} title={<TabTitleText>Permissions</TabTitleText>} />
+          <Tab eventKey={3} title={<TabTitleText>Role assignments</TabTitleText>} />
+        </Tabs>
+      </PageSection>
+
+      <PageSection isFilled>
           {activeTabKey === 0 && (
             <Card>
               <CardBody>
@@ -277,8 +312,7 @@ const RoleDetails: React.FunctionComponent = () => {
               </CardBody>
             </Card>
           )}
-        </div>
-      </div>
+      </PageSection>
     </>
   );
 };
