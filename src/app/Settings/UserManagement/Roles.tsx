@@ -17,7 +17,6 @@ import {
   DropdownItem,
   Label,
   Flex,
-  FlexItem,
   Pagination,
 } from '@patternfly/react-core';
 import {
@@ -145,7 +144,6 @@ const Roles: React.FunctionComponent = () => {
   const [searchValue, setSearchValue] = React.useState('');
   const [categoryFilter, setCategoryFilter] = React.useState<string>('All categories');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);
-  const [typeFilter, setTypeFilter] = React.useState<'All' | 'Default' | 'Custom'>('All');
 
   const renderAILabel = () => {
     return (
@@ -277,15 +275,9 @@ const Roles: React.FunctionComponent = () => {
       const matchesSearch = role.name.toLowerCase().includes(searchValue.toLowerCase()) ||
                            role.description.toLowerCase().includes(searchValue.toLowerCase());
       const matchesCategory = categoryFilter === 'All categories' || role.category === categoryFilter;
-      let matchesType = true;
-      if (typeFilter === 'Default') {
-        matchesType = role.roleType === 'openshift-default';
-      } else if (typeFilter === 'Custom') {
-        matchesType = role.roleType === 'openshift-custom';
-      }
-      return matchesSearch && matchesCategory && matchesType;
+      return matchesSearch && matchesCategory;
     });
-  }, [searchValue, categoryFilter, typeFilter]);
+  }, [searchValue, categoryFilter]);
 
   const sortedRoles = React.useMemo(() => {
     const sorted = [...filteredRoles];
@@ -383,34 +375,6 @@ const Roles: React.FunctionComponent = () => {
                 onClear={() => setSearchValue('')}
                 aria-label="Search roles"
               />
-            </ToolbarItem>
-            <ToolbarItem>
-              <Flex>
-                <FlexItem>
-                  <Button
-                    variant={typeFilter === 'All' ? 'primary' : 'secondary'}
-                    onClick={() => setTypeFilter('All')}
-                  >
-                    All
-                  </Button>
-                </FlexItem>
-                <FlexItem>
-                  <Button
-                    variant={typeFilter === 'Default' ? 'primary' : 'secondary'}
-                    onClick={() => setTypeFilter('Default')}
-                  >
-                    Default
-                  </Button>
-                </FlexItem>
-                <FlexItem>
-                  <Button
-                    variant={typeFilter === 'Custom' ? 'primary' : 'secondary'}
-                    onClick={() => setTypeFilter('Custom')}
-                  >
-                    Custom
-                  </Button>
-                </FlexItem>
-              </Flex>
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
