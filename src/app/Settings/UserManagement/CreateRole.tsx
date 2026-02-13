@@ -560,7 +560,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
         }
       >
         <DrawerContentBody>
-          <Drawer isExpanded={isApiGroupsDrawerOpen}>
+          <Drawer isExpanded={isApiGroupsDrawerOpen} style={{ position: 'fixed', top: 0, right: 0, left: 'auto', zIndex: 1000 }}>
             <DrawerContent
               panelContent={
                 <DrawerPanelContent 
@@ -569,11 +569,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                   style={{ 
                     display: 'flex', 
                     flexDirection: 'column',
-                    position: 'fixed',
-                    top: 0,
-                    right: 0,
-                    height: '100vh',
-                    zIndex: 1000
+                    height: '100vh'
                   }}
                 >
                   <DrawerHead>
@@ -587,7 +583,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                     overflowY: 'auto',
                     flex: 1,
                     minHeight: 0,
-                    height: 'calc(100vh - 60px)'
+                    maxHeight: 'calc(100vh - 76px)'
                   }}>
                     <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                       <TextInputGroup>
