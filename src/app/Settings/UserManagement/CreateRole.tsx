@@ -560,11 +560,11 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           </DrawerPanelContent>
         }
       >
-        <DrawerContentBody style={{ position: 'relative' }}>
-          <Drawer isExpanded={isApiGroupsDrawerOpen}>
-            <DrawerContent
-              style={{ position: 'fixed', top: 0, right: 0, zIndex: 1000 }}
-              panelContent={
+        <DrawerContentBody>
+          {isApiGroupsDrawerOpen && createPortal(
+            <Drawer isExpanded={true} style={{ position: 'fixed', top: 0, right: 0, left: 'auto', zIndex: 1000, height: '100vh' }}>
+              <DrawerContent
+                panelContent={
                 <DrawerPanelContent 
                   defaultSize="500px" 
                   minSize="500px" 
@@ -694,12 +694,12 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                 </DrawerPanelContent>
               }
             >
-              <DrawerContentBody style={{ display: 'none' }}>
-                {/* Empty - content is in parent */}
-              </DrawerContentBody>
-            </DrawerContent>
-          </Drawer>,
-          document.body
+                <DrawerContentBody style={{ display: 'none' }}>
+                  {/* Empty - content is in parent */}
+                </DrawerContentBody>
+              </DrawerContent>
+            </Drawer>,
+            document.body
           )}
           {breadcrumb}
           <PageSection>
