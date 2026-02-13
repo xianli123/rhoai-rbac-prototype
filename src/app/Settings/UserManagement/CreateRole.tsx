@@ -565,7 +565,11 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                       <DrawerCloseButton onClick={() => setIsApiGroupsDrawerOpen(false)} />
                     </DrawerActions>
                   </DrawerHead>
-                  <DrawerPanelBody style={{ padding: 'var(--pf-t--global--spacer--md)' }}>
+                  <DrawerPanelBody style={{ 
+                    padding: 'var(--pf-t--global--spacer--md)',
+                    overflowY: 'auto',
+                    height: '100%'
+                  }}>
                     <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                       <TextInputGroup>
                         <TextInputGroupMain
