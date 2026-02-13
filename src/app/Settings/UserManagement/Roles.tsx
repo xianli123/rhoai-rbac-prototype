@@ -378,7 +378,7 @@ const Roles: React.FunctionComponent = () => {
             />
           </ToolbarItem>
           <ToolbarItem>
-            <Button variant="primary" id="create-role-button">
+            <Button variant="primary" id="create-role-button" onClick={() => navigate('/settings/user-management/roles/create')}>
               Create role
             </Button>
           </ToolbarItem>

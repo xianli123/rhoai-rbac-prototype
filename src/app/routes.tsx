@@ -76,6 +76,7 @@ import { ServingRuntimes } from '@app/Settings/ModelResources/ServingRuntimes/Se
 import { ModelRegistrySettings } from '@app/Settings/ModelResources/ModelRegistrySettings/ModelRegistrySettings';
 import { UserManagement } from '@app/Settings/UserManagement/UserManagement';
 import { Roles } from '@app/Settings/UserManagement/Roles';
+import { CreateRole } from '@app/Settings/UserManagement/CreateRole';
 import { APIKeys } from '@app/Settings/APIKeys/APIKeys';
 import { APIKeyDetails } from '@app/Settings/APIKeys/APIKeyDetails';
 import { Policies } from '@app/Settings/Policies/Policies';
@@ -505,6 +506,12 @@ const routes: AppRouteConfig[] = [
             label: 'Roles',
             path: '/settings/user-management/roles',
             title: 'RHOAI 3.1 Console | Settings - Roles',
+          },
+          {
+            element: <CreateRole />,
+            exact: true,
+            path: '/settings/user-management/roles/create',
+            title: 'RHOAI 3.1 Console | Settings - Create Role',
           },
         ],
       },
