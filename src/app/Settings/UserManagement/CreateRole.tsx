@@ -559,9 +559,10 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           </DrawerPanelContent>
         }
       >
-        <DrawerContentBody>
-          <Drawer isExpanded={isApiGroupsDrawerOpen} style={{ position: 'fixed', top: 0, right: 0, left: 'auto', zIndex: 1000 }}>
+        <DrawerContentBody style={{ position: 'relative' }}>
+          <Drawer isExpanded={isApiGroupsDrawerOpen}>
             <DrawerContent
+              style={{ position: 'fixed', top: 0, right: 0, zIndex: 1000 }}
               panelContent={
                 <DrawerPanelContent 
                   defaultSize="500px" 
