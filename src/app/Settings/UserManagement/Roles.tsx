@@ -85,14 +85,6 @@ const mockRoles: Role[] = [
   },
   {
     id: '6',
-    name: 'Deployments access',
-    openshiftName: 'openshift-io:deployments:access',
-    description: 'User can access and interact with deployments.',
-    category: 'Deployment Management',
-    roleType: 'regular',
-  },
-  {
-    id: '7',
     name: 'Pipeline maintainer',
     openshiftName: 'openshift-io:pipeline:maintainer',
     description: 'User can view and manage all pipelines.',
@@ -100,7 +92,7 @@ const mockRoles: Role[] = [
     roleType: 'regular',
   },
   {
-    id: '8',
+    id: '7',
     name: 'Pipeline reader',
     openshiftName: 'openshift-io:pipeline:reader',
     description: 'User can view and open pipelines without modifying their configuration.',
@@ -108,7 +100,7 @@ const mockRoles: Role[] = [
     roleType: 'regular',
   },
   {
-    id: '9',
+    id: '8',
     name: 'Pipeline updater',
     openshiftName: 'openshift-io:pipeline:updater',
     description: 'User can view pipelines and modify their configuration, but cannot create or delete them.',
@@ -116,7 +108,7 @@ const mockRoles: Role[] = [
     roleType: 'regular',
   },
   {
-    id: '10',
+    id: '9',
     name: 'Workbench maintainer',
     openshiftName: 'openshift-io:workbench:maintainer',
     description: 'User can view and manage all workbenches. Applies to all workbenches.',
@@ -124,7 +116,7 @@ const mockRoles: Role[] = [
     roleType: 'regular',
   },
   {
-    id: '11',
+    id: '10',
     name: 'Workbench reader',
     openshiftName: 'openshift-io:workbench:reader',
     description: 'User can view and open workbenches without modifying their configuration.',
@@ -132,7 +124,7 @@ const mockRoles: Role[] = [
     roleType: 'regular',
   },
   {
-    id: '12',
+    id: '11',
     name: 'Workbench updater',
     openshiftName: 'openshift-io:workbench:updater',
     description: 'User can view workbenches and modify their configuration, but cannot create or delete them.',
