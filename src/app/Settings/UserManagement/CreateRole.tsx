@@ -25,7 +25,20 @@ import {
   SplitItem,
   Divider,
   ExpandableSection,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalVariant,
 } from '@patternfly/react-core';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from '@patternfly/react-table';
 import { DownloadIcon, PlusIcon } from '@patternfly/react-icons';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
@@ -38,14 +51,7 @@ const CreateRole: React.FunctionComponent = () => {
   const [isRuleExpanded, setIsRuleExpanded] = React.useState(true);
   const [apiGroups, setApiGroups] = React.useState('');
   const [resources, setResources] = React.useState('');
-  
-  // Navigation Access state
-  const [fleetManagementAccess, setFleetManagementAccess] = React.useState('Full access');
-  const [isFleetManagementOpen, setIsFleetManagementOpen] = React.useState(false);
-  const [fleetVirtualizationAccess, setFleetVirtualizationAccess] = React.useState('Full access');
-  const [isFleetVirtualizationOpen, setIsFleetVirtualizationOpen] = React.useState(false);
-  const [corePlatformsAccess, setCorePlatformsAccess] = React.useState('Full access');
-  const [isCorePlatformsOpen, setIsCorePlatformsOpen] = React.useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
   
   // Verbs state
   const [verbs, setVerbs] = React.useState({
@@ -73,6 +79,65 @@ const CreateRole: React.FunctionComponent = () => {
     'Pipeline Management',
     'Workbench Management',
   ];
+
+  const roleTemplates = [
+    {
+      id: '1',
+      name: 'Virtual Machine Operator',
+      category: 'Virtual Machine Management',
+      description: 'Manage virtual machines including create, delete, start, stop operations',
+    },
+    {
+      id: '2',
+      name: 'Virtual Machine Viewer',
+      category: 'Virtual Machine Management',
+      description: 'Read-only access to virtual machines and related resources',
+    },
+    {
+      id: '3',
+      name: 'Storage Administrator',
+      category: 'Storage Management',
+      description: 'Manage storage resources for virtualization workloads',
+    },
+    {
+      id: '4',
+      name: 'Network Administrator',
+      category: 'Network Management',
+      description: 'Configure networking for virtual machines',
+    },
+    {
+      id: '5',
+      name: 'Namespace Admin',
+      category: 'Administration',
+      description: 'Full control within a single namespace for day-to-day administration',
+    },
+    {
+      id: '6',
+      name: 'Application Developer',
+      category: 'Workloads',
+      description: 'Create and manage workloads in a namespace without elevated cluster permissions',
+    },
+    {
+      id: '7',
+      name: 'Namespace Viewer',
+      category: 'Observability',
+      description: 'Read-only access to common resources within a namespace',
+    },
+    {
+      id: '8',
+      name: 'Security Auditor',
+      category: 'Security',
+      description: 'Audit-focused read-only role across RBAC and workloads',
+    },
+  ];
+
+  const handleUseTemplate = (template: typeof roleTemplates[0]) => {
+    // Populate form with template data
+    setRoleName(template.name.toLowerCase().replace(/\s+/g, '-'));
+    setDescription(template.description);
+    setCategory(template.category);
+    setIsTemplateModalOpen(false);
+  };
 
   const handleVerbChange = (verb: string, checked: boolean) => {
     setVerbs(prev => ({ ...prev, [verb]: checked }));
@@ -141,7 +206,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
         <Content style={{ marginBottom: '16px', color: 'var(--pf-v5-global--Color--200)' }}>
           Create a custom role to control what users can see and do across your cluster resources. Define permissions, navigation access, and resource scopes to implement fine-grained access control.
         </Content>
-        <Button variant="link" isInline style={{ paddingLeft: 0, marginBottom: '16px' }}>
+        <Button variant="link" isInline style={{ paddingLeft: 0, marginBottom: '16px' }} onClick={() => setIsTemplateModalOpen(true)}>
           Select templates
         </Button>
 
@@ -654,6 +719,47 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           </GridItem>
         </Grid>
       </PageSection>
+
+      {/* Template Selection Modal */}
+      <Modal
+        variant={ModalVariant.large}
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        aria-labelledby="template-modal-title"
+      >
+        <ModalHeader title="Select template" />
+        <ModalBody>
+          <Table variant="compact" aria-label="Role templates table">
+            <Thead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Category</Th>
+                <Th>Description</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {roleTemplates.map((template) => (
+                <Tr key={template.id}>
+                  <Td dataLabel="Name">{template.name}</Td>
+                  <Td dataLabel="Category">{template.category}</Td>
+                  <Td dataLabel="Description">{template.description}</Td>
+                  <Td dataLabel="Actions">
+                    <Button variant="secondary" onClick={() => handleUseTemplate(template)}>
+                      Use template
+                    </Button>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="link" onClick={() => setIsTemplateModalOpen(false)}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };
