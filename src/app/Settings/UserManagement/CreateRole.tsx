@@ -563,7 +563,19 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           <Drawer isExpanded={isApiGroupsDrawerOpen}>
             <DrawerContent
               panelContent={
-                <DrawerPanelContent defaultSize="500px" minSize="500px" style={{ display: 'flex', flexDirection: 'column' }}>
+                <DrawerPanelContent 
+                  defaultSize="500px" 
+                  minSize="500px" 
+                  style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    height: '100vh',
+                    zIndex: 1000
+                  }}
+                >
                   <DrawerHead>
                     <Title headingLevel="h2" size="xl">Browse API Groups</Title>
                     <DrawerActions>
@@ -574,7 +586,8 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                     padding: 'var(--pf-t--global--spacer--md)',
                     overflowY: 'auto',
                     flex: 1,
-                    minHeight: 0
+                    minHeight: 0,
+                    height: 'calc(100vh - 60px)'
                   }}>
                     <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                       <TextInputGroup>
