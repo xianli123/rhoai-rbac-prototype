@@ -442,7 +442,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
     <Drawer isExpanded={isResourcesDrawerOpen}>
       <DrawerContent
         panelContent={
-          <DrawerPanelContent defaultSize="500px" minSize="500px">
+          <DrawerPanelContent defaultSize="500px" minSize="500px" style={{ display: 'flex', flexDirection: 'column' }}>
             <DrawerHead>
               <Title headingLevel="h2" size="xl">Browse Resources</Title>
               <DrawerActions>
@@ -452,7 +452,8 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
             <DrawerPanelBody style={{ 
               padding: 'var(--pf-t--global--spacer--md)',
               overflowY: 'auto',
-              height: '100%'
+              flex: 1,
+              minHeight: 0
             }}>
               <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                 <TextInputGroup>
@@ -562,7 +563,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           <Drawer isExpanded={isApiGroupsDrawerOpen}>
             <DrawerContent
               panelContent={
-                <DrawerPanelContent defaultSize="500px" minSize="500px">
+                <DrawerPanelContent defaultSize="500px" minSize="500px" style={{ display: 'flex', flexDirection: 'column' }}>
                   <DrawerHead>
                     <Title headingLevel="h2" size="xl">Browse API Groups</Title>
                     <DrawerActions>
@@ -572,7 +573,8 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                   <DrawerPanelBody style={{ 
                     padding: 'var(--pf-t--global--spacer--md)',
                     overflowY: 'auto',
-                    height: '100%'
+                    flex: 1,
+                    minHeight: 0
                   }}>
                     <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                       <TextInputGroup>
