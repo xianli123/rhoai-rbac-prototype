@@ -153,7 +153,8 @@ const CreateRole: React.FunctionComponent = () => {
 
   const handleUseTemplate = (template: typeof roleTemplates[0]) => {
     // Populate form with template data
-    setRoleName(template.name.toLowerCase().replace(/\s+/g, '-'));
+    const templateNameSlug = template.name.toLowerCase().replace(/\s+/g, '-');
+    setRoleName(`copy-of-${templateNameSlug}`);
     setDescription(template.description);
     setCategory(template.category);
     setIsTemplateModalOpen(false);
