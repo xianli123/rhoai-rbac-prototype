@@ -253,7 +253,6 @@ const Roles: React.FunctionComponent = () => {
                   <Button
                     variant={typeFilter === 'All' ? 'primary' : 'secondary'}
                     onClick={() => setTypeFilter('All')}
-                    isSmall
                   >
                     All
                   </Button>
@@ -262,7 +261,6 @@ const Roles: React.FunctionComponent = () => {
                   <Button
                     variant={typeFilter === 'Default' ? 'primary' : 'secondary'}
                     onClick={() => setTypeFilter('Default')}
-                    isSmall
                   >
                     Default
                   </Button>
@@ -271,7 +269,6 @@ const Roles: React.FunctionComponent = () => {
                   <Button
                     variant={typeFilter === 'Custom' ? 'primary' : 'secondary'}
                     onClick={() => setTypeFilter('Custom')}
-                    isSmall
                   >
                     Custom
                   </Button>
@@ -288,7 +285,7 @@ const Roles: React.FunctionComponent = () => {
                 Delete role
               </Button>
             </ToolbarItem>
-            <ToolbarItem alignment={{ default: 'alignRight' }}>
+            <ToolbarItem align={{ default: 'alignEnd' }}>
               <Pagination
                 itemCount={sortedRoles.length}
                 page={page}
