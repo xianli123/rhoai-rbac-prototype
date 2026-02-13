@@ -436,7 +436,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                                 placeholder="Enter API groups"
                               />
                               <Button variant="link" isInline style={{ paddingLeft: 0, marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
-                                Browse API catalog
+                                Browse and select API groups
                               </Button>
                             </FormGroup>
 
@@ -456,7 +456,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                                 placeholder="Enter resources"
                               />
                               <Button variant="link" isInline style={{ paddingLeft: 0, marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
-                                Browse resources catalog
+                                Browse and select resources
                               </Button>
                             </FormGroup>
 
