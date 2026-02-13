@@ -143,7 +143,7 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
         <Content style={{ marginBottom: 'var(--pf-v5-global--spacer--sm)', color: 'var(--pf-v5-global--Color--200)' }}>
           Create a custom role to control what users can see and do across your cluster resources. Define permissions, navigation access, and resource scopes to implement fine-grained access control.
         </Content>
-        <Button variant="link" isInline style={{ paddingLeft: 0, marginBottom: 'var(--pf-v5-global--spacer--lg)' }}>
+        <Button variant="link" isInline style={{ paddingLeft: 0, marginBottom: '16px' }}>
           Select templates
         </Button>
 
