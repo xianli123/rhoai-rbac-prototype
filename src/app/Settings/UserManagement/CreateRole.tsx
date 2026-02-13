@@ -378,8 +378,8 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                 <DrawerCloseButton onClick={() => setIsApiGroupsDrawerOpen(false)} />
               </DrawerActions>
             </DrawerHead>
-            <DrawerPanelBody style={{ padding: 'var(--pf-v5-global--spacer--md)' }}>
-              <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+            <DrawerPanelBody style={{ padding: 'var(--pf-t--global--spacer--md)' }}>
+              <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                 <TextInputGroup>
                   <TextInputGroupMain
                     icon={<SearchIcon />}
@@ -394,12 +394,12 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
               <Content component="p" style={{ 
                 fontSize: 'var(--pf-v5-global--FontSize--sm)', 
                 color: 'var(--pf-v5-global--Color--200)',
-                marginBottom: 'var(--pf-v5-global--spacer--sm)'
+                marginBottom: 'var(--pf-t--global--spacer--sm)'
               }}>
                 Filter by category
               </Content>
 
-              <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+              <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                 <ToggleGroup aria-label="Resource category filter">
                   <ToggleGroupItem
                     text="All"
@@ -439,15 +439,15 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                 if (groups.length === 0) return null;
 
                 return (
-                  <div key={category} style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}>
-                    <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+                  <div key={category} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                       {category}
                     </Title>
                     {groups.map((group, index) => (
                       <div 
                         key={index}
                         style={{ 
-                          marginBottom: 'var(--pf-v5-global--spacer--md)',
+                          marginBottom: 'var(--pf-t--global--spacer--md)',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'flex-start'
