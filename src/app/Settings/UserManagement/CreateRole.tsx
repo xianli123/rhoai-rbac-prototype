@@ -71,9 +71,6 @@ const CreateRole: React.FunctionComponent = () => {
   const [resources, setResources] = React.useState('');
   const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
   const [templateSearchValue, setTemplateSearchValue] = React.useState('');
-  const [isApiGroupsDrawerOpen, setIsApiGroupsDrawerOpen] = React.useState(false);
-  const [apiGroupsSearchValue, setApiGroupsSearchValue] = React.useState('');
-  const [apiGroupsCategoryFilter, setApiGroupsCategoryFilter] = React.useState('All');
   const [isResourcesDrawerOpen, setIsResourcesDrawerOpen] = React.useState(false);
   const [resourcesSearchValue, setResourcesSearchValue] = React.useState('');
   const [resourcesCategoryFilter, setResourcesCategoryFilter] = React.useState('All');
@@ -301,66 +298,6 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
     navigate('/settings/user-management/roles');
   };
 
-  // API Groups data
-  interface ApiGroup {
-    name: string;
-    description: string;
-    category: 'Core' | 'KubeVirt' | 'Networking' | 'Storage';
-  }
-
-  const apiGroupsData: ApiGroup[] = [
-    { name: '', description: 'Core Kubernetes APIs (pods, services, etc.)', category: 'Core' },
-    { name: 'apps', description: 'Deployments, StatefulSets, DaemonSets', category: 'Core' },
-    { name: 'batch', description: 'Jobs and CronJobs', category: 'Core' },
-    { name: 'rbac.authorization.k8s.io', description: 'Roles and role bindings', category: 'Core' },
-    { name: 'kubevirt.io', description: 'KubeVirt virtualization APIs', category: 'KubeVirt' },
-    { name: 'cdi.kubevirt.io', description: 'Containerized Data Importer', category: 'KubeVirt' },
-    { name: 'instancetype.kubevirt.io', description: 'VM instance types', category: 'KubeVirt' },
-    { name: 'networking.k8s.io', description: 'Network policies and ingress', category: 'Networking' },
-    { name: 'k8s.cni.cncf.io', description: 'Network attachment definitions', category: 'Networking' },
-    { name: 'storage.k8s.io', description: 'Storage classes and volume attachments', category: 'Storage' },
-    { name: 'snapshot.storage.k8s.io', description: 'Volume snapshots', category: 'Storage' },
-  ];
-
-  const filteredApiGroups = React.useMemo(() => {
-    let filtered = apiGroupsData;
-    
-    // Filter by category
-    if (apiGroupsCategoryFilter !== 'All') {
-      filtered = filtered.filter(group => group.category === apiGroupsCategoryFilter);
-    }
-    
-    // Filter by search
-    if (apiGroupsSearchValue.trim()) {
-      const searchLower = apiGroupsSearchValue.toLowerCase();
-      filtered = filtered.filter(group => 
-        group.name.toLowerCase().includes(searchLower) ||
-        group.description.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    return filtered;
-  }, [apiGroupsSearchValue, apiGroupsCategoryFilter]);
-
-  const groupedApiGroups = React.useMemo(() => {
-    const groups: Record<string, ApiGroup[]> = {};
-    filteredApiGroups.forEach(group => {
-      if (!groups[group.category]) {
-        groups[group.category] = [];
-      }
-      groups[group.category].push(group);
-    });
-    return groups;
-  }, [filteredApiGroups]);
-
-  const handleAddApiGroup = (groupName: string) => {
-    const currentGroups = apiGroups.split(',').map(g => g.trim()).filter(g => g);
-    if (!currentGroups.includes(groupName)) {
-      const newGroups = [...currentGroups, groupName].join(', ');
-      setApiGroups(newGroups);
-    }
-  };
-
   // Resources data
   interface Resource {
     name: string;
@@ -560,132 +497,8 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
         }
       >
         <DrawerContentBody>
-          <Drawer isExpanded={isApiGroupsDrawerOpen}>
-            <DrawerContent
-              panelContent={
-                <DrawerPanelContent defaultSize="500px" minSize="500px" style={{ display: 'flex', flexDirection: 'column' }}>
-                  <DrawerHead>
-                    <Title headingLevel="h2" size="xl">Browse API Groups</Title>
-                    <DrawerActions>
-                      <DrawerCloseButton onClick={() => setIsApiGroupsDrawerOpen(false)} />
-                    </DrawerActions>
-                  </DrawerHead>
-                  <DrawerPanelBody style={{ 
-                    padding: 'var(--pf-t--global--spacer--md)',
-                    overflowY: 'auto',
-                    flex: 1,
-                    minHeight: 0
-                  }}>
-                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                      <TextInputGroup>
-                        <TextInputGroupMain
-                          icon={<SearchIcon />}
-                          value={apiGroupsSearchValue}
-                          onChange={(_event, value) => setApiGroupsSearchValue(value)}
-                          placeholder="Search API groups..."
-                          aria-label="Search API groups"
-                        />
-                      </TextInputGroup>
-                    </div>
-
-                    <Content component="p" style={{ 
-                      fontSize: 'var(--pf-v5-global--FontSize--sm)', 
-                      color: 'var(--pf-v5-global--Color--200)',
-                      marginBottom: 'var(--pf-t--global--spacer--sm)'
-                    }}>
-                      Filter by category
-                    </Content>
-
-                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                      <ToggleGroup aria-label="Resource category filter">
-                        <ToggleGroupItem
-                          text="All"
-                          buttonId="filter-all"
-                          isSelected={apiGroupsCategoryFilter === 'All'}
-                          onChange={() => setApiGroupsCategoryFilter('All')}
-                        />
-                        <ToggleGroupItem
-                          text="Core"
-                          buttonId="filter-core"
-                          isSelected={apiGroupsCategoryFilter === 'Core'}
-                          onChange={() => setApiGroupsCategoryFilter('Core')}
-                        />
-                        <ToggleGroupItem
-                          text="KubeVirt"
-                          buttonId="filter-kubevirt"
-                          isSelected={apiGroupsCategoryFilter === 'KubeVirt'}
-                          onChange={() => setApiGroupsCategoryFilter('KubeVirt')}
-                        />
-                        <ToggleGroupItem
-                          text="Networking"
-                          buttonId="filter-networking"
-                          isSelected={apiGroupsCategoryFilter === 'Networking'}
-                          onChange={() => setApiGroupsCategoryFilter('Networking')}
-                        />
-                        <ToggleGroupItem
-                          text="Storage"
-                          buttonId="filter-storage"
-                          isSelected={apiGroupsCategoryFilter === 'Storage'}
-                          onChange={() => setApiGroupsCategoryFilter('Storage')}
-                        />
-                      </ToggleGroup>
-                    </div>
-
-                    {['Core', 'KubeVirt', 'Networking', 'Storage'].map((category) => {
-                      const groups = groupedApiGroups[category] || [];
-                      if (groups.length === 0) return null;
-
-                      return (
-                        <div key={category} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-                          <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                            {category}
-                          </Title>
-                          {groups.map((group, index) => (
-                            <div 
-                              key={index}
-                              style={{ 
-                                marginBottom: 'var(--pf-t--global--spacer--md)',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start'
-                              }}
-                            >
-                              <div style={{ flex: '1 1 0%' }}>
-                                <div style={{ fontWeight: 'var(--pf-v5-global--FontWeight--bold)' }}>
-                                  {group.name || '""'}{' '}
-                                  <span style={{ 
-                                    fontWeight: 'normal', 
-                                    fontStyle: 'italic', 
-                                    fontSize: '0.875rem', 
-                                    color: 'var(--pf-v5-global--Color--200)',
-                                    marginLeft: '4px'
-                                  }}>
-                                    (empty string)
-                                  </span>
-                                </div>
-                                <Content component="small" style={{ color: 'var(--pf-v5-global--Color--200)' }}>
-                                  {group.description}
-                                </Content>
-                              </div>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleAddApiGroup(group.name)}
-                              >
-                                Add
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </DrawerPanelBody>
-                </DrawerPanelContent>
-              }
-            >
-              <DrawerContentBody>
-                {breadcrumb}
-                <PageSection>
+          {breadcrumb}
+          <PageSection>
         <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>Create custom role</Title>
         <Content style={{ marginBottom: '16px', color: 'var(--pf-v5-global--Color--200)' }}>
           Create a custom role to control what users can see and do across your cluster resources. Define permissions, navigation access, and resource scopes to implement fine-grained access control.
@@ -827,14 +640,6 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                                 onChange={(_event, value) => setApiGroups(value)}
                                 placeholder="Enter API groups"
                               />
-                              <Button 
-                                variant="link" 
-                                isInline 
-                                style={{ paddingLeft: 0, marginTop: 'var(--pf-v5-global--spacer--sm)' }}
-                                onClick={() => setIsApiGroupsDrawerOpen(true)}
-                              >
-                                Browse and select API groups
-                              </Button>
                             </FormGroup>
 
                             <Divider style={{ margin: '16px 0' }} />
@@ -1277,9 +1082,6 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
           </Button>
         </ModalFooter>
       </Modal>
-              </DrawerContentBody>
-            </DrawerContent>
-          </Drawer>
         </DrawerContentBody>
       </DrawerContent>
     </Drawer>
