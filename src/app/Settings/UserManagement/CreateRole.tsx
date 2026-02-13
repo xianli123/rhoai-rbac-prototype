@@ -640,6 +640,13 @@ ${selectedVerbs.length > 0 ? selectedVerbs.map(v => `  - "${v}"`).join('\n') : '
                                 onChange={(_event, value) => setApiGroups(value)}
                                 placeholder="Enter API groups"
                               />
+                              <Button 
+                                variant="link" 
+                                isInline 
+                                style={{ paddingLeft: 0, marginTop: 'var(--pf-v5-global--spacer--sm)' }}
+                              >
+                                Browse and select API groups
+                              </Button>
                             </FormGroup>
 
                             <Divider style={{ margin: '16px 0' }} />
