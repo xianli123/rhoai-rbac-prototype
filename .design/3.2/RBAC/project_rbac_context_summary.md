@@ -959,5 +959,14 @@ interface User {
       - After all verbs are selected, the button label becomes "Deselect all categories". Clicking it deselects all verbs for that rule. Handler: `handleDeselectAllCategories(ruleIndex)`.
       - Helper: `isAllCategoriesSelected(verbs)` returns true when every verb in the rule is selected; used for button label and to decide which handler to call.
       - Per-category "Select all" / "Deselect all" in each operations card (Read, Write, Delete, Advanced) unchanged; they show "Deselect all" when all verbs in that category are selected.
-    - **Other Create Role Form Details (unchanged in this session):**
+    - **Labels Section (Role Configuration card):**
+      - State: `labels` as `Array<{ key: string; value: string }>`.
+      - "Add label" link button appends a new key/value row. Each row: Key TextInput (placeholder e.g. "Key (e.g., team, environment)"), Value TextInput (placeholder e.g. "Value (e.g., platform, production)"), and a plain button with `MinusCircleIcon` for remove (aria-label "Remove label").
+      - Rows rendered in a Split layout (two filled items for inputs, one for remove button).
+    - **Role Configuration card – header and spacing:**
+      - "Clear all" is a link button without underline: `variant="link"`, `isInline`, `style={{ paddingLeft: 0, textDecoration: 'none' }}`.
+      - 16px gap between the "Role Configuration" title and the first field label ("Role Name"): Form uses `style={{ marginTop: '16px' }}`.
+    - **Operations cards (Verbs) – spacing:**
+      - 8px gap between the description (under each operation title) and the checkbox section: each card’s checkbox `Grid` has `style={{ marginTop: '8px' }}` (Read, Write, Delete, Advanced Operations).
+    - **Other Create Role Form Details:**
       - Rule templates (Maintainer, Reader, Updater), Add rule dropdown, rule template modal (search + table), Live YAML, permission rules with API groups/Resources/Verbs, `editingRuleIndex` for which rule is being edited when using the browse drawer.

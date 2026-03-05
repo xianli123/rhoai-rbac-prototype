@@ -57,7 +57,7 @@ import {
   Th,
   Td,
 } from '@patternfly/react-table';
-import { DownloadIcon, PlusIcon, SearchIcon } from '@patternfly/react-icons';
+import { DownloadIcon, MinusCircleIcon, PlusIcon, SearchIcon } from '@patternfly/react-icons';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 type VerbsState = {
@@ -354,6 +354,7 @@ const CreateRole: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [roleName, setRoleName] = React.useState('my-custom-role');
   const [description, setDescription] = React.useState('');
+  const [labels, setLabels] = React.useState<Array<{ key: string; value: string }>>([]);
   const [category, setCategory] = React.useState('');
   const [categoryInputValue, setCategoryInputValue] = React.useState('');
   const [rules, setRules] = React.useState<Rule[]>(() => [
@@ -987,11 +988,11 @@ ${ruleBlocks.join('\n')}
                     <Title headingLevel="h2" size="lg">Role Configuration</Title>
                   </SplitItem>
                   <SplitItem>
-                    <Button variant="plain">Clear All</Button>
+                    <Button variant="link" isInline style={{ paddingLeft: 0, textDecoration: 'none' }}>Clear all</Button>
                   </SplitItem>
                 </Split>
 
-                <Form style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+                <Form style={{ marginTop: '16px' }}>
                   <FormGroup
                     label="Role Name"
                     isRequired
@@ -1014,7 +1015,48 @@ ${ruleBlocks.join('\n')}
                     <Content component="p" style={{ color: 'var(--pf-v5-global--Color--200)', fontSize: 'var(--pf-v5-global--FontSize--sm)', marginBottom: 'var(--pf-v5-global--spacer--sm)' }}>
                       Add key/value labels to organize and find this role (for example by organization or team).
                     </Content>
-                    <Button variant="link" isInline icon={<PlusIcon />} style={{ paddingLeft: 0 }}>
+                    {labels.map((label, index) => (
+                      <Split key={index} hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <SplitItem isFilled>
+                          <TextInput
+                            id={`label-key-${index + 1}`}
+                            value={label.key}
+                            onChange={(_event, value) => {
+                              setLabels((prev) => prev.map((l, i) => (i === index ? { ...l, key: value ?? '' } : l)));
+                            }}
+                            placeholder="Key (e.g., team, environment)"
+                            aria-label="Label key"
+                          />
+                        </SplitItem>
+                        <SplitItem isFilled>
+                          <TextInput
+                            id={`label-value-${index + 1}`}
+                            value={label.value}
+                            onChange={(_event, value) => {
+                              setLabels((prev) => prev.map((l, i) => (i === index ? { ...l, value: value ?? '' } : l)));
+                            }}
+                            placeholder="Value (e.g., platform, production)"
+                            aria-label="Label value"
+                          />
+                        </SplitItem>
+                        <SplitItem>
+                          <Button
+                            variant="plain"
+                            aria-label="Remove label"
+                            onClick={() => setLabels((prev) => prev.filter((_, i) => i !== index))}
+                          >
+                            <MinusCircleIcon />
+                          </Button>
+                        </SplitItem>
+                      </Split>
+                    ))}
+                    <Button
+                      variant="link"
+                      isInline
+                      icon={<PlusIcon />}
+                      style={{ paddingLeft: 0 }}
+                      onClick={() => setLabels((prev) => [...prev, { key: '', value: '' }])}
+                    >
                       Add label
                     </Button>
                   </FormGroup>
@@ -1194,7 +1236,7 @@ ${ruleBlocks.join('\n')}
                                         </Button>
                                       </SplitItem>
                                     </Split>
-                                    <Grid hasGutter>
+                                    <Grid hasGutter style={{ marginTop: '8px' }}>
                                       <GridItem span={4}>
                                         <Checkbox
                                           id={`verb-${ruleIndex}-get`}
@@ -1235,7 +1277,7 @@ ${ruleBlocks.join('\n')}
                                         <Button variant="link" isInline style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)' }} onClick={() => handleSelectAllOrDeselectAll(ruleIndex, 'write')}>{isCategoryAllSelected(rule.verbs, 'write') ? 'Deselect all' : 'Select all'}</Button>
                                       </SplitItem>
                                     </Split>
-                                    <Grid hasGutter>
+                                    <Grid hasGutter style={{ marginTop: '8px' }}>
                                       <GridItem span={4}>
                                         <Checkbox id={`verb-${ruleIndex}-create`} label={<><strong>Create</strong><br /><span style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)', color: 'var(--pf-v5-global--Color--200)' }}>Create new resources</span></>} isChecked={rule.verbs.create} onChange={(_event, checked) => handleVerbChange(ruleIndex, 'create', checked ?? false)} />
                                       </GridItem>
@@ -1261,7 +1303,7 @@ ${ruleBlocks.join('\n')}
                                         <Button variant="link" isInline style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)' }} onClick={() => handleSelectAllOrDeselectAll(ruleIndex, 'delete')}>{isCategoryAllSelected(rule.verbs, 'delete') ? 'Deselect all' : 'Select all'}</Button>
                                       </SplitItem>
                                     </Split>
-                                    <Grid hasGutter>
+                                    <Grid hasGutter style={{ marginTop: '8px' }}>
                                       <GridItem span={4}>
                                         <Checkbox id={`verb-${ruleIndex}-delete`} label={<><strong>Delete</strong><br /><span style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)', color: 'var(--pf-v5-global--Color--200)' }}>Delete individual resources</span></>} isChecked={rule.verbs.delete} onChange={(_event, checked) => handleVerbChange(ruleIndex, 'delete', checked ?? false)} />
                                       </GridItem>
@@ -1284,7 +1326,7 @@ ${ruleBlocks.join('\n')}
                                         <Button variant="link" isInline style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)' }} onClick={() => handleSelectAllOrDeselectAll(ruleIndex, 'advanced')}>{isCategoryAllSelected(rule.verbs, 'advanced') ? 'Deselect all' : 'Select all'}</Button>
                                       </SplitItem>
                                     </Split>
-                                    <Grid hasGutter>
+                                    <Grid hasGutter style={{ marginTop: '8px' }}>
                                       <GridItem span={4}>
                                         <Checkbox id={`verb-${ruleIndex}-bind`} label={<><strong>Bind</strong><br /><span style={{ fontSize: 'var(--pf-v5-global--FontSize--sm)', color: 'var(--pf-v5-global--Color--200)' }}>Bind roles to users or groups</span></>} isChecked={rule.verbs.bind} onChange={(_event, checked) => handleVerbChange(ruleIndex, 'bind', checked ?? false)} />
                                       </GridItem>
