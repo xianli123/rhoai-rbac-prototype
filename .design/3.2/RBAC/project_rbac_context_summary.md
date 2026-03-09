@@ -19,19 +19,16 @@
    - Save handler updates shared data with currently assigned roles
    - Reads directly from shared data (mockUsers/mockGroups) to reflect saved changes
    - Re-initializes roles when navigating to the page to get latest shared data
-   - **Design Option Toggle**: Added radio button toggle above breadcrumb with light purple background
-     - Option 1: "Sorted by the status" - Original status-based sorting (default)
-     - Option 2: "Sorted by role name and status" - Alphabetical by role name with status as secondary sort
-   - **Expandable Rules Section**: All roles have expandable rows showing rules
-     - Uses PatternFly `treeRow` prop for expand/collapse functionality
-     - Shows rules table with columns: Actions, API groups, Resource type, Resource names
-     - Arrow icon rotates 90° when expanded (using CSS transform)
-     - Checkbox remains visible alongside expand arrow in same cell
-   - **Role Descriptions**: Updated all role descriptions to be clearer and more meaningful
-   - **Rule Data**: Added comprehensive rule data for all roles (actions, API groups, resources, resource names)
+   - **Design Option Toggle**: Dropdown with "Original design" and "Concept for testing" (Archived hidden)
+   - **Concept for testing**: Expandable Role assignment table with Resource scoping (label + inner table), Resource names dropdown (400px; disabled when role not selected with tooltip; Admin/Contributor show "All resources" plain text). Save enabled for role or resource scoping changes; Confirm modal only when role assignment changes. Expand icon shows right/down (no custom rotation).
+   - **Confirm modal**: Info alert above buttons: "Make sure to inform the specified user about the updated role assignments."
+   - **Expandable Rules Section**: All roles have expandable rows showing rules (treeRow, rules table). Checkbox and expand arrow in same cell.
+   - **Role Descriptions** and **Rule Data**: Comprehensive rule data for all roles
 
 3. **`src/app/Projects/RoleAssignmentPage.tsx`**
    - **Complete redesign**: Reused structure and layout from EditRolesPage
+   - **Option 2 (Concept for testing)**: Role assignment reuses same expandable table and Resource scoping as Manage roles (resource dropdown 400px, disabled + tooltip when role not selected; Admin/Contributor "All resources"). assignRolesVariant defaults from URL `?option=2`; option2 wrapper `key="option2-role-table"`.
+   - **Confirm modal**: Same info alert above buttons as Manage roles.
    - **Subject Section**:
      - Subject type: Two radio buttons (User/Group), User selected by default
      - User/Group name: TypeaheadSelect dropdown with typeahead behavior
@@ -357,6 +354,31 @@ interface User {
 7. **Modal Button Alignment:**
    - All modals now have action buttons aligned to the left
    - 24px gap between button section and modal body in all modals
+
+8. **Manage roles – Concept for testing (option5) – Role assignment table and behavior:**
+   - **Design Option:** Dropdown shows "Original design" and "Concept for testing" (Archived option hidden).
+   - **Expandable Role assignment table:** Width 960px, expand column, columns: Checkbox, Role name, Description, Role type, Assignment status. Expandable row contains "Resource scoping" label (wrapper paddingLeft 4.5rem, label marginLeft 16px) and inner table.
+   - **Inner table:** Actions column 220px width, API groups, Resources, Resource names (8px gap before question mark icon; 8px marginBottom below table; table marginLeft -8px). Resource names dropdown width 400px.
+   - **Resource names dropdown when role not selected:** Disabled with PatternFly disabled styling (no custom color override); tooltip "Check the role and then specify the resources"; when disabled, placeholder is "Select a workbench" (or pipeline/deployment) instead of "All workbenches."
+   - **Save / Confirm:** Save enabled when role assignment changes OR (Concept for testing only) when resource scoping changes. "Confirm role assignment changes?" modal only shown when there are role assignment changes (not when only resource scoping changed).
+   - **Admin and Contributor:** In the expandable list, Resource names column shows plain text "All resources" (no dropdown).
+   - **Expand icon:** Removed custom CSS rotation so expand/collapse shows right arrow / down arrow correctly.
+
+9. **Confirm role assignment changes modal – Info alert:**
+   - Info alert added above Save/Cancel in both Assign roles and Manage roles.
+   - Text: "Make sure to inform the specified user about the updated role assignments."
+   - PatternFly Alert, variant info, isInline.
+
+10. **CreateRole (Settings – User Management):**
+    - Permission rules dropdown: First option "Add custom rule", second "Add rule from template."
+    - Rule template modal: All role template descriptions use syntax "A set of rules that grants users to ..." (Admin, Contributor, Deployment/Pipeline/Workbench maintainer/reader/updater).
+
+11. **Assign roles – Option 2 (Concept for testing) – Role assignment:**
+    - Role assignment section reuses the same table and behavior as Manage roles Concept for testing: expandable rows, Resource scoping label and inner table, Resource names dropdown (400px, disabled when role not selected with tooltip, disabled placeholder "Select a [resource]").
+    - When URL has `?option=2`, assignRolesVariant defaults to 'option2' so Concept for testing table is shown by default.
+    - Admin and Contributor show plain text "All resources" in the expandable list.
+    - Option 2 table wrapper has `key="option2-role-table"` so the table remounts correctly when switching options.
+    - Helpers and `renderResourceDropdown` (with isDisabled and tooltip) added to RoleAssignmentPage for Option 2; handleRoleToggle initializes resource selection when enabling a role in Option 2.
 
 ## Previous Changes (Earlier Sessions)
 

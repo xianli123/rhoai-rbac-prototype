@@ -147,9 +147,9 @@ const UPDATER_RULES: Rule[] = [
 ];
 
 const ruleTemplates = [
-  { id: 'maintainer', name: 'Maintainer', category: 'Permissions', description: 'Full access (get, list, watch, create, update, patch, delete) to selected resources.', rules: MAINTAINER_RULES },
-  { id: 'reader', name: 'Reader', category: 'Permissions', description: 'Read-only access (get, list, watch) to selected resources.', rules: READER_RULES },
-  { id: 'updater', name: 'Updater', category: 'Permissions', description: 'Read and update access (get, list, watch, update, patch) to selected resources.', rules: UPDATER_RULES },
+  { id: 'maintainer', name: 'Maintainer', category: 'Permissions', description: 'A set of rules that grants users full access (get, list, watch, create, update, patch, delete) to selected resources.', rules: MAINTAINER_RULES },
+  { id: 'reader', name: 'Reader', category: 'Permissions', description: 'A set of rules that grants users read-only access (get, list, watch) to selected resources.', rules: READER_RULES },
+  { id: 'updater', name: 'Updater', category: 'Permissions', description: 'A set of rules that grants users read and update access (get, list, watch, update, patch) to selected resources.', rules: UPDATER_RULES },
 ];
 
 /** Shared drawer panel: search (sticky) + filter by category (sticky) + scrollable list. Used by both Browse Resources and Browse API Groups. */
@@ -440,7 +440,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '1',
       name: 'Admin',
       category: 'Project Management',
-      description: 'User can edit the project and manage user access. User can view and manage any project resource.',
+      description: 'A set of rules that grants users to edit the project and manage user access, and to view and manage any project resource.',
       templateRoleName: 'copy-of-Admin',
       templateRules: MAINTAINER_RULES,
     },
@@ -448,7 +448,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '2',
       name: 'Contributor',
       category: 'Project Management',
-      description: 'User can view and manage any project resource. Users with this role can manage all resources in the namespace, including workbenches, model deployments, and cluster storage, except for permissions controlling.',
+      description: 'A set of rules that grants users to view and manage any project resource, including workbenches, model deployments, and cluster storage, except for permissions controlling.',
       templateRoleName: 'copy-of-Contributor',
       templateRules: MAINTAINER_RULES,
     },
@@ -456,7 +456,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '3',
       name: 'Deployment maintainer',
       category: 'Deployment Management',
-      description: 'User can view and manage all model deployments.',
+      description: 'A set of rules that grants users to view and manage all model deployments.',
       templateRoleName: 'copy-of-Deployment Maintainer',
       templateRules: MAINTAINER_RULES,
     },
@@ -464,7 +464,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '4',
       name: 'Deployment reader',
       category: 'Deployment Management',
-      description: 'User can view and open model deployments without modifying their configuration.',
+      description: 'A set of rules that grants users to view and open model deployments without modifying their configuration.',
       templateRoleName: 'copy-of-Deployment Reader',
       templateRules: READER_RULES,
     },
@@ -472,7 +472,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '5',
       name: 'Deployment updater',
       category: 'Deployment Management',
-      description: 'User can view model deployments and update existing deployments.',
+      description: 'A set of rules that grants users to view model deployments and update existing deployments.',
       templateRoleName: 'copy-of-Deployment Updater',
       templateRules: UPDATER_RULES,
     },
@@ -480,7 +480,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '6',
       name: 'Pipeline maintainer',
       category: 'Pipeline Management',
-      description: 'User can view and manage all pipelines.',
+      description: 'A set of rules that grants users to view and manage all pipelines.',
       templateRoleName: 'copy-of-Pipeline Maintainer',
       templateRules: MAINTAINER_RULES,
     },
@@ -488,7 +488,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '7',
       name: 'Pipeline reader',
       category: 'Pipeline Management',
-      description: 'User can view and open pipelines without modifying their configuration.',
+      description: 'A set of rules that grants users to view and open pipelines without modifying their configuration.',
       templateRoleName: 'copy-of-Pipeline Reader',
       templateRules: READER_RULES,
     },
@@ -496,7 +496,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '8',
       name: 'Pipeline updater',
       category: 'Pipeline Management',
-      description: 'User can view pipelines and modify their configuration, but cannot create or delete them.',
+      description: 'A set of rules that grants users to view pipelines and modify their configuration, but not to create or delete them.',
       templateRoleName: 'copy-of-Pipeline Updater',
       templateRules: UPDATER_RULES,
     },
@@ -504,7 +504,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '9',
       name: 'Workbench maintainer',
       category: 'Workbench Management',
-      description: 'The role that grants minimum permissions to allow users as the admin of the workbench component.',
+      description: 'A set of rules that grants users to act as the admin of the workbench component.',
       templateRoleName: 'copy-of-Workbench Maintainer',
       templateRules: MAINTAINER_RULES,
     },
@@ -512,7 +512,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '10',
       name: 'Workbench reader',
       category: 'Workbench Management',
-      description: 'The role that grants minimum permissions to allow users to view the workbench component without modification permissions.',
+      description: 'A set of rules that grants users to view the workbench component without modification permissions.',
       templateRoleName: 'copy-of-Workbench Reader',
       templateRules: READER_RULES,
     },
@@ -520,7 +520,7 @@ const CreateRole: React.FunctionComponent = () => {
       id: '11',
       name: 'Workbench updater',
       category: 'Workbench Management',
-      description: 'The role that grants minimum permissions to allow users as the updater of the workbench component without creation/deletion permissions',
+      description: 'A set of rules that grants users to act as the updater of the workbench component without creation/deletion permissions.',
       templateRoleName: 'copy-of-Workbench Updater',
       templateRules: UPDATER_RULES,
     },
@@ -1145,8 +1145,8 @@ ${ruleBlocks.join('\n')}
                       <SimpleDropdown
                         toggleContent="Add rule"
                         initialItems={[
-                          { value: 'from-scratch', content: 'Add rule from scratch' },
-                          { value: 'via-template', content: 'Add rule via template' },
+                          { value: 'from-scratch', content: 'Add custom rule' },
+                          { value: 'via-template', content: 'Add rule from template' },
                         ]}
                         onSelect={(_event, value) => {
                           if (value === 'from-scratch') {

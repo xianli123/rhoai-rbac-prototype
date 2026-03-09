@@ -8,9 +8,18 @@ import {
   BreadcrumbItem,
   Button,
   Checkbox,
+  Divider,
   Flex,
   FlexItem,
   Label,
+  LabelGroup,
+  Menu,
+  MenuContainer,
+  MenuContent,
+  MenuItem,
+  MenuList,
+  MenuSearch,
+  MenuSearchInput,
   Stack,
   StackItem,
   Alert,
@@ -30,6 +39,9 @@ import {
   ModalHeader,
   ModalBody,
   TextInput,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
   Tooltip,
   TreeView,
   TreeViewDataItem,
@@ -41,6 +53,7 @@ import {
   Tr,
   Th,
   Td,
+  ExpandableRowContent,
   ISortBy,
 } from '@patternfly/react-table';
 import {
@@ -51,6 +64,7 @@ import {
   ExclamationCircleIcon,
   InfoCircleIcon,
   OutlinedQuestionCircleIcon,
+  TimesIcon,
 } from '@patternfly/react-icons';
 
 interface Role {
@@ -325,6 +339,36 @@ const mockRoles: Role[] = [
   },
 ];
 
+const MOCK_WORKBENCHES: { id: string; name: string; description: string }[] = [
+  { id: 'WB1', name: 'WB1', description: 'This is a description' },
+  { id: 'WB2', name: 'WB2', description: 'This is a description' },
+  { id: 'WB3', name: 'WB3', description: 'This is a description' },
+  { id: 'WB4', name: 'WB4', description: 'This is a description' },
+  { id: 'WB5', name: 'WB5', description: 'This is a description' },
+];
+
+const ALL_WORKBENCHES_VALUE = '__all_workbenches__';
+const ALL_PIPELINES_VALUE = '__all_pipelines__';
+const ALL_DEPLOYMENTS_VALUE = '__all_deployments__';
+
+const MOCK_PIPELINES = [
+  { id: 'PL1', name: 'Pipeline 1', description: 'Pipeline description one' },
+  { id: 'PL2', name: 'Pipeline 2', description: 'Pipeline description two' },
+  { id: 'PL3', name: 'Pipeline 3', description: 'Pipeline description three' },
+  { id: 'PL4', name: 'Pipeline 4', description: 'Pipeline description four' },
+  { id: 'PL5', name: 'Pipeline 5', description: 'Pipeline description five' },
+];
+
+const MOCK_DEPLOYMENTS = [
+  { id: 'DP1', name: 'Deployment 1', description: 'Deployment description one' },
+  { id: 'DP2', name: 'Deployment 2', description: 'Deployment description two' },
+  { id: 'DP3', name: 'Deployment 3', description: 'Deployment description three' },
+  { id: 'DP4', name: 'Deployment 4', description: 'Deployment description four' },
+  { id: 'DP5', name: 'Deployment 5', description: 'Deployment description five' },
+];
+
+type ResourceSelection = { type: 'all' } | { type: 'specific'; selectedIds: string[] };
+
 const EditRolesPage: React.FunctionComponent = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [searchParams] = useSearchParams();
@@ -425,13 +469,6 @@ const EditRolesPage: React.FunctionComponent = () => {
     }
   }, [subjectName, subjectType, searchParams]); // Include searchParams to detect navigation
   
-  // Update selectedOption when URL parameter changes
-  React.useEffect(() => {
-    if (designOptionFromUrl === 'option2') {
-      setSelectedOption('option2');
-    }
-  }, [designOptionFromUrl]);
-  
   const [expandedRoles, setExpandedRoles] = React.useState<Set<string>>(new Set());
   const [statusSortBy, setStatusSortBy] = React.useState<ISortBy>({
     index: 2,
@@ -447,10 +484,9 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
   const [option2ActiveSort, setOption2ActiveSort] = React.useState<'roleName' | 'status'>('roleName');
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedOption, setSelectedOption] = React.useState<'option1' | 'option2' | 'option3'>(() => {
-    // If URL parameter indicates option2, use that; otherwise default to option3
-    return designOptionFromUrl === 'option2' ? 'option2' : 'option3';
-  });
+  const [selectedOption, setSelectedOption] = React.useState<'option3' | 'option4' | 'option5'>('option3');
+  const isOption3Or4 = true;
+  const isOption2Or3Or4 = true;
   const [isDesignOptionDropdownOpen, setIsDesignOptionDropdownOpen] = React.useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
   const [selectedRoleForModal, setSelectedRoleForModal] = React.useState<Role | null>(null);
@@ -464,6 +500,16 @@ const EditRolesPage: React.FunctionComponent = () => {
   const [allTreeItemsExpanded, setAllTreeItemsExpanded] = React.useState(true);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set(['assigning-roles', 'unassigning-roles']));
   const [confirmInputValue, setConfirmInputValue] = React.useState('');
+  const [roleResourceSelection, setRoleResourceSelection] = React.useState<Record<string, string>>({});
+  const [roleWorkbenchSelection, setRoleWorkbenchSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [rolePipelineSelection, setRolePipelineSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [roleDeploymentSelection, setRoleDeploymentSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [openResourcesDropdownRoleId, setOpenResourcesDropdownRoleId] = React.useState<string | null>(null);
+  const [workbenchSearchValue, setWorkbenchSearchValue] = React.useState('');
+  const [pipelineSearchValue, setPipelineSearchValue] = React.useState('');
+  const [deploymentSearchValue, setDeploymentSearchValue] = React.useState('');
+  const resourceMenuRef = React.useRef<HTMLDivElement>(null);
+  const resourceToggleRefMap = React.useRef<Record<string, HTMLElement | null>>({});
 
   const getLabelPopoverContent = (labelType: 'ai' | 'openshift-default' | 'openshift-custom', roleName?: string) => {
     switch (labelType) {
@@ -536,11 +582,223 @@ const EditRolesPage: React.FunctionComponent = () => {
     });
   };
 
-  const handleRoleToggle = (roleId: string) => {
+  const getDefaultResourceLabelForRole = (role: Role): string => {
+    const name = role.name.toLowerCase();
+    if (name.includes('workbench')) return 'All workbenches';
+    if (name.includes('deployment')) return 'All deployments';
+    if (name.includes('pipeline')) return 'All pipelines';
+    return 'All resources';
+  };
+
+  const isWorkbenchResourceRole = (role: Role): boolean => getDefaultResourceLabelForRole(role) === 'All workbenches';
+  const isPipelineResourceRole = (role: Role): boolean => getDefaultResourceLabelForRole(role) === 'All pipelines';
+  const isDeploymentResourceRole = (role: Role): boolean => getDefaultResourceLabelForRole(role) === 'All deployments';
+
+  const getResourcesLabelForRole = (role: Role): string => {
+    const name = role.name.toLowerCase();
+    if (name.includes('workbench')) return 'Workbenches';
+    if (name.includes('pipeline')) return 'Pipelines';
+    if (name.includes('deployment')) return 'Model Deployments';
+    return '-';
+  };
+
+  const getWorkbenchSelectionForRole = (roleId: string): ResourceSelection =>
+    roleWorkbenchSelection[roleId] ?? { type: 'all' };
+  const getPipelineSelectionForRole = (roleId: string): ResourceSelection =>
+    rolePipelineSelection[roleId] ?? { type: 'all' };
+  const getDeploymentSelectionForRole = (roleId: string): ResourceSelection =>
+    roleDeploymentSelection[roleId] ?? { type: 'all' };
+
+  const handleRoleToggle = (role: Role) => {
+    const isEnabling = !role.currentlyAssigned;
     setRoles((prev) =>
-      prev.map((role) =>
-        role.id === roleId ? { ...role, currentlyAssigned: !role.currentlyAssigned } : role
+      prev.map((r) =>
+        r.id === role.id ? { ...r, currentlyAssigned: !r.currentlyAssigned } : r
       )
+    );
+    if (selectedOption === 'option4' && isEnabling) {
+      if (isWorkbenchResourceRole(role)) {
+        setRoleWorkbenchSelection((prev) => ({ ...prev, [role.id]: { type: 'all' } }));
+      } else if (isPipelineResourceRole(role)) {
+        setRolePipelineSelection((prev) => ({ ...prev, [role.id]: { type: 'all' } }));
+      } else if (isDeploymentResourceRole(role)) {
+        setRoleDeploymentSelection((prev) => ({ ...prev, [role.id]: { type: 'all' } }));
+      } else {
+        setRoleResourceSelection((prev) => ({ ...prev, [role.id]: getDefaultResourceLabelForRole(role) }));
+      }
+    }
+  };
+
+  type ResourceOption = { id: string; name: string; description: string };
+  const renderResourceDropdown = (
+    role: Role,
+    options: ResourceOption[],
+    allValue: string,
+    allLabel: string,
+    searchPlaceholder: string,
+    selectPlaceholder: string,
+    selection: ResourceSelection,
+    setSelection: React.Dispatch<React.SetStateAction<Record<string, ResourceSelection>>>,
+    searchValue: string,
+    setSearchValue: (v: string) => void,
+    isDisabled?: boolean
+  ) => {
+    const filteredOptions = searchValue
+      ? options.filter(
+          (opt) =>
+            opt.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            opt.id.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      : options;
+    const selectedIds = selection.type === 'specific' ? selection.selectedIds : [];
+    const maxChips = 3;
+    const isOpen = openResourcesDropdownRoleId === role.id;
+    const toggleRefObj = { get current() { return resourceToggleRefMap.current[role.id] ?? null; } };
+    const dropdown = (
+      <MenuContainer
+        isOpen={isDisabled ? false : isOpen}
+        onOpenChange={(open) => {
+          if (isDisabled && open) return;
+          setOpenResourcesDropdownRoleId(open ? role.id : null);
+          if (!open) setSearchValue('');
+        }}
+        menuRef={resourceMenuRef}
+        toggleRef={toggleRefObj as React.RefObject<HTMLElement | null>}
+        menu={
+          <Menu
+            ref={resourceMenuRef}
+            role="menu"
+            isScrollable
+            selected={selection.type === 'all' ? [allValue] : selectedIds}
+            onSelect={(_event, value) => {
+              const v = value as string;
+              if (v === allValue) {
+                setSelection((prev) => ({ ...prev, [role.id]: { type: 'all' } }));
+              } else {
+                const current = selection;
+                if (current.type === 'all') {
+                  setSelection((prev) => ({ ...prev, [role.id]: { type: 'specific', selectedIds: [v] } }));
+                } else {
+                  const newIds = current.selectedIds.includes(v)
+                    ? current.selectedIds.filter((id) => id !== v)
+                    : [...current.selectedIds, v];
+                  setSelection((prev) => ({
+                    ...prev,
+                    [role.id]: newIds.length === 0 ? { type: 'all' } : { type: 'specific', selectedIds: newIds },
+                  }));
+                }
+              }
+            }}
+            style={{ minWidth: '250px' }}
+          >
+            <MenuSearch>
+              <MenuSearchInput>
+                <SearchInput
+                  placeholder={searchPlaceholder}
+                  value={searchValue}
+                  onChange={(_e, val) => setSearchValue(val)}
+                  onClear={() => setSearchValue('')}
+                  aria-label={searchPlaceholder}
+                />
+              </MenuSearchInput>
+            </MenuSearch>
+            <Divider />
+            <MenuContent maxMenuHeight="200px">
+              <MenuList>
+                <MenuItem itemId={allValue} isSelected={selection.type === 'all'}>
+                  {allLabel}
+                </MenuItem>
+                <Divider />
+                {filteredOptions.map((opt) => (
+                  <MenuItem
+                    key={opt.id}
+                    itemId={opt.id}
+                    isSelected={selection.type === 'specific' && selection.selectedIds.includes(opt.id)}
+                    description={opt.description}
+                  >
+                    {opt.name}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </MenuContent>
+          </Menu>
+        }
+        toggle={
+          <MenuToggle
+            ref={(el) => { resourceToggleRefMap.current[role.id] = el; }}
+            variant="typeahead"
+            onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+            isExpanded={isOpen}
+            isFullWidth
+            isDisabled={isDisabled}
+            style={
+              isDisabled
+                ? { width: '400px', minWidth: '400px', minHeight: '40px' }
+                : {
+                    width: '400px',
+                    minWidth: '400px',
+                    minHeight: '40px',
+                    backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)',
+                    color: 'var(--pf-v5-global--Color--100)',
+                  }
+            }
+          >
+            <TextInputGroup isPlain>
+              <TextInputGroupMain
+                value=""
+                placeholder={isDisabled ? selectPlaceholder : (selection.type === 'all' ? allLabel : selectPlaceholder)}
+                aria-label={allLabel}
+                inputProps={{ readOnly: true }}
+                onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+              >
+                {selection.type === 'specific' ? (
+                  <LabelGroup numLabels={maxChips} aria-label="Selected resources">
+                    {selectedIds.map((id) => {
+                      const opt = options.find((o) => o.id === id);
+                      return (
+                        <Label
+                          key={id}
+                          variant="outline"
+                          onClose={(ev) => {
+                            ev.stopPropagation();
+                            const newIds = selectedIds.filter((x) => x !== id);
+                            setSelection((prev) => ({
+                              ...prev,
+                              [role.id]:
+                                newIds.length === 0 ? { type: 'all' as const } : { type: 'specific' as const, selectedIds: newIds },
+                            }));
+                          }}
+                          isCompact
+                        >
+                          {opt?.name ?? id}
+                        </Label>
+                      );
+                    })}
+                  </LabelGroup>
+                ) : null}
+              </TextInputGroupMain>
+              <TextInputGroupUtilities {...(selection.type !== 'specific' ? { style: { display: 'none' } } : {})}>
+                <Button
+                  variant="plain"
+                  aria-label="Clear all selections"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelection((prev) => ({ ...prev, [role.id]: { type: 'all' as const } }));
+                  }}
+                  icon={<TimesIcon />}
+                />
+              </TextInputGroupUtilities>
+            </TextInputGroup>
+          </MenuToggle>
+        }
+      />
+    );
+    return isDisabled ? (
+      <Tooltip content="Check the role and then specify the resources">
+        <span style={{ display: 'inline-block' }}>{dropdown}</span>
+      </Tooltip>
+    ) : (
+      dropdown
     );
   };
 
@@ -623,7 +881,7 @@ const EditRolesPage: React.FunctionComponent = () => {
   };
 
   const getSortedRoles = (): Role[] => {
-    return selectedOption === 'option1' ? getSortedRolesOption1() : getSortedRolesOption2();
+    return getSortedRolesOption2();
   };
 
   const getStatusSortParams = () => ({
@@ -644,8 +902,7 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
 
   const getOption2StatusSortParams = () => {
-    // Status column index: 3 for Option 2, 4 for Option 3 (because Option 3 has Role type column)
-    const statusColumnIndex = selectedOption === 'option3' ? 4 : 3;
+    const statusColumnIndex = 4;
     return {
       sortBy: option2StatusSortBy,
       onSort: (_event: any, index: number, direction: 'asc' | 'desc') => {
@@ -657,18 +914,6 @@ const EditRolesPage: React.FunctionComponent = () => {
   };
 
   const renderRoleBadge = (role: Role) => {
-    // Option 1: Original behavior (keep existing labels)
-    if (selectedOption === 'option1') {
-    if (role.roleType === 'openshift-default') {
-      return <Label color="blue" variant="outline" isCompact>OpenShift default</Label>;
-    } else if (role.roleType === 'openshift-custom') {
-      return <Label color="purple" variant="outline" isCompact>OpenShift custom</Label>;
-    }
-      return null;
-    }
-
-    // Option 2 and Option 3: With all labels (add AI label for regular roles and OpenShift default roles)
-    if (selectedOption === 'option2' || selectedOption === 'option3') {
       if (role.roleType === 'openshift-default') {
         // For OpenShift default roles, show AI label before OpenShift default label
         const aiPopoverId = `ai-edit-${role.id}`;
@@ -749,14 +994,12 @@ const EditRolesPage: React.FunctionComponent = () => {
         const aiPopoverId = `ai-edit-${role.id}`;
         return renderAILabel(aiPopoverId);
       }
-    }
-
     return null;
   };
 
   const renderRoleTypeLabels = (role: Role) => {
     // Only for Option 3: Render just the labels
-    if (selectedOption === 'option3') {
+    if (isOption3Or4) {
       if (role.roleType === 'openshift-default') {
         // For OpenShift default roles, show AI label and OpenShift default label
         const aiPopoverId = `ai-roletype-${role.id}`;
@@ -896,7 +1139,7 @@ const EditRolesPage: React.FunctionComponent = () => {
       })() : null;
       
       // For Option 3, only show "Unassigning" label
-      if (selectedOption === 'option3') {
+      if (isOption3Or4) {
         // For OpenShift custom roles, make the label clickable with popover
         if (isOpenShiftCustom) {
           const unassigningPopoverId = `unassigning-popover-${role.id}`;
@@ -1065,14 +1308,25 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
 
   const sortedRoles = getSortedRoles();
-  const hasChanges = roles.some((role) => {
-    // Check if the role's currentlyAssigned state differs from its originallyAssigned state
+const hasRoleAssignmentChanges = roles.some((role) => {
     return role.currentlyAssigned !== role.originallyAssigned;
   });
 
-  // Check if there are any changes (assigning or unassigning)
-  const hasAnyChanges = (): boolean => {
-    return roles.some(role => 
+  // For 'Concept for testing' (option5): also enable Save when resource scoping has changed
+  const hasResourceScopingChanges =
+    selectedOption === 'option5' &&
+    roles.some((role) => {
+      if (isWorkbenchResourceRole(role)) return getWorkbenchSelectionForRole(role.id).type === 'specific';
+      if (isPipelineResourceRole(role)) return getPipelineSelectionForRole(role.id).type === 'specific';
+      if (isDeploymentResourceRole(role)) return getDeploymentSelectionForRole(role.id).type === 'specific';
+      return false;
+    });
+
+  const hasChanges = hasRoleAssignmentChanges || hasResourceScopingChanges;
+
+  // Check if there are any role assignment changes (assigning or unassigning) — only these show the confirm modal
+  const hasAnyRoleAssignmentChanges = (): boolean => {
+    return roles.some(role =>
       (role.originallyAssigned && !role.currentlyAssigned) || // Being unassigned
       (!role.originallyAssigned && role.currentlyAssigned)     // Being assigned
     );
@@ -1080,8 +1334,8 @@ const EditRolesPage: React.FunctionComponent = () => {
 
   // Handle save action
   const handleSave = () => {
-    // Always show confirmation modal if there are any changes
-    if (hasAnyChanges()) {
+    // Only show confirmation modal when there are role assignment changes
+    if (hasAnyRoleAssignmentChanges()) {
       setIsSaveConfirmModalOpen(true);
     } else {
       performSave();
@@ -1109,9 +1363,6 @@ const EditRolesPage: React.FunctionComponent = () => {
   return (
     <>
       <style>{`
-        .pf-m-expanded .pf-v6-c-table__toggle-icon svg {
-          transform: rotate(90deg);
-        }
         .pf-v6-c-button.pf-m-link.pf-m-inline {
           text-decoration: none !important;
         }
@@ -1134,7 +1385,7 @@ const EditRolesPage: React.FunctionComponent = () => {
               onOpenChange={(isOpen) => setIsDesignOptionDropdownOpen(isOpen)}
               selected={selectedOption}
               onSelect={(_event, value) => {
-                setSelectedOption(value as 'option1' | 'option2' | 'option3');
+                setSelectedOption(value as 'option3' | 'option4' | 'option5');
                 setIsDesignOptionDropdownOpen(false);
               }}
               toggle={(toggleRef) => (
@@ -1144,14 +1395,15 @@ const EditRolesPage: React.FunctionComponent = () => {
                   isExpanded={isDesignOptionDropdownOpen}
                   style={{ minWidth: '450px' }}
                 >
-                  {selectedOption === 'option1' ? 'Option 1' : selectedOption === 'option2' ? 'Option 2' : '[UXD recommended] Option 3 - Show role labels in a separate column'}
+                  {selectedOption === 'option3'
+                    ? 'Original design'
+                    : 'Concept for testing'}
                 </MenuToggle>
               )}
             >
               <SelectList>
-                <SelectOption value="option1">Option 1</SelectOption>
-                <SelectOption value="option2">Option 2</SelectOption>
-                <SelectOption value="option3">[UXD recommended] Option 3 - Show role labels in a separate column</SelectOption>
+                <SelectOption value="option3">Original design</SelectOption>
+                <SelectOption value="option5">Concept for testing</SelectOption>
               </SelectList>
             </Select>
           </FlexItem>
@@ -1186,7 +1438,7 @@ const EditRolesPage: React.FunctionComponent = () => {
             <StackItem>
               <Title headingLevel="h2" size="lg">Subject</Title>
             <Form style={{ marginTop: '16px' }}>
-              {selectedOption !== 'option2' && selectedOption !== 'option3' && (
+              {!isOption2Or3Or4 && (
               <div className="pf-v6-c-form__group">
                 <div className="pf-v6-c-form__group-label">
                   <label className="pf-v6-c-form__label" htmlFor="subject-type">
@@ -1196,7 +1448,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                 <div className="pf-v6-c-form__group-control">{subjectType}</div>
               </div>
               )}
-              <div className="pf-v6-c-form__group" style={{ marginTop: (selectedOption !== 'option2' && selectedOption !== 'option3') ? 'var(--pf-v5-global--spacer--md)' : '0px' }}>
+              <div className="pf-v6-c-form__group" style={{ marginTop: !isOption2Or3Or4 ? 'var(--pf-v5-global--spacer--md)' : '0px' }}>
                 <div className="pf-v6-c-form__group-label">
                   <label className="pf-v6-c-form__label" htmlFor="subject-name">
                     <span className="pf-v6-c-form__label-text">
@@ -1206,7 +1458,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                   </label>
                 </div>
                 <div className="pf-v6-c-form__group-control">
-                  {(selectedOption === 'option2' || selectedOption === 'option3') ? (
+                  {isOption2Or3Or4 ? (
                     <div style={{ 
                       display: 'flex',
                       alignItems: 'center',
@@ -1263,7 +1515,9 @@ const EditRolesPage: React.FunctionComponent = () => {
           <StackItem style={{ marginTop: '40px' }}>
             <Title headingLevel="h2" size="lg">Role assignment</Title>
             <Content style={{ marginTop: '16px', marginBottom: '8px' }}>
-              Check the role to grant the relevant permissions.
+              {selectedOption === 'option4'
+                ? 'Check the role to grant the relevant permissions and specify the resources.'
+                : 'Check the role to grant the relevant permissions.'}
             </Content>
 
             <div style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
@@ -1276,18 +1530,26 @@ const EditRolesPage: React.FunctionComponent = () => {
               />
             </div>
 
-            <Table variant="compact" aria-label="Roles table">
+            <div style={selectedOption === 'option4' ? { width: '1200px' } : selectedOption === 'option5' ? { width: '960px' } : undefined}>
+            <Table
+              variant="compact"
+              aria-label="Roles table"
+              isExpandable={selectedOption === 'option5'}
+              hasAnimations={selectedOption === 'option5'}
+            >
               <Thead>
                 <Tr>
+                  {selectedOption === 'option5' && <Th screenReaderText="Row expansion" />}
                   <Th />
                   <Th 
-                    sort={(selectedOption === 'option2' || selectedOption === 'option3') ? getRoleNameSortParams() : undefined}
+                    sort={isOption2Or3Or4 ? getRoleNameSortParams() : undefined}
                   >
-                    {(selectedOption === 'option2' || selectedOption === 'option3') ? 'Role' : 'Role name'}
+                    {isOption2Or3Or4 ? 'Role' : 'Role name'}
                   </Th>
-                  <Th>Description</Th>
-                  {selectedOption === 'option3' && (
+                  <Th style={selectedOption === 'option4' ? { width: '320px' } : undefined}>Description</Th>
+                  {isOption3Or4 && (
                     <Th 
+                      style={selectedOption === 'option4' ? { width: '200px' } : undefined}
                       info={{
                         popover: (
                           <Content>
@@ -1321,7 +1583,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                     </Th>
                   )}
                   <Th 
-                    sort={selectedOption === 'option1' ? getStatusSortParams() : ((selectedOption === 'option2' || selectedOption === 'option3') ? getOption2StatusSortParams() : undefined)} 
+                    sort={getOption2StatusSortParams()} 
                     modifier="nowrap"
                         info={{
                           popover: (
@@ -1351,161 +1613,353 @@ const EditRolesPage: React.FunctionComponent = () => {
                   >
                     Assignment status
                   </Th>
+                  {selectedOption === 'option4' && (
+                    <Th
+                      style={{ width: '400px' }}
+                      info={{
+                        popover: (
+                          <Content>
+                            <Content component="p" style={{ marginBottom: '8px' }}>
+                              Resources indicate the scope of the role assignment (e.g. all workbenches or specific resources).
+                            </Content>
+                          </Content>
+                        ),
+                        ariaLabel: 'Resources help',
+                        popoverProps: { headerContent: 'Resources' }
+                      }}
+                    >
+                      Resources
+                    </Th>
+                  )}
                 </Tr>
               </Thead>
-              <Tbody>
-                {sortedRoles.length === 0 ? (
+              {sortedRoles.length === 0 ? (
+                <Tbody>
                   <Tr>
-                    <Td colSpan={selectedOption === 'option3' ? 5 : 4} style={{ textAlign: 'center', padding: 'var(--pf-v5-global--spacer--xl)' }}>
+                    <Td colSpan={selectedOption === 'option4' || selectedOption === 'option5' ? 6 : (isOption3Or4 ? 5 : 4)} style={{ textAlign: 'center', padding: 'var(--pf-v5-global--spacer--xl)' }}>
                       No roles available
                     </Td>
                   </Tr>
-                ) : (
-                  sortedRoles.map((role, rowIndex) => {
+                </Tbody>
+              ) : selectedOption === 'option5' ? (
+                sortedRoles.map((role, rowIndex) => {
                   const isExpanded = expandedRoles.has(role.id);
                   const status = getRoleStatus(role);
-                  const hasRules = role.rules && role.rules.length > 0;
-                  
                   return (
-                    <React.Fragment key={role.id}>
-                        <Tr className={isExpanded ? 'pf-m-expanded' : undefined}>
-                          {selectedOption === 'option1' ? (
+                    <Tbody key={role.id} isExpanded={isExpanded}>
+                      <Tr isContentExpanded={isExpanded}>
                         <Td
-                          treeRow={{
-                            onCollapse: () => toggleRoleExpansion(role.id),
-                            rowIndex: rowIndex,
-                            props: {
-                              'aria-level': 1,
-                              'aria-setsize': sortedRoles.length,
-                              'aria-posinset': rowIndex + 1,
-                                  'aria-expanded': isExpanded,
-                            },
+                          expand={{
+                            rowIndex,
+                            isExpanded,
+                            onToggle: () => toggleRoleExpansion(role.id),
+                            expandId: 'role-assignment-expandable',
                           }}
-                        >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--pf-v5-global--spacer--sm)' }}>
+                        />
+                        <Td>
                             <Checkbox
                               id={`role-${role.id}`}
                               isChecked={role.currentlyAssigned}
-                              onChange={() => handleRoleToggle(role.id)}
+                              onChange={() => handleRoleToggle(role)}
                               aria-label={`Select role ${role.name}`}
-                                  onClick={(e) => e.stopPropagation()}
                             />
-                          </div>
-                        </Td>
-                          ) : (
-                            <Td>
-                              <Checkbox
-                                id={`role-${role.id}`}
-                                isChecked={role.currentlyAssigned}
-                                onChange={() => handleRoleToggle(role.id)}
-                                aria-label={`Select role ${role.name}`}
-                              />
-                            </Td>
-                          )}
+                          </Td>
                           <Td>
-                            {selectedOption === 'option2' ? (
-                              <Flex spaceItems={{ default: 'spaceItemsXs' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                <Button
-                                  variant="link"
-                                  onClick={() => handleRoleNameClick(role)}
-                                  isInline
-                                  style={{ padding: 0, fontSize: 'inherit', textDecoration: 'none' }}
-                                  className="pf-v6-c-button__text"
-                                >
-                                  {role.name}
-                                </Button>
-                                {(() => {
-                                  const badge = renderRoleBadge(role);
-                                  return badge ? (
-                                    <>
-                                      <div style={{ width: '4px' }} />
-                                      {badge}
-                                    </>
-                                  ) : null;
-                                })()}
-                              </Flex>
-                            ) : selectedOption === 'option3' ? (
-                              <Button
-                                variant="link"
-                                onClick={() => handleRoleNameClick(role)}
-                                isInline
-                                style={{ padding: 0, fontSize: 'inherit', textDecoration: 'none' }}
-                                className="pf-v6-c-button__text"
-                              >
-                                {role.name}
-                              </Button>
-                            ) : (
-                          <div>
-                            <div>{role.name}</div>
-                                {(() => {
-                                  const badge = renderRoleBadge(role);
-                                  return badge ? (
-                              <div style={{ marginTop: 'var(--pf-v5-global--spacer--xs)' }}>
-                                      {badge}
-                              </div>
-                                  ) : null;
-                                })()}
-                          </div>
-                            )}
+                            <Button
+                              variant="link"
+                              onClick={() => handleRoleNameClick(role)}
+                              isInline
+                              style={{ padding: 0, fontSize: 'inherit', textDecoration: 'none' }}
+                              className="pf-v6-c-button__text"
+                            >
+                              {role.name}
+                            </Button>
                         </Td>
-                        <Td>{role.description}</Td>
-                          {selectedOption === 'option3' && (
-                            <Td>
+                        <Td style={(selectedOption as string) === 'option4' ? { width: '320px' } : undefined}>{role.description}</Td>
+                          {isOption3Or4 && (
+                            <Td style={(selectedOption as string) === 'option4' ? { width: '200px' } : undefined}>
                               {renderRoleTypeLabels(role)}
                             </Td>
                           )}
                         <Td>{renderStatusBadge(role)}</Td>
+                          {(selectedOption as string) === 'option4' && (
+                            <Td style={{ width: '400px' }}>
+                              {status !== '-' ? (
+                                isWorkbenchResourceRole(role)
+                                  ? renderResourceDropdown(
+                                      role,
+                                      MOCK_WORKBENCHES,
+                                      ALL_WORKBENCHES_VALUE,
+                                      'All workbenches',
+                                      'Find by workbench name',
+                                      'Select a workbench',
+                                      getWorkbenchSelectionForRole(role.id),
+                                      setRoleWorkbenchSelection,
+                                      workbenchSearchValue,
+                                      setWorkbenchSearchValue
+                                    )
+                                  : isPipelineResourceRole(role)
+                                    ? renderResourceDropdown(
+                                        role,
+                                        MOCK_PIPELINES,
+                                        ALL_PIPELINES_VALUE,
+                                        'All pipelines',
+                                        'Find by pipeline name',
+                                        'Select a pipeline',
+                                        getPipelineSelectionForRole(role.id),
+                                        setRolePipelineSelection,
+                                        pipelineSearchValue,
+                                        setPipelineSearchValue
+                                      )
+                                    : isDeploymentResourceRole(role)
+                                      ? renderResourceDropdown(
+                                          role,
+                                          MOCK_DEPLOYMENTS,
+                                          ALL_DEPLOYMENTS_VALUE,
+                                          'All deployments',
+                                          'Find by deployment name',
+                                          'Select a deployment',
+                                          getDeploymentSelectionForRole(role.id),
+                                          setRoleDeploymentSelection,
+                                          deploymentSearchValue,
+                                          setDeploymentSearchValue
+                                        )
+                                      : (
+                                  <Select
+                                    isOpen={openResourcesDropdownRoleId === role.id}
+                                    onOpenChange={(open) => setOpenResourcesDropdownRoleId(open ? role.id : null)}
+                                    selected={roleResourceSelection[role.id] ?? getDefaultResourceLabelForRole(role)}
+                                    onSelect={(_event, value) => {
+                                      setRoleResourceSelection((prev) => ({ ...prev, [role.id]: value as string }));
+                                      setOpenResourcesDropdownRoleId(null);
+                                    }}
+                                    toggle={(toggleRef) => (
+                                      <MenuToggle
+                                        ref={toggleRef}
+                                        onClick={() => setOpenResourcesDropdownRoleId(openResourcesDropdownRoleId === role.id ? null : role.id)}
+                                        isExpanded={openResourcesDropdownRoleId === role.id}
+                                        style={{ width: '400px', minWidth: '400px', backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)', color: 'var(--pf-v5-global--Color--100)' }}
+                                      >
+                                        {roleResourceSelection[role.id] ?? getDefaultResourceLabelForRole(role)}
+                                      </MenuToggle>
+                                    )}
+                                  >
+                                    <SelectList>
+                                      <SelectOption value={getDefaultResourceLabelForRole(role)}>{getDefaultResourceLabelForRole(role)}</SelectOption>
+                                    </SelectList>
+                                  </Select>
+                                      )
+                              ) : (
+                                '-'
+                              )}
+                            </Td>
+                          )}
                       </Tr>
-                        {isExpanded && selectedOption === 'option1' && (
-                        <Tr isExpanded={isExpanded}>
-                          <Td colSpan={4}>
-                            <div style={{ padding: 'var(--pf-v5-global--spacer--md)', marginLeft: 'var(--pf-v5-global--spacer--xl)' }}>
-                                <div style={{ marginBottom: 'var(--pf-v5-global--spacer--sm)', fontWeight: 600 }}>
-                                  Rules
-                                </div>
-                                {hasRules && role.rules && role.rules.length > 0 ? (
-                              <Table variant="compact" aria-label="Role rules">
+                      <Tr isExpanded={isExpanded}>
+                        <Td
+                          noPadding
+                          dataLabel="Details expanded"
+                          colSpan={6}
+                        >
+                          <ExpandableRowContent>
+                            <div style={{ padding: 'var(--pf-v5-global--spacer--md)', paddingLeft: '4.5rem' }}>
+                              <Content style={{ fontWeight: 600, marginBottom: 'var(--pf-v5-global--spacer--sm)', marginLeft: '16px' }}>Resource scoping</Content>
+                              <Table variant="compact" aria-label="Role resources table" style={{ marginLeft: '-8px', marginBottom: '8px' }}>
                                 <Thead>
                                   <Tr>
-                                    <Th>Actions</Th>
-                                        <Th>
-                                          API groups
-                                          <ChevronUpIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
-                                          <ChevronDownIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
-                                        </Th>
-                                        <Th>Resource type</Th>
-                                        <Th>
-                                          Resource names
-                                          <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
-                                        </Th>
+                                    <Th style={{ width: '220px' }}>Actions</Th>
+                                    <Th>API groups</Th>
+                                    <Th>Resources</Th>
+                                    <Th>
+                                      Resource names
+                                      <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
+                                    </Th>
                                   </Tr>
                                 </Thead>
                                 <Tbody>
-                                  {role.rules.map((rule, index) => (
-                                    <Tr key={index}>
-                                      <Td>{rule.actions.join(', ')}</Td>
-                                      <Td>{rule.apiGroups.join(', ')}</Td>
-                                      <Td>{rule.resources.join(', ')}</Td>
-                                      <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
+                                  {role.rules && role.rules.length > 0 ? (
+                                    role.rules.map((rule, ruleIndex) => (
+                                      <Tr key={ruleIndex}>
+                                        <Td style={{ width: '220px' }}>{rule.actions.join(', ')}</Td>
+                                        <Td>{rule.apiGroups.join(', ')}</Td>
+                                        <Td>{getResourcesLabelForRole(role)}</Td>
+                                        <Td>
+                                          {(role.name === 'Admin' || role.name === 'Contributor')
+                                            ? 'All resources'
+                                            : ruleIndex === 0 &&
+                                              (isWorkbenchResourceRole(role) || isPipelineResourceRole(role) || isDeploymentResourceRole(role))
+                                              ? isWorkbenchResourceRole(role)
+                                                ? renderResourceDropdown(
+                                                    role,
+                                                    MOCK_WORKBENCHES,
+                                                    ALL_WORKBENCHES_VALUE,
+                                                    'All workbenches',
+                                                    'Find by workbench name',
+                                                    'Select a workbench',
+                                                    getWorkbenchSelectionForRole(role.id),
+                                                    setRoleWorkbenchSelection,
+                                                    workbenchSearchValue,
+                                                    setWorkbenchSearchValue,
+                                                    !role.currentlyAssigned
+                                                  )
+                                                : isPipelineResourceRole(role)
+                                                  ? renderResourceDropdown(
+                                                      role,
+                                                      MOCK_PIPELINES,
+                                                      ALL_PIPELINES_VALUE,
+                                                      'All pipelines',
+                                                      'Find by pipeline name',
+                                                      'Select a pipeline',
+                                                      getPipelineSelectionForRole(role.id),
+                                                      setRolePipelineSelection,
+                                                      pipelineSearchValue,
+                                                      setPipelineSearchValue,
+                                                      !role.currentlyAssigned
+                                                    )
+                                                  : renderResourceDropdown(
+                                                      role,
+                                                      MOCK_DEPLOYMENTS,
+                                                      ALL_DEPLOYMENTS_VALUE,
+                                                      'All deployments',
+                                                      'Find by deployment name',
+                                                      'Select a deployment',
+                                                      getDeploymentSelectionForRole(role.id),
+                                                      setRoleDeploymentSelection,
+                                                      deploymentSearchValue,
+                                                      setDeploymentSearchValue,
+                                                      !role.currentlyAssigned
+                                                    )
+                                              : (rule.resourceNames?.join(', ') || '-')}
+                                        </Td>
+                                      </Tr>
+                                    ))
+                                  ) : (
+                                    <Tr>
+                                      <Td colSpan={4}>No rules available</Td>
                                     </Tr>
-                                  ))}
+                                  )}
                                 </Tbody>
                               </Table>
-                                ) : (
-                                  <div style={{ color: 'var(--pf-v5-global--Color--200)', padding: 'var(--pf-v5-global--spacer--sm)' }}>
-                                    No rules available
-                                  </div>
-                                )}
                             </div>
-                          </Td>
-                        </Tr>
-                      )}
-                    </React.Fragment>
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    </Tbody>
                   );
-                  })
-                )}
-              </Tbody>
+                })
+              ) : (
+                <Tbody>
+                  {sortedRoles.map((role) => {
+                    const status = getRoleStatus(role);
+                    return (
+                      <React.Fragment key={role.id}>
+                        <Tr>
+                          <Td>
+                            <Checkbox
+                              id={`role-${role.id}`}
+                              isChecked={role.currentlyAssigned}
+                              onChange={() => handleRoleToggle(role)}
+                              aria-label={`Select role ${role.name}`}
+                            />
+                          </Td>
+                          <Td>
+                            <Button
+                              variant="link"
+                              onClick={() => handleRoleNameClick(role)}
+                              isInline
+                              style={{ padding: 0, fontSize: 'inherit', textDecoration: 'none' }}
+                              className="pf-v6-c-button__text"
+                            >
+                              {role.name}
+                            </Button>
+                          </Td>
+                          <Td style={selectedOption === 'option4' ? { width: '320px' } : undefined}>{role.description}</Td>
+                          {isOption3Or4 && (
+                            <Td style={selectedOption === 'option4' ? { width: '200px' } : undefined}>
+                              {renderRoleTypeLabels(role)}
+                            </Td>
+                          )}
+                          <Td>{renderStatusBadge(role)}</Td>
+                          {selectedOption === 'option4' && (
+                            <Td style={{ width: '400px' }}>
+                              {status !== '-' ? (
+                                isWorkbenchResourceRole(role)
+                                  ? renderResourceDropdown(
+                                      role,
+                                      MOCK_WORKBENCHES,
+                                      ALL_WORKBENCHES_VALUE,
+                                      'All workbenches',
+                                      'Find by workbench name',
+                                      'Select a workbench',
+                                      getWorkbenchSelectionForRole(role.id),
+                                      setRoleWorkbenchSelection,
+                                      workbenchSearchValue,
+                                      setWorkbenchSearchValue
+                                    )
+                                  : isPipelineResourceRole(role)
+                                    ? renderResourceDropdown(
+                                        role,
+                                        MOCK_PIPELINES,
+                                        ALL_PIPELINES_VALUE,
+                                        'All pipelines',
+                                        'Find by pipeline name',
+                                        'Select a pipeline',
+                                        getPipelineSelectionForRole(role.id),
+                                        setRolePipelineSelection,
+                                        pipelineSearchValue,
+                                        setPipelineSearchValue
+                                      )
+                                    : isDeploymentResourceRole(role)
+                                      ? renderResourceDropdown(
+                                          role,
+                                          MOCK_DEPLOYMENTS,
+                                          ALL_DEPLOYMENTS_VALUE,
+                                          'All deployments',
+                                          'Find by deployment name',
+                                          'Select a deployment',
+                                          getDeploymentSelectionForRole(role.id),
+                                          setRoleDeploymentSelection,
+                                          deploymentSearchValue,
+                                          setDeploymentSearchValue
+                                        )
+                                      : (
+                                  <Select
+                                    isOpen={openResourcesDropdownRoleId === role.id}
+                                    onOpenChange={(open) => setOpenResourcesDropdownRoleId(open ? role.id : null)}
+                                    selected={roleResourceSelection[role.id] ?? getDefaultResourceLabelForRole(role)}
+                                    onSelect={(_event, value) => {
+                                      setRoleResourceSelection((prev) => ({ ...prev, [role.id]: value as string }));
+                                      setOpenResourcesDropdownRoleId(null);
+                                    }}
+                                    toggle={(toggleRef) => (
+                                      <MenuToggle
+                                        ref={toggleRef}
+                                        onClick={() => setOpenResourcesDropdownRoleId(openResourcesDropdownRoleId === role.id ? null : role.id)}
+                                        isExpanded={openResourcesDropdownRoleId === role.id}
+                                        style={{ width: '400px', minWidth: '400px', backgroundColor: 'var(--pf-v5-global--BackgroundColor--200)', color: 'var(--pf-v5-global--Color--100)' }}
+                                      >
+                                        {roleResourceSelection[role.id] ?? getDefaultResourceLabelForRole(role)}
+                                      </MenuToggle>
+                                    )}
+                                  >
+                                    <SelectList>
+                                      <SelectOption value={getDefaultResourceLabelForRole(role)}>{getDefaultResourceLabelForRole(role)}</SelectOption>
+                                    </SelectList>
+                                  </Select>
+                                      )
+                              ) : (
+                                '-'
+                              )}
+                            </Td>
+                          )}
+                        </Tr>
+                      </React.Fragment>
+                    );
+                  })}
+                </Tbody>
+              )}
             </Table>
+            </div>
           </StackItem>
         </Stack>
         </div>
@@ -1887,6 +2341,9 @@ const EditRolesPage: React.FunctionComponent = () => {
               }
               return null;
             })()}
+            <StackItem>
+              <Alert variant={AlertVariant.info} isInline title="Make sure to inform the specified user about the updated role assignments." />
+            </StackItem>
           </Stack>
         </ModalBody>
         <div style={{ padding: '24px' }}>
