@@ -20,14 +20,14 @@
    - Reads directly from shared data (mockUsers/mockGroups) to reflect saved changes
    - Re-initializes roles when navigating to the page to get latest shared data
    - **Design Option Toggle**: Dropdown with "Original design" and "Concept for testing" (Archived hidden)
-   - **Concept for testing**: Expandable Role assignment table with Resource scoping (label + inner table), Resource names dropdown (400px; disabled when role not selected with tooltip; Admin/Contributor show "All resources" plain text). Save enabled for role or resource scoping changes; Confirm modal only when role assignment changes. Expand icon shows right/down (no custom rotation).
+   - **Concept for testing** (default when opening page): Expandable Role assignment table with Resource scoping (label + inner table), Resource names dropdown (400px; disabled when role not selected with tooltip; Admin/Contributor show "All resources" plain text). Save enabled for role or resource scoping changes; Confirm modal only when role assignment changes. Expand icon shows right/down. Inner table: Actions show full verb list when data has '*'; empty API groups show '*'; Resources column shows rule.resources; namespaces row shows projectId; Resource names header has popover ("Specify the resource instances. The empty resource names mean that you don't need to configure."). Workbench maintainer and Workbench updater have extended rule rows per reference.
    - **Confirm modal**: Info alert above buttons: "Make sure to inform the specified user about the updated role assignments."
    - **Expandable Rules Section**: All roles have expandable rows showing rules (treeRow, rules table). Checkbox and expand arrow in same cell.
    - **Role Descriptions** and **Rule Data**: Comprehensive rule data for all roles
 
 3. **`src/app/Projects/RoleAssignmentPage.tsx`**
    - **Complete redesign**: Reused structure and layout from EditRolesPage
-   - **Option 2 (Concept for testing)**: Role assignment reuses same expandable table and Resource scoping as Manage roles (resource dropdown 400px, disabled + tooltip when role not selected; Admin/Contributor "All resources"). assignRolesVariant defaults from URL `?option=2`; option2 wrapper `key="option2-role-table"`.
+   - **Option 2 (Concept for testing)** (default when opening page unless `?option=1`): Role assignment reuses same expandable table and Resource scoping as Manage roles (resource dropdown 400px, disabled + tooltip when role not selected; Admin/Contributor "All resources"). Same Actions/API groups/Resources display and Resource names popover as Manage roles. assignRolesVariant defaults to option2 unless URL has `?option=1`; option2 wrapper `key="option2-role-table"`.
    - **Confirm modal**: Same info alert above buttons as Manage roles.
    - **Subject Section**:
      - Subject type: Two radio buttons (User/Group), User selected by default
@@ -379,6 +379,21 @@ interface User {
     - Admin and Contributor show plain text "All resources" in the expandable list.
     - Option 2 table wrapper has `key="option2-role-table"` so the table remounts correctly when switching options.
     - Helpers and `renderResourceDropdown` (with isDisabled and tooltip) added to RoleAssignmentPage for Option 2; handleRoleToggle initializes resource selection when enabling a role in Option 2.
+
+12. **Default UI when opening pages:**
+    - **Assign roles:** Option 2 (Concept for testing) is the default when users open the page (no URL param or any value other than `?option=1`). Only `?option=1` shows Option 1 (original design).
+    - **Manage roles:** Concept for testing is the default when users open the page. Only `?designOption=option3` shows Original design.
+
+13. **Workbench maintainer – Expandable list rules (Concept for testing):**
+    - First row: Actions create/delete/deletecollection/get/list/patch/update/watch, API groups api.workbench.group, Resource Workbench, Resource names = Workbench selection dropdown ("All workbenches" etc.).
+    - Following rows from reference: namespaces (resource names = current project name in plain text), notebooks, imagestreams, persistentvolumeclaims, persistentvolumeclaims/status, pods/statefulsets, secrets/configmaps, hardwareprofiles, events. Resources column shows each rule's actual resources (rule.resources.join), not role-based "Workbenches".
+    - **Display rules:** When verbs include '*', Actions column shows "create, delete, deletecollection, get, list, patch, update, watch". When API groups are empty ('' or []), API groups column shows '*'. For rule with resources including 'namespaces', Resource names column shows projectId (current project name).
+
+14. **Workbench updater – Expandable list rules (Concept for testing):**
+    - Kept existing first row (Workbenches, api.groups.name, get/list/patch/update/watch). Added 9 rows: namespaces (resource names = projectId), notebooks (get, watch, list, update, patch), imagestreams, persistentvolumeclaims, persistentvolumeclaims/status, pods/statefulsets, secrets/configmaps, hardwareprofiles, events. Same display rules as Workbench maintainer for '*' and empty API groups.
+
+15. **Resource names column header – Popover:**
+    - Question mark after "Resource names" in the expandable rules table (and in role details modal rules table) opens a popover. Content: "Specify the resource instances. The empty resource names mean that you don't need to configure." Click icon to toggle; showClose; uses existing openPopovers state (ids: resource-names-header-popover, resource-names-modal-popover). Applied in both Manage roles and Assign roles pages.
 
 ## Previous Changes (Earlier Sessions)
 

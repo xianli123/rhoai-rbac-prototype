@@ -147,18 +147,16 @@ const mockRoles: Role[] = [
     originallyAssigned: true,
     currentlyAssigned: true,
     rules: [
-      {
-        actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'],
-        apiGroups: ['api.groups.name'],
-        resources: ['Workbenches'],
-        resourceNames: undefined,
-      },
-      {
-        actions: ['get', 'list', 'patch'],
-        apiGroups: ['api.groups.name.aa'],
-        resources: ['Project'],
-        resourceNames: ['project name'],
-      },
+      { actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'], apiGroups: ['api.workbench.group'], resources: ['Workbench'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
+      { actions: ['*'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
+      { actions: ['*'], apiGroups: [''], resources: ['persistentvolumeclaims'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['persistentvolumeclaims/status'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['pods', 'statefulsets'], resourceNames: undefined },
+      { actions: ['*'], apiGroups: [''], resources: ['secrets', 'configmaps'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: ['infrastructure.opendatahub.io'], resources: ['hardwareprofiles'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['events'], resourceNames: undefined },
     ],
   },
   {
@@ -191,6 +189,15 @@ const mockRoles: Role[] = [
         resources: ['Workbenches'],
         resourceNames: undefined,
       },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list', 'update', 'patch'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
+      { actions: ['*'], apiGroups: [''], resources: ['persistentvolumeclaims'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['persistentvolumeclaims/status'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['pods', 'statefulsets'], resourceNames: undefined },
+      { actions: ['*'], apiGroups: [''], resources: ['secrets', 'configmaps'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: ['infrastructure.opendatahub.io'], resources: ['hardwareprofiles'], resourceNames: undefined },
+      { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['events'], resourceNames: undefined },
     ],
   },
   {
@@ -484,7 +491,7 @@ const EditRolesPage: React.FunctionComponent = () => {
   });
   const [option2ActiveSort, setOption2ActiveSort] = React.useState<'roleName' | 'status'>('roleName');
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedOption, setSelectedOption] = React.useState<'option3' | 'option4' | 'option5'>('option3');
+  const [selectedOption, setSelectedOption] = React.useState<'option3' | 'option4' | 'option5'>(() => (designOptionFromUrl === 'option3' ? 'option3' : 'option5'));
   const isOption3Or4 = true;
   const isOption2Or3Or4 = true;
   const [isDesignOptionDropdownOpen, setIsDesignOptionDropdownOpen] = React.useState(false);
@@ -1772,7 +1779,33 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                                     <Th>Resources</Th>
                                     <Th>
                                       Resource names
-                                      <OutlinedQuestionCircleIcon style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)' }} />
+                                      <Popover
+                                        position="bottom"
+                                        bodyContent="Specify the resource instances. The empty resource names mean that you don't need to configure."
+                                        showClose
+                                        isVisible={openPopovers.has('resource-names-header-popover')}
+                                        shouldClose={() => {
+                                          setOpenPopovers((prev) => {
+                                            const next = new Set(prev);
+                                            next.delete('resource-names-header-popover');
+                                            return next;
+                                          });
+                                          return true;
+                                        }}
+                                      >
+                                        <span
+                                          style={{ marginLeft: '8px', color: 'var(--pf-v5-global--Color--200)', cursor: 'pointer', display: 'inline-flex' }}
+                                          onClick={() => setOpenPopovers((prev) => {
+                                            const next = new Set(prev);
+                                            if (next.has('resource-names-header-popover')) next.delete('resource-names-header-popover');
+                                            else next.add('resource-names-header-popover');
+                                            return next;
+                                          })}
+                                          aria-label="Resource names help"
+                                        >
+                                          <OutlinedQuestionCircleIcon />
+                                        </span>
+                                      </Popover>
                                     </Th>
                                   </Tr>
                                 </Thead>
@@ -1780,15 +1813,17 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                                   {role.rules && role.rules.length > 0 ? (
                                     role.rules.map((rule, ruleIndex) => (
                                       <Tr key={ruleIndex}>
-                                        <Td style={{ width: '220px' }}>{rule.actions.join(', ')}</Td>
-                                        <Td>{rule.apiGroups.join(', ')}</Td>
-                                        <Td>{getResourcesLabelForRole(role)}</Td>
+                                        <Td style={{ width: '220px' }}>{rule.actions.includes('*') ? 'create, delete, deletecollection, get, list, patch, update, watch' : rule.actions.join(', ')}</Td>
+                                        <Td>{(rule.apiGroups.length === 0 || (rule.apiGroups.length === 1 && rule.apiGroups[0] === '')) ? '*' : rule.apiGroups.join(', ')}</Td>
+                                        <Td>{rule.resources.join(', ')}</Td>
                                         <Td>
                                           {(role.name === 'Admin' || role.name === 'Contributor')
                                             ? 'All resources'
-                                            : ruleIndex === 0 &&
-                                              (isWorkbenchResourceRole(role) || isPipelineResourceRole(role) || isDeploymentResourceRole(role))
-                                              ? isWorkbenchResourceRole(role)
+                                            : rule.resources.includes('namespaces')
+                                              ? projectId
+                                              : ruleIndex === 0 &&
+                                                (isWorkbenchResourceRole(role) || isPipelineResourceRole(role) || isDeploymentResourceRole(role))
+                                                ? isWorkbenchResourceRole(role)
                                                 ? renderResourceDropdown(
                                                     role,
                                                     MOCK_WORKBENCHES,
@@ -2049,7 +2084,33 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                       </Th>
                       <Th sort={getRulesSortParams(3)}>
                         Resource names
-                        <OutlinedQuestionCircleIcon style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)' }} />
+                        <Popover
+                          position="bottom"
+                          bodyContent="Specify the resource instances. The empty resource names mean that you don't need to configure."
+                          showClose
+                          isVisible={openPopovers.has('resource-names-modal-popover')}
+                          shouldClose={() => {
+                            setOpenPopovers((prev) => {
+                              const next = new Set(prev);
+                              next.delete('resource-names-modal-popover');
+                              return next;
+                            });
+                            return true;
+                          }}
+                        >
+                          <span
+                            style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)', cursor: 'pointer', display: 'inline-flex' }}
+                            onClick={() => setOpenPopovers((prev) => {
+                              const next = new Set(prev);
+                              if (next.has('resource-names-modal-popover')) next.delete('resource-names-modal-popover');
+                              else next.add('resource-names-modal-popover');
+                              return next;
+                            })}
+                            aria-label="Resource names help"
+                          >
+                            <OutlinedQuestionCircleIcon />
+                          </span>
+                        </Popover>
                       </Th>
                     </Tr>
                   </Thead>
