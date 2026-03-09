@@ -1435,7 +1435,7 @@ const hasRoleAssignmentChanges = roles.some((role) => {
           Manage roles
         </Title>
         <Content style={{ marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
-          Description goes here.
+          Edit the role assignments of the user <span style={{ fontWeight: 600 }}>{subjectName}</span>.
         </Content>
       </PageSection>
 

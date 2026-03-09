@@ -22,6 +22,7 @@
    - **Design Option Toggle**: Dropdown with "Original design" and "Concept for testing" (Archived hidden)
    - **Concept for testing** (default when opening page): Expandable Role assignment table with Resource scoping (label + inner table), Resource names dropdown (400px; disabled when role not selected with tooltip; Admin/Contributor show "All resources" plain text). Save enabled for role or resource scoping changes; Confirm modal only when role assignment changes. Expand icon shows right/down. Inner table: Actions show full verb list when data has '*'; empty API groups show '*'; Resources column shows rule.resources; namespaces row shows projectId; Resource names header has popover ("Specify the resource instances. The empty resource names mean that you don't need to configure."). Workbench maintainer and Workbench updater have extended rule rows per reference.
    - **Confirm modal**: Info alert above buttons: "Make sure to inform the specified user about the updated role assignments."
+   - **Page description:** Under "Manage roles" heading: "Edit the role assignments of the user " + subject name in semibold (no quotes). All design options.
    - **Expandable Rules Section**: All roles have expandable rows showing rules (treeRow, rules table). Checkbox and expand arrow in same cell.
    - **Role Descriptions** and **Rule Data**: Comprehensive rule data for all roles
 
@@ -394,6 +395,9 @@ interface User {
 
 15. **Resource names column header – Popover:**
     - Question mark after "Resource names" in the expandable rules table (and in role details modal rules table) opens a popover. Content: "Specify the resource instances. The empty resource names mean that you don't need to configure." Click icon to toggle; showClose; uses existing openPopovers state (ids: resource-names-header-popover, resource-names-modal-popover). Applied in both Manage roles and Assign roles pages.
+
+16. **Manage roles page – Description (all design options):**
+    - Replaced "Description goes here." under the "Manage roles" heading with: "Edit the role assignments of the user " + subject name (from URL subjectName) + "." Subject name is rendered in semibold (fontWeight: 600), no quotes. Applies to both Original design and Concept for testing.
 
 ## Previous Changes (Earlier Sessions)
 
