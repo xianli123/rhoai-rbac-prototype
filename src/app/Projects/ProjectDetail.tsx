@@ -101,6 +101,25 @@ interface RoleRule {
   resourceNames: string;
 }
 
+const getRoleDescription = (roleName: string): string => {
+  const descriptions: Record<string, string> = {
+    'Admin': 'User can edit the project and manage user access. User can view and manage any project resource.',
+    'Contributor': 'User can view and manage any project resource. Users with this role can manage all resources in the namespace, including workbenches, model deployments, and cluster storage, except for permissions controlling.',
+    'Deployment maintainer': 'User can view and manage all model deployments.',
+    'Deployment reader': 'User can view and open model deployments without modifying their configuration.',
+    'Deployment updater': 'User can view model deployments and update existing deployments.',
+    'Deployments access': 'User can access and interact with deployments.',
+    'Pipeline maintainer': 'User can view and manage all pipelines.',
+    'Pipeline reader': 'User can view and open pipelines without modifying their configuration.',
+    'Pipeline updater': 'User can view pipelines and modify their configuration, but cannot create or delete them.',
+    'Workbench maintainer': 'User can view and manage all workbenches. Applies to all workbenches.',
+    'Workbench reader': 'User can view and open workbenches without modifying their configuration.',
+    'Workbench updater': 'User can view workbenches and modify their configuration, but cannot create or delete them.',
+    'custom-pipeline-super-user': 'Custom OpenShift role with pipeline super user permissions.',
+  };
+  return descriptions[roleName] || '';
+};
+
 const getRoleRules = (roleName: string): RoleRule[] => {
   // Mock data - in real app, this would come from API
   if (roleName === 'Admin') {
@@ -1339,9 +1358,6 @@ const ProjectDetail: React.FunctionComponent = () => {
       <PageSection isFilled>
         {activeTabKey === 'permissions' && (
           <>
-            <div className="pf-v6-l-stack__item" style={{ margin: '15px 0' }}>
-              Add users and groups that can access the project.
-            </div>
 
             {/* Toolbar */}
             <div style={{ marginBottom: 'var(--pf-v5-global--spacer--lg)' }}>
@@ -1464,7 +1480,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                   >
                     <Thead className="pf-v6-c-table__thead pf-m-nowrap">
                       <Tr>
-                        <Th sort={getUsersSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Name</Th>
+                        <Th sort={getUsersSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Username</Th>
                         <Th 
                           className="pf-v6-c-table__th pf-m-width-20"
                           info={rolesVariant === 'option1' || rolesVariant === 'option2' ? {
@@ -1584,6 +1600,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                                     toggleKebabMenu(`user-${user.id}-${roleIndex}`);
                                   }
                                 }}
+                                popperProps={{ position: 'end' }}
                                 toggle={(toggleRef) => (
                                   <MenuToggle
                                     ref={toggleRef}
@@ -1654,7 +1671,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                   >
                     <Thead className="pf-v6-c-table__thead pf-m-nowrap">
                       <Tr>
-                        <Th sort={getGroupsSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Name</Th>
+                        <Th sort={getGroupsSortParams(0)} className="pf-v6-c-table__th pf-m-width-30">Group name</Th>
                         <Th 
                           className="pf-v6-c-table__th pf-m-width-20"
                           info={rolesVariant === 'option1' || rolesVariant === 'option2' ? {
@@ -1774,6 +1791,7 @@ const ProjectDetail: React.FunctionComponent = () => {
                                     toggleKebabMenu(`group-${group.id}-${roleIndex}`);
                                   }
                                 }}
+                                popperProps={{ position: 'end' }}
                                 toggle={(toggleRef) => (
                                   <MenuToggle
                                     ref={toggleRef}
@@ -1831,7 +1849,7 @@ const ProjectDetail: React.FunctionComponent = () => {
               {selectedRole && renderModalHeaderRoleTypeLabels(selectedRole.name, selectedRole.roleType)}
             </div>
           }
-          description="Edit the project and manage user access"
+          description={selectedRole ? getRoleDescription(selectedRole.name) : undefined}
         />
         <ModalBody>
           <Tabs

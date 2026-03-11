@@ -2228,14 +2228,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         aria-labelledby="save-confirm-modal-title"
       >
         <ModalHeader
-          title="Confirm role assignment changes?"
+          title="Save role assignment changes?"
           titleIconVariant="warning"
         />
         <ModalBody>
           <Stack hasGutter>
             <StackItem>
               <Content>
-                The roles of <span style={{ fontWeight: 600 }}>{selectedSubject}</span> will be changed as listed below.
+                The following role assignment changes will be applied to the {subjectType === 'Group' ? 'group' : 'user'} <span style={{ fontWeight: 600 }}>{selectedSubject}</span>.
               </Content>
             </StackItem>
             <StackItem>
@@ -2362,8 +2362,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                               style={{ padding: 0, fontSize: 'inherit' }}
                             >
                               {isAssigningExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
-                              <span style={{ marginLeft: '4px' }}>Assigning roles</span>
-                              <Label isCompact style={{ marginLeft: '8px' }}>{assigningRoles.length}</Label>
+                              <span style={{ marginLeft: '4px' }}>Assigning {assigningRoles.length} roles</span>
                             </Button>
                           </StackItem>
                           {isAssigningExpanded && (
@@ -2404,8 +2403,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                               style={{ padding: 0, fontSize: 'inherit' }}
                             >
                               {isUnassigningExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
-                              <span style={{ marginLeft: '4px' }}>Unassigning roles</span>
-                              <Label isCompact style={{ marginLeft: '8px' }}>{unassigningRoles.length}</Label>
+                              <span style={{ marginLeft: '4px' }}>Unassigning {unassigningRoles.length} roles</span>
                             </Button>
                           </StackItem>
                           {isUnassigningExpanded && (
@@ -2498,7 +2496,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   return !!(willLoseAllRoles && selectedSubject && confirmInputValue !== selectedSubject);
                 })()}
               >
-                Confirm
+                Save
               </Button>
             </div>
             <div className="pf-v6-c-action-list__item">

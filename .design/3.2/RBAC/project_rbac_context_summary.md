@@ -591,6 +591,24 @@ interface User {
 
 ## Latest Session Updates (Current)
 
+1. **Permissions Tab – Kebab Menu Opens to the Left:**
+   - Added `popperProps={{ position: 'end' }}` to both Users and Groups kebab `Dropdown` components in `ProjectDetail.tsx`
+   - The dropdown panel's right edge now aligns with the toggle's right edge, so the menu extends leftward instead of rightward
+   - Applied to both the Users table and the Groups table kebab menus
+
+2. **Save Confirmation Modal – Updated Title, Description, Button, and Group Headers:**
+   - **Title**: "Confirm role assignment changes?" → "Save role assignment changes?"
+   - **Description**: "The roles of **[Name]** will be changed as listed below." → "The following role assignment changes will be applied to the user **[Name]**." (uses "group" when `subjectType === 'Group'`)
+   - **Primary button**: "Confirm" → "Save"
+   - **Group header badges removed**: Count is now embedded inline in the header text instead of a separate `<Label>` badge
+     - "Assigning roles `2`" → "Assigning 2 roles"
+     - "Unassigning roles `2`" → "Unassigning 2 roles"
+   - Applied in both `RoleAssignmentPage.tsx` and `EditRolesPage.tsx`
+
+---
+
+## Previous Latest Session Updates
+
 1. **Page Headers Renamed to 'Manage permissions':**
    - Changed `<Title>` and `<BreadcrumbItem>` on both pages from their old titles to "Manage permissions"
    - Assign roles page (`RoleAssignmentPage.tsx`): "Assign roles" → "Manage permissions"
