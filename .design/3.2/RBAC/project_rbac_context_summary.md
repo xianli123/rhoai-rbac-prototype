@@ -591,6 +591,68 @@ interface User {
 
 ## Latest Session Updates (Current)
 
+1. **Page Headers Renamed to 'Manage permissions':**
+   - Changed `<Title>` and `<BreadcrumbItem>` on both pages from their old titles to "Manage permissions"
+   - Assign roles page (`RoleAssignmentPage.tsx`): "Assign roles" → "Manage permissions"
+   - Manage roles page (`EditRolesPage.tsx`): "Manage roles" → "Manage permissions"
+   - All other text/labels that still say "Assign roles" or "Manage roles" (comparison bars, option labels, code comments, etc.) are unchanged
+
+2. **Typeahead Dropdown – 'Users with existing assignment' Group Header:**
+   - Replaced `TypeaheadSelect` from `@patternfly/react-templates` with a fully custom implementation using lower-level PatternFly components (`Select`, `MenuToggle`, `TextInputGroup`, `TextInputGroupMain`, `TextInputGroupUtilities`)
+   - When the user types something that matches existing subjects, a non-selectable group header "Users with existing assignment" (or "Groups with existing assignment") appears above those matches
+   - The "Assign role to '[input]'" option always appears at the top, above the group header
+   - Group header is hidden when there are no matching existing subjects
+   - Removed `typeaheadKey` state (no longer needed with custom implementation)
+
+3. **Role Type Column Header – Popover Content Updated:**
+   - Updated popover body in the 'Role type' column header of the role assignment table
+   - New content is a bullet list explaining AI roles, OpenShift default roles, and OpenShift custom roles
+   - Applied in both `RoleAssignmentPage.tsx` and `EditRolesPage.tsx`
+
+4. **Assignment Status Column Header – Popover Content Updated:**
+   - Updated popover body in the 'Assignment status' column header
+   - New bullet list: Assigned (role is applied), Assigning (will be applied on save), Unassigning (will be revoked on save)
+   - Applied in both pages
+
+5. **'Currently assigned' → 'Assigned' in Table Cells:**
+   - Renamed status label from "Currently assigned" to "Assigned" throughout the role assignment table (cell rendering, `getAssignmentStatus`, `getStatusPriority`, `renderAssignmentStatus` / `renderStatusBadge`)
+   - Applied in both `RoleAssignmentPage.tsx` and `EditRolesPage.tsx`
+
+6. **Workbench Maintainer & Updater – 6 New Resource Name Dropdowns:**
+   - Added resource name dropdowns for all non-namespace, non-Workbench rules in both roles:
+     - notebooks → workbench dropdown (reuses MOCK_WORKBENCHES)
+     - imagestreams → MOCK_IMAGESTREAMS dropdown
+     - persistentvolumeclaims → MOCK_PVCS dropdown
+     - pods / statefulsets → MOCK_PODS dropdown
+     - secrets / configmaps → MOCK_ENV_VARS dropdown
+     - hardwareprofiles → MOCK_HARDWARE_PROFILES dropdown
+   - Each dropdown uses a unique `dropdownId = '${role.id}-${ruleIndex}'`
+   - Mock data (`MOCK_IMAGESTREAMS`, `MOCK_PVCS`, `MOCK_PODS`, `MOCK_ENV_VARS`, `MOCK_HARDWARE_PROFILES`) includes `description` field for each item (consistent with MOCK_WORKBENCHES)
+   - New state variables and helper functions added for each resource type (e.g. `roleImagestreamSelection`, `getImagestreamSelectionForRole`)
+   - Applied in both pages
+
+7. **Workbench Maintainer & Updater – First Rule Row Removed:**
+   - Removed the first rule (resources: ['Workbench'] / ['Workbenches']) from the mock data for both Workbench maintainer and Workbench updater in both pages
+   - The resource scoping table now starts with the namespaces row
+
+8. **Resource Dropdown – Placeholder Text Singularized:**
+   - 'Select imagestreams' → 'Select an imagestream'
+   - 'Select PVCs' → 'Select a PVC'
+   - 'Select pods' → 'Select a pod'
+   - 'Select environment variables' → 'Select an environment variable'
+   - 'Select hardware profiles' → 'Select a hardware profile'
+   - Applied in both pages
+
+9. **Resource Dropdown – Multiple Dropdown Fix (MenuContainer ref stability):**
+   - **Root cause**: `renderResourceDropdown` created a new getter/setter proxy object (`menuRefObj`) on every render; PatternFly's `MenuContainer` held a stale reference, so menus for new dropdowns never opened
+   - **Fix**: Replaced unstable getter/setter proxy with a stable `{ current: null }` object cached in `resourceMenuRefMap` per `did`. Each dropdown now reuses the same object across renders
+   - Also fixed a one-line bug in `RoleAssignmentPage.tsx` where `TextInputGroupMain`'s `onClick` used `role.id` instead of `did`, causing non-first-rule dropdowns to target the wrong state slot
+   - Applied in both `RoleAssignmentPage.tsx` and `EditRolesPage.tsx`
+
+---
+
+## Previous Session Updates
+
 1. **OpenShift Custom Roles Filtering Fix:**
    - Fixed bug where all OpenShift custom roles were showing when user had any OpenShift custom role
    - Now only shows the specific OpenShift custom roles that the user/group actually has

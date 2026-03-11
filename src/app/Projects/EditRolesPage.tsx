@@ -45,6 +45,9 @@ import {
   Tooltip,
   TreeView,
   TreeViewDataItem,
+  Tabs,
+  Tab,
+  TabTitleText,
 } from '@patternfly/react-core';
 import {
   Table,
@@ -147,7 +150,6 @@ const mockRoles: Role[] = [
     originallyAssigned: true,
     currentlyAssigned: true,
     rules: [
-      { actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'], apiGroups: ['api.workbench.group'], resources: ['Workbench'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
       { actions: ['*'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
@@ -183,12 +185,6 @@ const mockRoles: Role[] = [
     originallyAssigned: false,
     currentlyAssigned: true,
     rules: [
-      {
-        actions: ['get', 'list', 'patch', 'update', 'watch'],
-        apiGroups: ['api.groups.name'],
-        resources: ['Workbenches'],
-        resourceNames: undefined,
-      },
       { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list', 'update', 'patch'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
@@ -374,7 +370,78 @@ const MOCK_DEPLOYMENTS = [
   { id: 'DP5', name: 'Deployment 5', description: 'Deployment description five' },
 ];
 
+const ALL_IMAGESTREAMS_VALUE = '__all_imagestreams__';
+const MOCK_IMAGESTREAMS = [
+  { id: 'IS1', name: 'IS1', description: 'This is a description' },
+  { id: 'IS2', name: 'IS2', description: 'This is a description' },
+  { id: 'IS3', name: 'IS3', description: 'This is a description' },
+  { id: 'IS4', name: 'IS4', description: 'This is a description' },
+  { id: 'IS5', name: 'IS5', description: 'This is a description' },
+];
+
+const ALL_PVCS_VALUE = '__all_pvcs__';
+const MOCK_PVCS = [
+  { id: 'PVC1', name: 'PVC1', description: 'This is a description' },
+  { id: 'PVC2', name: 'PVC2', description: 'This is a description' },
+  { id: 'PVC3', name: 'PVC3', description: 'This is a description' },
+  { id: 'PVC4', name: 'PVC4', description: 'This is a description' },
+  { id: 'PVC5', name: 'PVC5', description: 'This is a description' },
+];
+
+const ALL_PODS_VALUE = '__all_pods__';
+const MOCK_PODS = [
+  { id: 'POD1', name: 'POD1', description: 'This is a description' },
+  { id: 'POD2', name: 'POD2', description: 'This is a description' },
+  { id: 'POD3', name: 'POD3', description: 'This is a description' },
+  { id: 'POD4', name: 'POD4', description: 'This is a description' },
+  { id: 'POD5', name: 'POD5', description: 'This is a description' },
+];
+
+const ALL_ENV_VARS_VALUE = '__all_env_vars__';
+const MOCK_ENV_VARS = [
+  { id: 'EV1', name: 'EV1', description: 'This is a description' },
+  { id: 'EV2', name: 'EV2', description: 'This is a description' },
+  { id: 'EV3', name: 'EV3', description: 'This is a description' },
+  { id: 'EV4', name: 'EV4', description: 'This is a description' },
+  { id: 'EV5', name: 'EV5', description: 'This is a description' },
+];
+
+const ALL_HARDWARE_PROFILES_VALUE = '__all_hardware_profiles__';
+const MOCK_HARDWARE_PROFILES = [
+  { id: 'HP1', name: 'HP1', description: 'This is a description' },
+  { id: 'HP2', name: 'HP2', description: 'This is a description' },
+  { id: 'HP3', name: 'HP3', description: 'This is a description' },
+  { id: 'HP4', name: 'HP4', description: 'This is a description' },
+  { id: 'HP5', name: 'HP5', description: 'This is a description' },
+];
+
 type ResourceSelection = { type: 'all' } | { type: 'specific'; selectedIds: string[] };
+
+interface RoleAssignee {
+  subject: string;
+  subjectType: 'User' | 'Group';
+  roleBinding: string;
+  dateCreated: string;
+}
+
+const getRoleAssignees = (roleName: string): RoleAssignee[] => {
+  if (roleName === 'Workbench maintainer') {
+    return [
+      { subject: 'Deena', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'Diana', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'Jeff', subjectType: 'User', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'workbench team', subjectType: 'Group', roleBinding: 'rb-wb-updater', dateCreated: '30 Oct 2024' },
+      { subject: 'youth team', subjectType: 'Group', roleBinding: 'rb-wb-updater-in-cli', dateCreated: '30 Oct 2024' },
+    ];
+  }
+  const userAssignees: RoleAssignee[] = mockUsers
+    .filter(u => u.roles.some(r => r.role === roleName))
+    .map(u => ({ subject: u.name, subjectType: 'User' as const, roleBinding: `rb-${roleName.toLowerCase().replace(/\s+/g, '-')}`, dateCreated: u.dateCreated }));
+  const groupAssignees: RoleAssignee[] = mockGroups
+    .filter(g => g.roles.some(r => r.role === roleName))
+    .map(g => ({ subject: g.name, subjectType: 'Group' as const, roleBinding: `rb-${roleName.toLowerCase().replace(/\s+/g, '-')}`, dateCreated: g.dateCreated }));
+  return [...userAssignees, ...groupAssignees];
+};
 
 const EditRolesPage: React.FunctionComponent = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -497,11 +564,16 @@ const EditRolesPage: React.FunctionComponent = () => {
   const [isDesignOptionDropdownOpen, setIsDesignOptionDropdownOpen] = React.useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
   const [selectedRoleForModal, setSelectedRoleForModal] = React.useState<Role | null>(null);
+  const [roleModalTabKey, setRoleModalTabKey] = React.useState<string | number>(0);
   const [rulesSortBy, setRulesSortBy] = React.useState<ISortBy>({
     index: 0,
     direction: 'asc',
   });
   const [rulesPageSize, setRulesPageSize] = React.useState(10);
+  const [assigneesSortBy, setAssigneesSortBy] = React.useState<ISortBy>({
+    index: 0,
+    direction: 'asc',
+  });
   const [openPopovers, setOpenPopovers] = React.useState<Set<string>>(new Set());
   const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = React.useState(false);
   const [allTreeItemsExpanded, setAllTreeItemsExpanded] = React.useState(true);
@@ -515,7 +587,17 @@ const EditRolesPage: React.FunctionComponent = () => {
   const [workbenchSearchValue, setWorkbenchSearchValue] = React.useState('');
   const [pipelineSearchValue, setPipelineSearchValue] = React.useState('');
   const [deploymentSearchValue, setDeploymentSearchValue] = React.useState('');
-  const resourceMenuRef = React.useRef<HTMLDivElement>(null);
+  const [roleImagestreamSelection, setRoleImagestreamSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [imagestreamSearchValue, setImagestreamSearchValue] = React.useState('');
+  const [rolePVCSelection, setRolePVCSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [pvcSearchValue, setPVCSearchValue] = React.useState('');
+  const [rolePodSelection, setRolePodSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [podSearchValue, setPodSearchValue] = React.useState('');
+  const [roleEnvVarSelection, setRoleEnvVarSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [envVarSearchValue, setEnvVarSearchValue] = React.useState('');
+  const [roleHardwareProfileSelection, setRoleHardwareProfileSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [hardwareProfileSearchValue, setHardwareProfileSearchValue] = React.useState('');
+  const resourceMenuRefMap = React.useRef<Record<string, { current: HTMLDivElement | null }>>({});
   const resourceToggleRefMap = React.useRef<Record<string, HTMLElement | null>>({});
 
   const getLabelPopoverContent = (labelType: 'ai' | 'openshift-default' | 'openshift-custom', roleName?: string) => {
@@ -554,6 +636,7 @@ const EditRolesPage: React.FunctionComponent = () => {
           gap: '4px',
           padding: '2px 8px',
           borderRadius: '16px',
+          height: '18px',
         }}
       >
         <svg
@@ -615,6 +698,16 @@ const EditRolesPage: React.FunctionComponent = () => {
     rolePipelineSelection[roleId] ?? { type: 'all' };
   const getDeploymentSelectionForRole = (roleId: string): ResourceSelection =>
     roleDeploymentSelection[roleId] ?? { type: 'all' };
+  const getImagestreamSelectionForRole = (roleId: string): ResourceSelection =>
+    roleImagestreamSelection[roleId] ?? { type: 'all' };
+  const getPVCSelectionForRole = (roleId: string): ResourceSelection =>
+    rolePVCSelection[roleId] ?? { type: 'all' };
+  const getPodSelectionForRole = (roleId: string): ResourceSelection =>
+    rolePodSelection[roleId] ?? { type: 'all' };
+  const getEnvVarSelectionForRole = (roleId: string): ResourceSelection =>
+    roleEnvVarSelection[roleId] ?? { type: 'all' };
+  const getHardwareProfileSelectionForRole = (roleId: string): ResourceSelection =>
+    roleHardwareProfileSelection[roleId] ?? { type: 'all' };
 
   const handleRoleToggle = (role: Role) => {
     const isEnabling = !role.currentlyAssigned;
@@ -648,8 +741,14 @@ const EditRolesPage: React.FunctionComponent = () => {
     setSelection: React.Dispatch<React.SetStateAction<Record<string, ResourceSelection>>>,
     searchValue: string,
     setSearchValue: (v: string) => void,
-    isDisabled?: boolean
+    isDisabled?: boolean,
+    dropdownId?: string
   ) => {
+    const did = dropdownId ?? role.id;
+    if (!resourceMenuRefMap.current[did]) {
+      resourceMenuRefMap.current[did] = { current: null };
+    }
+    const menuRef = resourceMenuRefMap.current[did];
     const filteredOptions = searchValue
       ? options.filter(
           (opt) =>
@@ -659,21 +758,21 @@ const EditRolesPage: React.FunctionComponent = () => {
       : options;
     const selectedIds = selection.type === 'specific' ? selection.selectedIds : [];
     const maxChips = 3;
-    const isOpen = openResourcesDropdownRoleId === role.id;
-    const toggleRefObj = { get current() { return resourceToggleRefMap.current[role.id] ?? null; } };
+    const isOpen = openResourcesDropdownRoleId === did;
+    const toggleRefObj = { get current() { return resourceToggleRefMap.current[did] ?? null; } };
     const dropdown = (
       <MenuContainer
         isOpen={isDisabled ? false : isOpen}
         onOpenChange={(open) => {
           if (isDisabled && open) return;
-          setOpenResourcesDropdownRoleId(open ? role.id : null);
+          setOpenResourcesDropdownRoleId(open ? did : null);
           if (!open) setSearchValue('');
         }}
-        menuRef={resourceMenuRef}
+        menuRef={menuRef as React.RefObject<HTMLDivElement>}
         toggleRef={toggleRefObj as React.RefObject<HTMLElement | null>}
         menu={
           <Menu
-            ref={resourceMenuRef}
+            ref={menuRef as React.RefObject<HTMLDivElement>}
             role="menu"
             isScrollable
             selected={selection.type === 'all' ? [allValue] : selectedIds}
@@ -732,9 +831,9 @@ const EditRolesPage: React.FunctionComponent = () => {
         }
         toggle={
           <MenuToggle
-            ref={(el) => { resourceToggleRefMap.current[role.id] = el; }}
+            ref={(el) => { resourceToggleRefMap.current[did] = el; }}
             variant="typeahead"
-            onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+            onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : did); }}
             isExpanded={isOpen}
             isFullWidth
             isDisabled={isDisabled}
@@ -756,7 +855,7 @@ const EditRolesPage: React.FunctionComponent = () => {
                 placeholder={isDisabled ? selectPlaceholder : (selection.type === 'all' ? allLabel : selectPlaceholder)}
                 aria-label={allLabel}
                 inputProps={{ readOnly: true }}
-                onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+                onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : did); }}
               >
                 {selection.type === 'specific' ? (
                   <LabelGroup numLabels={maxChips} aria-label="Selected resources">
@@ -811,7 +910,7 @@ const EditRolesPage: React.FunctionComponent = () => {
 
   const getRoleStatus = (role: Role): string => {
     if (role.currentlyAssigned && role.originallyAssigned) {
-      return 'Currently assigned';
+      return 'Assigned';
     } else if (role.currentlyAssigned && !role.originallyAssigned) {
       return 'Assigning';
     } else if (!role.currentlyAssigned && role.originallyAssigned) {
@@ -821,7 +920,7 @@ const EditRolesPage: React.FunctionComponent = () => {
   };
 
   const getStatusPriority = (status: string): number => {
-    if (status === 'Currently assigned') return 1;
+    if (status === 'Assigned') return 1;
     if (status === 'Assigning') return 2;
     if (status === 'Unassigning') return 3;
     return 4; // '-'
@@ -929,7 +1028,7 @@ const EditRolesPage: React.FunctionComponent = () => {
             color="grey" 
             variant="outline" 
             isCompact
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
           >
             <svg
               className="pf-v6-svg"
@@ -969,7 +1068,7 @@ const EditRolesPage: React.FunctionComponent = () => {
             color="grey" 
             variant="outline" 
             isCompact
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
           >
             <svg
               className="pf-v6-svg"
@@ -1015,7 +1114,7 @@ const EditRolesPage: React.FunctionComponent = () => {
             color="grey" 
             variant="outline" 
             isCompact
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
           >
             <svg
               className="pf-v6-svg"
@@ -1055,7 +1154,7 @@ const EditRolesPage: React.FunctionComponent = () => {
             color="grey" 
             variant="outline" 
             isCompact
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
           >
             <svg
               className="pf-v6-svg"
@@ -1204,8 +1303,8 @@ const EditRolesPage: React.FunctionComponent = () => {
         const unassigningPopoverId = `unassigning-popover-${role.id}`;
         return (
           <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-          <Label color="green" variant="outline" isCompact>Currently assigned</Label>
-            <Popover
+          <Label color="green" variant="outline" isCompact>Assigned</Label>
+          <Popover
               position="bottom"
               bodyContent="OpenShift custom roles cannot be assigned in OpenShift AI. You'll need to use OpenShift to assign it again."
               showClose
@@ -1246,7 +1345,7 @@ const EditRolesPage: React.FunctionComponent = () => {
       }
       return (
         <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-          <Label color="green" variant="outline" isCompact>Currently assigned</Label>
+          <Label color="green" variant="outline" isCompact>Assigned</Label>
           <Label color="red" variant="outline" isCompact>Unassigning</Label>
           {helpTextElement}
         </Flex>
@@ -1254,7 +1353,7 @@ const EditRolesPage: React.FunctionComponent = () => {
     }
     
     // Otherwise show single status label
-    if (status === 'Currently assigned') {
+    if (status === 'Assigned') {
       return <Label color="green" variant="outline" isCompact>{status}</Label>;
     } else if (status === 'Assigning') {
       return <Label color="orange" variant="outline" isCompact>{status}</Label>;
@@ -1267,7 +1366,31 @@ const EditRolesPage: React.FunctionComponent = () => {
   const handleRoleNameClick = (role: Role) => {
     setSelectedRoleForModal(role);
     setRulesPageSize(10);
+    setRoleModalTabKey(0);
     setIsRoleModalOpen(true);
+  };
+
+  const getAssigneesSortParams = (columnIndex: number) => ({
+    sortBy: assigneesSortBy,
+    onSort: (_event: any, index: number, direction: 'asc' | 'desc') => {
+      setAssigneesSortBy({ index, direction });
+    },
+    columnIndex,
+  });
+
+  const getSortedAssignees = (assignees: RoleAssignee[]): RoleAssignee[] => {
+    const sorted = [...assignees];
+    const columnIndex = assigneesSortBy.index;
+    const direction = assigneesSortBy.direction;
+    sorted.sort((a, b) => {
+      let comparison = 0;
+      if (columnIndex === 0) comparison = a.subject.localeCompare(b.subject);
+      else if (columnIndex === 1) comparison = a.subjectType.localeCompare(b.subjectType);
+      else if (columnIndex === 2) comparison = a.roleBinding.localeCompare(b.roleBinding);
+      else if (columnIndex === 3) comparison = a.dateCreated.localeCompare(b.dateCreated);
+      return direction === 'asc' ? comparison : -comparison;
+    });
+    return sorted;
   };
 
   const getSortedRules = (rules: RoleRule[]): RoleRule[] => {
@@ -1425,14 +1548,14 @@ const hasRoleAssignmentChanges = roles.some((role) => {
             <BreadcrumbItem>
               <Link to={`/projects/${projectId}`}>{projectId}</Link>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>Manage roles</BreadcrumbItem>
+            <BreadcrumbItem isActive>Manage permissions</BreadcrumbItem>
           </Breadcrumb>
         </div>
       </div>
 
       <PageSection>
         <Title headingLevel="h1" size="2xl">
-          Manage roles
+          Manage permissions
         </Title>
         <Content style={{ marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
           Edit the role assignments of the user <span style={{ fontWeight: 600 }}>{subjectName}</span>.
@@ -1560,30 +1683,21 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                       info={{
                         popover: (
                           <Content>
-                            <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
-                              Roles with different labels come from different sources. The meanings of each label are defined as follows:
-                            </Content>
                             <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
                               <Content component="li" className="pf-v6-c-content--li">
-                                <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                  <strong>AI:</strong> Description
-                                </Content>
+                                <strong>AI roles</strong> are intended for use in, and can be assigned from, OpenShift AI.
                               </Content>
                               <Content component="li" className="pf-v6-c-content--li">
-                                <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                  <strong>OpenShift default:</strong> Description
-                                </Content>
+                                <strong>OpenShift default roles</strong> are OOTB OpenShift roles that can be assigned from OpenShift or OpenShift AI.
                               </Content>
                               <Content component="li" className="pf-v6-c-content--li">
-                                <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                  <strong>OpenShift custom:</strong> Description
-                                </Content>
+                                <strong>OpenShift custom roles</strong> are admin-created roles that can only be assigned from OpenShift.
                               </Content>
                             </Content>
                           </Content>
                         ),
                         ariaLabel: 'Role type labels help',
-                        popoverProps: { headerContent: 'Role Labels' }
+                        popoverProps: {}
                       }}
                     >
                       Role type
@@ -1595,27 +1709,21 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                         info={{
                           popover: (
                             <Content>
-                              <Content component="p" style={{ marginBottom: '8px' }}>
-                                Assignment status indicates the current or pending state of the role assignment:
-                              </Content>
                               <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px', paddingLeft: '20px' }}>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Currently assigned:</strong> The user or group has this role.
+                                  <strong>Assigned:</strong> The role is applied to the user or group.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Assigning:</strong> The role will be added when you save changes.
+                                  <strong>Assigning:</strong> The role will be applied when changes are saved.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Unassigning:</strong> The role will be removed when you save changes.
-                                </Content>
-                                <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>No status (-):</strong> The role is not assigned.
+                                  <strong>Unassigning:</strong> The role will be revoked when changes are saved.
                                 </Content>
                               </Content>
                             </Content>
                           ),
                           ariaLabel: 'Assignment status help',
-                          popoverProps: { headerContent: 'Assignment Status' }
+                          popoverProps: {}
                         }}
                   >
                     Assignment status
@@ -1821,50 +1929,27 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                                             ? 'All resources'
                                             : rule.resources.includes('namespaces')
                                               ? projectId
-                                              : ruleIndex === 0 &&
-                                                (isWorkbenchResourceRole(role) || isPipelineResourceRole(role) || isDeploymentResourceRole(role))
-                                                ? isWorkbenchResourceRole(role)
-                                                ? renderResourceDropdown(
-                                                    role,
-                                                    MOCK_WORKBENCHES,
-                                                    ALL_WORKBENCHES_VALUE,
-                                                    'All workbenches',
-                                                    'Find by workbench name',
-                                                    'Select a workbench',
-                                                    getWorkbenchSelectionForRole(role.id),
-                                                    setRoleWorkbenchSelection,
-                                                    workbenchSearchValue,
-                                                    setWorkbenchSearchValue,
-                                                    !role.currentlyAssigned
-                                                  )
-                                                : isPipelineResourceRole(role)
-                                                  ? renderResourceDropdown(
-                                                      role,
-                                                      MOCK_PIPELINES,
-                                                      ALL_PIPELINES_VALUE,
-                                                      'All pipelines',
-                                                      'Find by pipeline name',
-                                                      'Select a pipeline',
-                                                      getPipelineSelectionForRole(role.id),
-                                                      setRolePipelineSelection,
-                                                      pipelineSearchValue,
-                                                      setPipelineSearchValue,
-                                                      !role.currentlyAssigned
-                                                    )
-                                                  : renderResourceDropdown(
-                                                      role,
-                                                      MOCK_DEPLOYMENTS,
-                                                      ALL_DEPLOYMENTS_VALUE,
-                                                      'All deployments',
-                                                      'Find by deployment name',
-                                                      'Select a deployment',
-                                                      getDeploymentSelectionForRole(role.id),
-                                                      setRoleDeploymentSelection,
-                                                      deploymentSearchValue,
-                                                      setDeploymentSearchValue,
-                                                      !role.currentlyAssigned
-                                                    )
-                                              : (rule.resourceNames?.join(', ') || '-')}
+                                              : isWorkbenchResourceRole(role)
+                                                ? rule.resources.some(r => r === 'Workbench')
+                                                  ? renderResourceDropdown(role, MOCK_WORKBENCHES, ALL_WORKBENCHES_VALUE, 'All workbenches', 'Find by workbench name', 'Select a workbench', getWorkbenchSelectionForRole(role.id), setRoleWorkbenchSelection, workbenchSearchValue, setWorkbenchSearchValue, !role.currentlyAssigned)
+                                                  : rule.resources.some(r => r === 'notebooks')
+                                                    ? renderResourceDropdown(role, MOCK_WORKBENCHES, ALL_WORKBENCHES_VALUE, 'All workbenches', 'Find by workbench name', 'Select a workbench', getWorkbenchSelectionForRole(role.id), setRoleWorkbenchSelection, workbenchSearchValue, setWorkbenchSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                    : rule.resources.some(r => r === 'imagestreams')
+                                                      ? renderResourceDropdown(role, MOCK_IMAGESTREAMS, ALL_IMAGESTREAMS_VALUE, 'All imagestreams', 'Find by imagestream name', 'Select an imagestream', getImagestreamSelectionForRole(role.id), setRoleImagestreamSelection, imagestreamSearchValue, setImagestreamSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                      : rule.resources.some(r => r === 'persistentvolumeclaims')
+                                                        ? renderResourceDropdown(role, MOCK_PVCS, ALL_PVCS_VALUE, 'All PVCs', 'Find by PVC name', 'Select a PVC', getPVCSelectionForRole(role.id), setRolePVCSelection, pvcSearchValue, setPVCSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                        : rule.resources.some(r => r === 'pods' || r === 'statefulsets')
+                                                          ? renderResourceDropdown(role, MOCK_PODS, ALL_PODS_VALUE, 'All pods', 'Find by pod name', 'Select a pod', getPodSelectionForRole(role.id), setRolePodSelection, podSearchValue, setPodSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                          : rule.resources.some(r => r === 'secrets' || r === 'configmaps')
+                                                            ? renderResourceDropdown(role, MOCK_ENV_VARS, ALL_ENV_VARS_VALUE, 'All environment variables', 'Find by name', 'Select an environment variable', getEnvVarSelectionForRole(role.id), setRoleEnvVarSelection, envVarSearchValue, setEnvVarSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                            : rule.resources.some(r => r === 'hardwareprofiles')
+                                                              ? renderResourceDropdown(role, MOCK_HARDWARE_PROFILES, ALL_HARDWARE_PROFILES_VALUE, 'All hardware profiles', 'Find by profile name', 'Select a hardware profile', getHardwareProfileSelectionForRole(role.id), setRoleHardwareProfileSelection, hardwareProfileSearchValue, setHardwareProfileSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                              : (rule.resourceNames?.join(', ') || '-')
+                                                : ruleIndex === 0 && isPipelineResourceRole(role)
+                                                  ? renderResourceDropdown(role, MOCK_PIPELINES, ALL_PIPELINES_VALUE, 'All pipelines', 'Find by pipeline name', 'Select a pipeline', getPipelineSelectionForRole(role.id), setRolePipelineSelection, pipelineSearchValue, setPipelineSearchValue, !role.currentlyAssigned)
+                                                  : ruleIndex === 0 && isDeploymentResourceRole(role)
+                                                    ? renderResourceDropdown(role, MOCK_DEPLOYMENTS, ALL_DEPLOYMENTS_VALUE, 'All deployments', 'Find by deployment name', 'Select a deployment', getDeploymentSelectionForRole(role.id), setRoleDeploymentSelection, deploymentSearchValue, setDeploymentSearchValue, !role.currentlyAssigned)
+                                                    : (rule.resourceNames?.join(', ') || '-')}
                                         </Td>
                                       </Tr>
                                     ))
@@ -2054,100 +2139,135 @@ const hasRoleAssignmentChanges = roles.some((role) => {
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span id="role-rules-modal-title">{selectedRoleForModal?.name}</span>
-              {selectedRoleForModal?.roleType === 'openshift-default' && (
-                <Label color="blue" variant="outline">OpenShift default</Label>
-              )}
-              {selectedRoleForModal?.roleType === 'openshift-custom' && (
-                <Label color="purple" variant="outline">OpenShift custom</Label>
-              )}
+              <span style={{ fontWeight: 'normal' }}>{selectedRoleForModal && renderRoleTypeLabels(selectedRoleForModal)}</span>
             </div>
           }
+          description={selectedRoleForModal?.description}
         />
         <ModalBody>
-          <Content style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
-            The table below presents the rules of this role.
-          </Content>
-          {selectedRoleForModal && selectedRoleForModal.rules && selectedRoleForModal.rules.length > 0 ? (
-            <>
-              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                <Table variant="compact" aria-label="Role rules table">
+          <Tabs
+            activeKey={roleModalTabKey}
+            onSelect={(_event, tabIndex) => setRoleModalTabKey(tabIndex)}
+            aria-label="Role details tabs"
+          >
+            <Tab eventKey={0} title={<TabTitleText>Role details</TabTitleText>}>
+              <div style={{ marginTop: '24px' }}>
+                <Content style={{ marginBottom: 'var(--pf-v5-global--spacer--md)' }}>
+                  The table below presents the rules of this role.
+                </Content>
+                {selectedRoleForModal && selectedRoleForModal.rules && selectedRoleForModal.rules.length > 0 ? (
+                  <>
+                    <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                      <Table variant="compact" aria-label="Role rules table">
+                        <Thead>
+                          <Tr>
+                            <Th sort={getRulesSortParams(0)}>Actions</Th>
+                            <Th sort={getRulesSortParams(1)}>API Groups</Th>
+                            <Th sort={getRulesSortParams(2)}>Resources</Th>
+                            <Th sort={getRulesSortParams(3)}>
+                              Resource names
+                              <Popover
+                                position="bottom"
+                                bodyContent="Specify the resource instances. The empty resource names mean that you don't need to configure."
+                                showClose
+                                isVisible={openPopovers.has('resource-names-modal-popover')}
+                                shouldClose={() => {
+                                  setOpenPopovers((prev) => {
+                                    const next = new Set(prev);
+                                    next.delete('resource-names-modal-popover');
+                                    return next;
+                                  });
+                                  return true;
+                                }}
+                              >
+                                <span
+                                  style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)', cursor: 'pointer', display: 'inline-flex' }}
+                                  onClick={() => setOpenPopovers((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has('resource-names-modal-popover')) next.delete('resource-names-modal-popover');
+                                    else next.add('resource-names-modal-popover');
+                                    return next;
+                                  })}
+                                  aria-label="Resource names help"
+                                >
+                                  <OutlinedQuestionCircleIcon />
+                                </span>
+                              </Popover>
+                            </Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {getSortedRules(selectedRoleForModal.rules)
+                            .slice(0, rulesPageSize)
+                            .map((rule, index) => (
+                              <Tr key={index}>
+                                <Td>{rule.actions.join(', ')}</Td>
+                                <Td>{rule.apiGroups.join(', ')}</Td>
+                                <Td>{rule.resources.join(', ')}</Td>
+                                <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
+                              </Tr>
+                            ))}
+                        </Tbody>
+                      </Table>
+                    </div>
+                    {selectedRoleForModal.rules.length > rulesPageSize && (
+                      <div style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
+                        <Button variant="link" isInline onClick={() => setRulesPageSize(prev => prev + 10)}>
+                          View more
+                        </Button>
+                        <span style={{ marginLeft: 'var(--pf-v5-global--spacer--sm)', color: 'var(--pf-v5-global--Color--200)' }}>
+                          Showing {Math.min(rulesPageSize, selectedRoleForModal.rules.length)}/{selectedRoleForModal.rules.length}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ color: 'var(--pf-v5-global--Color--200)', padding: 'var(--pf-v5-global--spacer--md)' }}>
+                    No rules available
+                  </div>
+                )}
+              </div>
+            </Tab>
+            <Tab eventKey={1} title={<TabTitleText>Assignees</TabTitleText>}>
+              <div style={{ marginTop: '24px' }}>
+                <Table variant="compact" aria-label="Role assignees table">
                   <Thead>
                     <Tr>
-                      <Th sort={getRulesSortParams(0)}>
-                        Actions
-                      </Th>
-                      <Th sort={getRulesSortParams(1)}>
-                        API Groups
-                      </Th>
-                      <Th sort={getRulesSortParams(2)}>
-                        Resources
-                      </Th>
-                      <Th sort={getRulesSortParams(3)}>
-                        Resource names
-                        <Popover
-                          position="bottom"
-                          bodyContent="Specify the resource instances. The empty resource names mean that you don't need to configure."
-                          showClose
-                          isVisible={openPopovers.has('resource-names-modal-popover')}
-                          shouldClose={() => {
-                            setOpenPopovers((prev) => {
-                              const next = new Set(prev);
-                              next.delete('resource-names-modal-popover');
-                              return next;
-                            });
-                            return true;
-                          }}
-                        >
-                          <span
-                            style={{ marginLeft: 'var(--pf-v5-global--spacer--xs)', color: 'var(--pf-v5-global--Color--200)', cursor: 'pointer', display: 'inline-flex' }}
-                            onClick={() => setOpenPopovers((prev) => {
-                              const next = new Set(prev);
-                              if (next.has('resource-names-modal-popover')) next.delete('resource-names-modal-popover');
-                              else next.add('resource-names-modal-popover');
-                              return next;
-                            })}
-                            aria-label="Resource names help"
-                          >
-                            <OutlinedQuestionCircleIcon />
-                          </span>
-                        </Popover>
+                      <Th sort={getAssigneesSortParams(0)}>Subject</Th>
+                      <Th sort={getAssigneesSortParams(1)}>Subject kind</Th>
+                      <Th sort={getAssigneesSortParams(2)}>Role binding</Th>
+                      <Th
+                        sort={getAssigneesSortParams(3)}
+                        info={{
+                          popover: (
+                            <Content>
+                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
+                                Date when the role assignment was created.
+                              </Content>
+                            </Content>
+                          ),
+                          ariaLabel: 'Date created help',
+                          popoverProps: { headerContent: 'Date created' }
+                        }}
+                      >
+                        Date created
                       </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {getSortedRules(selectedRoleForModal.rules)
-                      .slice(0, rulesPageSize)
-                      .map((rule, index) => (
-                        <Tr key={index}>
-                          <Td>{rule.actions.join(', ')}</Td>
-                          <Td>{rule.apiGroups.join(', ')}</Td>
-                          <Td>{rule.resources.join(', ')}</Td>
-                          <Td>{rule.resourceNames?.join(', ') || '-'}</Td>
-                        </Tr>
-                      ))}
+                    {selectedRoleForModal && getSortedAssignees(getRoleAssignees(selectedRoleForModal.name)).map((assignee, index) => (
+                      <Tr key={index}>
+                        <Td>{assignee.subject}</Td>
+                        <Td>{assignee.subjectType}</Td>
+                        <Td>{assignee.roleBinding}</Td>
+                        <Td>{assignee.dateCreated}</Td>
+                      </Tr>
+                    ))}
                   </Tbody>
                 </Table>
               </div>
-              {selectedRoleForModal.rules.length > rulesPageSize && (
-                <div style={{ marginTop: 'var(--pf-v5-global--spacer--md)' }}>
-                  <Button
-                    variant="link"
-                    isInline
-                    onClick={() => setRulesPageSize(prev => prev + 10)}
-                  >
-                    View more
-                  </Button>
-                  <span style={{ marginLeft: 'var(--pf-v5-global--spacer--sm)', color: 'var(--pf-v5-global--Color--200)' }}>
-                    Showing {Math.min(rulesPageSize, selectedRoleForModal.rules.length)}/{selectedRoleForModal.rules.length}
-                  </span>
-                </div>
-              )}
-            </>
-          ) : (
-            <div style={{ color: 'var(--pf-v5-global--Color--200)', padding: 'var(--pf-v5-global--spacer--md)' }}>
-              No rules available
-            </div>
-          )}
+            </Tab>
+          </Tabs>
         </ModalBody>
       </Modal>
 
@@ -2190,7 +2310,7 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                         color="grey" 
                         variant="outline" 
                         isCompact
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
                       >
                         <svg
                           className="pf-v6-svg"
@@ -2229,7 +2349,7 @@ const hasRoleAssignmentChanges = roles.some((role) => {
                         color="grey" 
                         variant="outline" 
                         isCompact
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
                       >
                         <svg
                           className="pf-v6-svg"

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { updateUserRoles, updateGroupRoles, mockUsers, mockGroups } from './sharedPermissionsData';
-import { TypeaheadSelect, TypeaheadSelectOption } from '@patternfly/react-templates';
 import {
   PageSection,
   Title,
@@ -157,7 +156,6 @@ const mockAvailableRoles: Role[] = [
     originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
-      { actions: ['create', 'delete', 'deletecollection', 'get', 'list', 'patch', 'update', 'watch'], apiGroups: ['api.workbench.group'], resources: ['Workbench'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
       { actions: ['*'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
@@ -193,12 +191,6 @@ const mockAvailableRoles: Role[] = [
     originallyAssigned: false,
     currentlyAssigned: false,
     rules: [
-      {
-        actions: ['get', 'list', 'patch', 'update', 'watch'],
-        apiGroups: ['api.groups.name'],
-        resources: ['Workbenches'],
-        resourceNames: undefined,
-      },
       { actions: ['get', 'watch', 'list'], apiGroups: [''], resources: ['namespaces'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list', 'update', 'patch'], apiGroups: ['kubeflow.org'], resources: ['notebooks'], resourceNames: undefined },
       { actions: ['get', 'watch', 'list'], apiGroups: ['image.openshift.io'], resources: ['imagestreams'], resourceNames: undefined },
@@ -384,6 +376,51 @@ const MOCK_DEPLOYMENTS = [
   { id: 'DP5', name: 'Deployment 5', description: 'Deployment description five' },
 ];
 
+const ALL_IMAGESTREAMS_VALUE = '__all_imagestreams__';
+const MOCK_IMAGESTREAMS = [
+  { id: 'IS1', name: 'IS1', description: 'This is a description' },
+  { id: 'IS2', name: 'IS2', description: 'This is a description' },
+  { id: 'IS3', name: 'IS3', description: 'This is a description' },
+  { id: 'IS4', name: 'IS4', description: 'This is a description' },
+  { id: 'IS5', name: 'IS5', description: 'This is a description' },
+];
+
+const ALL_PVCS_VALUE = '__all_pvcs__';
+const MOCK_PVCS = [
+  { id: 'PVC1', name: 'PVC1', description: 'This is a description' },
+  { id: 'PVC2', name: 'PVC2', description: 'This is a description' },
+  { id: 'PVC3', name: 'PVC3', description: 'This is a description' },
+  { id: 'PVC4', name: 'PVC4', description: 'This is a description' },
+  { id: 'PVC5', name: 'PVC5', description: 'This is a description' },
+];
+
+const ALL_PODS_VALUE = '__all_pods__';
+const MOCK_PODS = [
+  { id: 'POD1', name: 'POD1', description: 'This is a description' },
+  { id: 'POD2', name: 'POD2', description: 'This is a description' },
+  { id: 'POD3', name: 'POD3', description: 'This is a description' },
+  { id: 'POD4', name: 'POD4', description: 'This is a description' },
+  { id: 'POD5', name: 'POD5', description: 'This is a description' },
+];
+
+const ALL_ENV_VARS_VALUE = '__all_env_vars__';
+const MOCK_ENV_VARS = [
+  { id: 'EV1', name: 'EV1', description: 'This is a description' },
+  { id: 'EV2', name: 'EV2', description: 'This is a description' },
+  { id: 'EV3', name: 'EV3', description: 'This is a description' },
+  { id: 'EV4', name: 'EV4', description: 'This is a description' },
+  { id: 'EV5', name: 'EV5', description: 'This is a description' },
+];
+
+const ALL_HARDWARE_PROFILES_VALUE = '__all_hardware_profiles__';
+const MOCK_HARDWARE_PROFILES = [
+  { id: 'HP1', name: 'HP1', description: 'This is a description' },
+  { id: 'HP2', name: 'HP2', description: 'This is a description' },
+  { id: 'HP3', name: 'HP3', description: 'This is a description' },
+  { id: 'HP4', name: 'HP4', description: 'This is a description' },
+  { id: 'HP5', name: 'HP5', description: 'This is a description' },
+];
+
 type ResourceSelection = { type: 'all' } | { type: 'specific'; selectedIds: string[] };
 
 const getRoleAssignees = (roleName: string): RoleAssignee[] => {
@@ -458,7 +495,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   const [pendingSubject, setPendingSubject] = React.useState<string | undefined>(undefined);
   const [pendingSubjectType, setPendingSubjectType] = React.useState<'User' | 'Group' | undefined>(undefined);
   const [shouldPreserveRoles, setShouldPreserveRoles] = React.useState(false);
-  const [typeaheadKey, setTypeaheadKey] = React.useState(0);
+  const [customTypeaheadOpen, setCustomTypeaheadOpen] = React.useState(false);
   const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = React.useState(false);
   const [allTreeItemsExpanded, setAllTreeItemsExpanded] = React.useState(true);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set(['assigning-roles', 'unassigning-roles']));
@@ -474,7 +511,17 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   const [workbenchSearchValue, setWorkbenchSearchValue] = React.useState('');
   const [pipelineSearchValue, setPipelineSearchValue] = React.useState('');
   const [deploymentSearchValue, setDeploymentSearchValue] = React.useState('');
-  const resourceMenuRef = React.useRef<HTMLDivElement>(null);
+  const [roleImagestreamSelection, setRoleImagestreamSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [imagestreamSearchValue, setImagestreamSearchValue] = React.useState('');
+  const [rolePVCSelection, setRolePVCSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [pvcSearchValue, setPVCSearchValue] = React.useState('');
+  const [rolePodSelection, setRolePodSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [podSearchValue, setPodSearchValue] = React.useState('');
+  const [roleEnvVarSelection, setRoleEnvVarSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [envVarSearchValue, setEnvVarSearchValue] = React.useState('');
+  const [roleHardwareProfileSelection, setRoleHardwareProfileSelection] = React.useState<Record<string, ResourceSelection>>({});
+  const [hardwareProfileSearchValue, setHardwareProfileSearchValue] = React.useState('');
+  const resourceMenuRefMap = React.useRef<Record<string, { current: HTMLDivElement | null }>>({});
   const resourceToggleRefMap = React.useRef<Record<string, HTMLElement | null>>({});
 
   // Get available subjects based on type
@@ -541,57 +588,10 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   };
 
   // Create typeahead options
-  const typeaheadOptions = React.useMemo<TypeaheadSelectOption[]>(() => {
+  const filteredSubjectsForTypeahead = React.useMemo<string[]>(() => {
     const subjects = getAvailableSubjects();
-    const groupHeader = subjectType === 'User' ? 'Users with existing assignment' : 'Groups with existing assignment';
-    const options: TypeaheadSelectOption[] = [];
-    
-    // Filter subjects based on input value
-    const filteredSubjects = typeaheadInputValue && typeaheadInputValue.trim()
-      ? subjects.filter(subject => 
-          subject.toLowerCase().includes(typeaheadInputValue.toLowerCase())
-        )
-      : subjects;
-    
-    // If there's input, add create option first
-    if (typeaheadInputValue && typeaheadInputValue.trim()) {
-      options.push({
-        content: `Assign role to "${typeaheadInputValue}"`,
-        value: `Assign role to "${typeaheadInputValue}"`,
-      });
-    }
-    
-    // Only add group header if there are filtered subjects
-    if (filteredSubjects.length > 0) {
-      options.push({
-        content: groupHeader,
-        value: `__group_header_${groupHeader}`,
-        isDisabled: true,
-        isAriaDisabled: true,
-      } as TypeaheadSelectOption);
-      
-      // Add filtered existing subjects
-      options.push(...filteredSubjects.map((subject) => ({
-        content: subject,
-        value: subject,
-        selected: subject === selectedSubject,
-      })));
-    }
-    
-    // If selectedSubject is set and not in the existing subjects, add it to options so it displays correctly
-    if (selectedSubject && !subjects.includes(selectedSubject)) {
-      // Check if it's not already in options
-      const alreadyInOptions = options.some(opt => opt.value === selectedSubject);
-      if (!alreadyInOptions) {
-        options.push({
-          content: selectedSubject,
-          value: selectedSubject,
-          selected: true,
-        });
-      }
-    }
-    
-    return options;
+    if (!typeaheadInputValue) return subjects;
+    return subjects.filter((s) => s.toLowerCase().includes(typeaheadInputValue.toLowerCase()));
   }, [subjectType, selectedSubject, typeaheadInputValue]);
 
   // Reset when subject kind changes (only if not Option 2)
@@ -686,7 +686,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
 
   const getRoleStatus = (role: Role): string => {
     if (role.currentlyAssigned && role.originallyAssigned) {
-      return 'Currently assigned';
+      return 'Assigned';
     } else if (role.currentlyAssigned && !role.originallyAssigned) {
       return 'Assigning';
     } else if (!role.currentlyAssigned && role.originallyAssigned) {
@@ -696,7 +696,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
   };
 
   const getStatusPriority = (status: string): number => {
-    if (status === 'Currently assigned') return 1;
+    if (status === 'Assigned') return 1;
     if (status === 'Assigning') return 2;
     if (status === 'Unassigning') return 3;
     return 4; // '-'
@@ -804,6 +804,16 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     rolePipelineSelection[roleId] ?? { type: 'all' };
   const getDeploymentSelectionForRole = (roleId: string): ResourceSelection =>
     roleDeploymentSelection[roleId] ?? { type: 'all' };
+  const getImagestreamSelectionForRole = (roleId: string): ResourceSelection =>
+    roleImagestreamSelection[roleId] ?? { type: 'all' };
+  const getPVCSelectionForRole = (roleId: string): ResourceSelection =>
+    rolePVCSelection[roleId] ?? { type: 'all' };
+  const getPodSelectionForRole = (roleId: string): ResourceSelection =>
+    rolePodSelection[roleId] ?? { type: 'all' };
+  const getEnvVarSelectionForRole = (roleId: string): ResourceSelection =>
+    roleEnvVarSelection[roleId] ?? { type: 'all' };
+  const getHardwareProfileSelectionForRole = (roleId: string): ResourceSelection =>
+    roleHardwareProfileSelection[roleId] ?? { type: 'all' };
 
   type ResourceOption = { id: string; name: string; description: string };
   const renderResourceDropdown = (
@@ -817,8 +827,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     setSelection: React.Dispatch<React.SetStateAction<Record<string, ResourceSelection>>>,
     searchValue: string,
     setSearchValue: (v: string) => void,
-    isDisabled?: boolean
+    isDisabled?: boolean,
+    dropdownId?: string
   ) => {
+    const did = dropdownId ?? role.id;
+    if (!resourceMenuRefMap.current[did]) {
+      resourceMenuRefMap.current[did] = { current: null };
+    }
+    const menuRef = resourceMenuRefMap.current[did];
     const filteredOptions = searchValue
       ? options.filter(
           (opt) =>
@@ -828,21 +844,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
       : options;
     const selectedIds = selection.type === 'specific' ? selection.selectedIds : [];
     const maxChips = 3;
-    const isOpen = openResourcesDropdownRoleId === role.id;
-    const toggleRefObj = { get current() { return resourceToggleRefMap.current[role.id] ?? null; } };
+    const isOpen = openResourcesDropdownRoleId === did;
+    const toggleRefObj = { get current() { return resourceToggleRefMap.current[did] ?? null; } };
     const dropdown = (
       <MenuContainer
         isOpen={isDisabled ? false : isOpen}
         onOpenChange={(open) => {
           if (isDisabled && open) return;
-          setOpenResourcesDropdownRoleId(open ? role.id : null);
+          setOpenResourcesDropdownRoleId(open ? did : null);
           if (!open) setSearchValue('');
         }}
-        menuRef={resourceMenuRef}
+        menuRef={menuRef as React.RefObject<HTMLDivElement>}
         toggleRef={toggleRefObj as React.RefObject<HTMLElement | null>}
         menu={
           <Menu
-            ref={resourceMenuRef}
+            ref={menuRef as React.RefObject<HTMLDivElement>}
             role="menu"
             isScrollable
             selected={selection.type === 'all' ? [allValue] : selectedIds}
@@ -901,9 +917,9 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
         }
         toggle={
           <MenuToggle
-            ref={(el) => { resourceToggleRefMap.current[role.id] = el; }}
+            ref={(el) => { resourceToggleRefMap.current[did] = el; }}
             variant="typeahead"
-            onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+            onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : did); }}
             isExpanded={isOpen}
             isFullWidth
             isDisabled={isDisabled}
@@ -925,7 +941,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                 placeholder={isDisabled ? selectPlaceholder : (selection.type === 'all' ? allLabel : selectPlaceholder)}
                 aria-label={allLabel}
                 inputProps={{ readOnly: true }}
-                onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : role.id); }}
+                onClick={() => { if (isDisabled) return; setOpenResourcesDropdownRoleId(isOpen ? null : did); }}
               >
                 {selection.type === 'specific' ? (
                   <LabelGroup numLabels={maxChips} aria-label="Selected resources">
@@ -1014,6 +1030,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           gap: '4px',
           padding: '2px 8px',
           borderRadius: '16px',
+          height: '18px',
         }}
       >
         <svg
@@ -1046,7 +1063,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           color="grey" 
           variant="outline" 
           isCompact
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
         >
           <svg
             className="pf-v6-svg"
@@ -1086,7 +1103,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           color="grey" 
           variant="outline" 
           isCompact
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
         >
           <svg
             className="pf-v6-svg"
@@ -1216,7 +1233,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
     }
     
     // Otherwise show single status label
-    if (status === 'Currently assigned') {
+    if (status === 'Assigned') {
       return <Label color="green" variant="outline" isCompact>{status}</Label>;
     } else if (status === 'Assigning') {
       return <Label color="orange" variant="outline" isCompact>{status}</Label>;
@@ -1377,14 +1394,14 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
             <BreadcrumbItem>
               <Link to={`/projects/${projectId}`}>{projectId}</Link>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>Assign roles</BreadcrumbItem>
+            <BreadcrumbItem isActive>Manage permissions</BreadcrumbItem>
           </Breadcrumb>
         </div>
       </div>
 
       <PageSection>
         <Title headingLevel="h1" size="2xl">
-          Assign roles
+          Manage permissions
         </Title>
         <Content style={{ marginTop: 'var(--pf-v5-global--spacer--sm)' }}>
           Choose a user or group, then assign or manage roles to define their permissions.
@@ -1474,85 +1491,122 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   </div>
                   ) : (
                     <>
-                      <TypeaheadSelect
-                        key={`${subjectType}-${selectedSubject || 'none'}-${typeaheadKey}`}
-                        initialOptions={typeaheadOptions}
-                        placeholder={`Select ${subjectType.toLowerCase()}`}
-                        noOptionsFoundMessage={(filter) => `No ${subjectType.toLowerCase()} was found for "${filter}"`}
-                        createOptionMessage={(newValue) => `Assign role to "${newValue}"`}
-                        onInputChange={(value) => {
-                          setTypeaheadInputValue(value || '');
+                      <Select
+                        isOpen={customTypeaheadOpen}
+                        onOpenChange={(open) => {
+                          setCustomTypeaheadOpen(open);
+                          if (!open) setTypeaheadInputValue('');
                         }}
-                        onClearSelection={() => {
-                          // If there are changes, show confirmation modal
-                          if (hasChanges && selectedSubject) {
-                            setPendingSubject(undefined); // Pending clear action
-                            setIsDiscardModalOpen(true);
-                          } else {
-                            // No changes, clear directly
-                            setSelectedSubject(undefined);
-                            setTypeaheadInputValue('');
-                            setShouldPreserveRoles(false);
-                          }
-                        }}
-                        onSelect={(_ev, selection) => {
-                          let selectedValue = String(selection);
-                          // Skip group header selections
-                          if (selectedValue.startsWith('__group_header_')) {
-                            return;
-                          }
-                          // If the selection is a create option (starts with "Assign role to"), extract just the value
-                          const isCreateOption = selectedValue.startsWith('Assign role to "') && selectedValue.endsWith('"');
+                        onSelect={(_ev, value) => {
+                          const selValue = String(value);
+                          if (selValue === '__group_header__' || selValue === '__no_results__') return;
+                          let selectedValue = selValue;
+                          const isCreateOption = selValue.startsWith('Assign role to "') && selValue.endsWith('"');
                           if (isCreateOption) {
-                            selectedValue = selectedValue.slice('Assign role to "'.length, -1);
+                            selectedValue = selValue.slice('Assign role to "'.length, -1);
                           }
-                          
-                          // Check if we need to show confirmation modal
+                          setCustomTypeaheadOpen(false);
+                          setTypeaheadInputValue('');
                           let shouldShowModal = false;
                           let preserveRoles = false;
-                          
-                          // Only check if there are changes AND a subject is already selected
                           if (hasChanges && selectedSubject) {
                             const currentIsExisting = isExistingSubject(selectedSubject);
                             const newIsExisting = isExistingSubject(selectedValue);
-                            
-                            // Case 1: New user → New user (with changes): No modal, preserve roles
                             if (!currentIsExisting && !newIsExisting) {
-                              shouldShowModal = false;
                               preserveRoles = true;
-                            }
-                            // Case 2: New user → Existing user (with changes): Show modal
-                            else if (!currentIsExisting && newIsExisting) {
-                              shouldShowModal = true;
-                            }
-                            // Case 3: Existing user → New user (with changes): Show modal
-                            else if (currentIsExisting && !newIsExisting) {
-                              shouldShowModal = true;
-                            }
-                            // Case 4: Existing user → Existing user (with changes): Show modal
-                            else if (currentIsExisting && newIsExisting) {
+                            } else {
                               shouldShowModal = true;
                             }
                           }
-                          // If no changes or no selected subject yet: Always proceed without modal
-                          
                           if (shouldShowModal) {
-                            // Store the pending subject and open modal
                             setPendingSubject(selectedValue);
                             setIsDiscardModalOpen(true);
                           } else {
-                            // Clear the input value so the dropdown shows the selected value, not the input
-                            setTypeaheadInputValue('');
-                            // Set flag to preserve roles if needed
-                            if (preserveRoles) {
-                              setShouldPreserveRoles(true);
-                            }
+                            if (preserveRoles) setShouldPreserveRoles(true);
                             setSelectedSubject(selectedValue);
-                            // If it's a new subject (not in the list), it will be created when saved
                           }
                         }}
-                        isCreatable={false}
-                      />
+                        toggle={(toggleRef) => (
+                          <MenuToggle
+                            ref={toggleRef}
+                            variant="typeahead"
+                            aria-label="Typeahead menu toggle"
+                            onClick={() => setCustomTypeaheadOpen(!customTypeaheadOpen)}
+                            isExpanded={customTypeaheadOpen}
+                            isFullWidth
+                          >
+                            <TextInputGroup isPlain>
+                              <TextInputGroupMain
+                                value={typeaheadInputValue !== '' ? typeaheadInputValue : (selectedSubject || '')}
+                                onChange={(_e, val) => {
+                                  setTypeaheadInputValue(val);
+                                  setCustomTypeaheadOpen(true);
+                                }}
+                                onClick={() => setCustomTypeaheadOpen(true)}
+                                placeholder={`Select ${subjectType.toLowerCase()}`}
+                                autoComplete="off"
+                                role="combobox"
+                                isExpanded={customTypeaheadOpen}
+                                aria-controls="typeahead-subject-listbox"
+                              />
+                              {(typeaheadInputValue !== '' || selectedSubject) && (
+                                <TextInputGroupUtilities>
+                                  <Button
+                                    variant="plain"
+                                    onClick={() => {
+                                      if (hasChanges && selectedSubject) {
+                                        setPendingSubject(undefined);
+                                        setIsDiscardModalOpen(true);
+                                      } else {
+                                        setSelectedSubject(undefined);
+                                        setTypeaheadInputValue('');
+                                        setShouldPreserveRoles(false);
+                                      }
+                                      setCustomTypeaheadOpen(false);
+                                    }}
+                                    aria-label="Clear input value"
+                                    icon={<TimesIcon />}
+                                  />
+                                </TextInputGroupUtilities>
+                              )}
+                            </TextInputGroup>
+                          </MenuToggle>
+                        )}
+                      >
+                        <SelectList id="typeahead-subject-listbox">
+                          {typeaheadInputValue && (
+                            <SelectOption value={`Assign role to "${typeaheadInputValue}"`}>
+                              Assign role to &quot;{typeaheadInputValue}&quot;
+                            </SelectOption>
+                          )}
+                          {filteredSubjectsForTypeahead.length > 0 && (
+                            <>
+                              <SelectOption
+                                isAriaDisabled
+                                value="__group_header__"
+                                style={{
+                                  fontSize: 'var(--pf-v6-global--FontSize--sm, 12px)',
+                                  fontWeight: 700,
+                                  color: 'var(--pf-v6-global--Color--200, #6a6e73)',
+                                  pointerEvents: 'none',
+                                }}
+                              >
+                                {subjectType === 'User' ? 'Users with existing assignment' : 'Groups with existing assignment'}
+                              </SelectOption>
+                              {filteredSubjectsForTypeahead.map((subject) => (
+                                <SelectOption key={subject} value={subject} isSelected={subject === selectedSubject}>
+                                  {subject}
+                                </SelectOption>
+                              ))}
+                            </>
+                          )}
+                          {typeaheadInputValue && filteredSubjectsForTypeahead.length === 0 && (
+                            <SelectOption isAriaDisabled value="__no_results__">
+                              No {subjectType.toLowerCase()} was found for &quot;{typeaheadInputValue}&quot;
+                            </SelectOption>
+                          )}
+                        </SelectList>
+                      </Select>
                       <HelperText>
                         <HelperTextItem>
                           {subjectType === 'User' 
@@ -1594,30 +1648,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         info={{
                           popover: (
                             <Content>
-                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
-                                Roles with different labels come from different sources. The meanings of each label are defined as follows:
-                              </Content>
                               <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>AI:</strong> Description
-                                  </Content>
+                                  <strong>AI roles</strong> are intended for use in, and can be assigned from, OpenShift AI.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>OpenShift default:</strong> Description
-                                  </Content>
+                                  <strong>OpenShift default roles</strong> are OOTB OpenShift roles that can be assigned from OpenShift or OpenShift AI.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>OpenShift custom:</strong> Description
-                                  </Content>
+                                  <strong>OpenShift custom roles</strong> are admin-created roles that can only be assigned from OpenShift.
                                 </Content>
                               </Content>
                             </Content>
                           ),
                           ariaLabel: 'Role type labels help',
-                          popoverProps: { headerContent: 'Role Labels' }
+                          popoverProps: {}
                         }}
                       >
                         Role type
@@ -1628,27 +1673,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         info={{
                           popover: (
                             <Content>
-                              <Content component="p" style={{ marginBottom: '8px' }}>
-                                Assignment status indicates the current or pending state of the role assignment:
-                              </Content>
                               <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px', paddingLeft: '20px' }}>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Currently assigned:</strong> The user or group has this role.
+                                  <strong>Assigned:</strong> The role is applied to the user or group.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Assigning:</strong> The role will be added when you save changes.
+                                  <strong>Assigning:</strong> The role will be applied when changes are saved.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Unassigning:</strong> The role will be removed when you save changes.
-                                </Content>
-                                <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>No status (-):</strong> The role is not assigned.
+                                  <strong>Unassigning:</strong> The role will be revoked when changes are saved.
                                 </Content>
                               </Content>
                             </Content>
                           ),
                           ariaLabel: 'Assignment status help',
-                          popoverProps: { headerContent: 'Assignment Status' }
+                          popoverProps: {}
                         }}
                       >
                         Assignment status
@@ -1705,30 +1744,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         info={{
                           popover: (
                             <Content>
-                              <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)', marginBottom: '8px', display: 'block' }}>
-                                Roles with different labels come from different sources. The meanings of each label are defined as follows:
-                              </Content>
                               <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px' }}>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>AI:</strong> Description
-                                  </Content>
+                                  <strong>AI roles</strong> are intended for use in, and can be assigned from, OpenShift AI.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>OpenShift default:</strong> Description
-                                  </Content>
+                                  <strong>OpenShift default roles</strong> are OOTB OpenShift roles that can be assigned from OpenShift or OpenShift AI.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <Content component="small" className="pf-v6-c-content--small" style={{ color: 'var(--pf-t--global--text--color--regular)' }}>
-                                    <strong>OpenShift custom:</strong> Description
-                                  </Content>
+                                  <strong>OpenShift custom roles</strong> are admin-created roles that can only be assigned from OpenShift.
                                 </Content>
                               </Content>
                             </Content>
                           ),
                           ariaLabel: 'Role type labels help',
-                          popoverProps: { headerContent: 'Role Labels' }
+                          popoverProps: {}
                         }}
                       >
                         Role type
@@ -1739,27 +1769,21 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         info={{
                           popover: (
                             <Content>
-                              <Content component="p" style={{ marginBottom: '8px' }}>
-                                Assignment status indicates the current or pending state of the role assignment:
-                              </Content>
                               <Content component="ul" className="pf-v6-c-content--ul" style={{ margin: '0px', paddingLeft: '20px' }}>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Currently assigned:</strong> The user or group has this role.
+                                  <strong>Assigned:</strong> The role is applied to the user or group.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Assigning:</strong> The role will be added when you save changes.
+                                  <strong>Assigning:</strong> The role will be applied when changes are saved.
                                 </Content>
                                 <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>Unassigning:</strong> The role will be removed when you save changes.
-                                </Content>
-                                <Content component="li" className="pf-v6-c-content--li">
-                                  <strong>No status (-):</strong> The role is not assigned.
+                                  <strong>Unassigning:</strong> The role will be revoked when changes are saved.
                                 </Content>
                               </Content>
                             </Content>
                           ),
                           ariaLabel: 'Assignment status help',
-                          popoverProps: { headerContent: 'Assignment Status' }
+                          popoverProps: {}
                         }}
                       >
                         Assignment status
@@ -1861,20 +1885,33 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                                           <Tr key={ruleIndex}>
 <Td style={{ width: '220px' }}>{rule.actions.includes('*') ? 'create, delete, deletecollection, get, list, patch, update, watch' : rule.actions.join(', ')}</Td>
                                             <Td>{(rule.apiGroups.length === 0 || (rule.apiGroups.length === 1 && rule.apiGroups[0] === '')) ? '*' : rule.apiGroups.join(', ')}</Td>
-                                            <Td>{rule.resources.join(', ')}</Td>
+                                          <Td>{rule.resources.join(', ')}</Td>
                                             <Td>
                                               {(role.name === 'Admin' || role.name === 'Contributor')
                                                 ? 'All resources'
                                                 : rule.resources.includes('namespaces')
                                                   ? projectId
-                                                  : ruleIndex === 0 &&
-                                                    (isWorkbenchResourceRole(role) || isPipelineResourceRole(role) || isDeploymentResourceRole(role))
-                                                    ? isWorkbenchResourceRole(role)
-                                                    ? renderResourceDropdown(role, MOCK_WORKBENCHES, ALL_WORKBENCHES_VALUE, 'All workbenches', 'Find by workbench name', 'Select a workbench', getWorkbenchSelectionForRole(role.id), setRoleWorkbenchSelection, workbenchSearchValue, setWorkbenchSearchValue, !role.currentlyAssigned)
-                                                    : isPipelineResourceRole(role)
+                                                  : isWorkbenchResourceRole(role)
+                                                    ? rule.resources.some(r => r === 'Workbench')
+                                                      ? renderResourceDropdown(role, MOCK_WORKBENCHES, ALL_WORKBENCHES_VALUE, 'All workbenches', 'Find by workbench name', 'Select a workbench', getWorkbenchSelectionForRole(role.id), setRoleWorkbenchSelection, workbenchSearchValue, setWorkbenchSearchValue, !role.currentlyAssigned)
+                                                      : rule.resources.some(r => r === 'notebooks')
+                                                        ? renderResourceDropdown(role, MOCK_WORKBENCHES, ALL_WORKBENCHES_VALUE, 'All workbenches', 'Find by workbench name', 'Select a workbench', getWorkbenchSelectionForRole(role.id), setRoleWorkbenchSelection, workbenchSearchValue, setWorkbenchSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                        : rule.resources.some(r => r === 'imagestreams')
+                                                          ? renderResourceDropdown(role, MOCK_IMAGESTREAMS, ALL_IMAGESTREAMS_VALUE, 'All imagestreams', 'Find by imagestream name', 'Select an imagestream', getImagestreamSelectionForRole(role.id), setRoleImagestreamSelection, imagestreamSearchValue, setImagestreamSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                          : rule.resources.some(r => r === 'persistentvolumeclaims')
+                                                            ? renderResourceDropdown(role, MOCK_PVCS, ALL_PVCS_VALUE, 'All PVCs', 'Find by PVC name', 'Select a PVC', getPVCSelectionForRole(role.id), setRolePVCSelection, pvcSearchValue, setPVCSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                            : rule.resources.some(r => r === 'pods' || r === 'statefulsets')
+                                                              ? renderResourceDropdown(role, MOCK_PODS, ALL_PODS_VALUE, 'All pods', 'Find by pod name', 'Select a pod', getPodSelectionForRole(role.id), setRolePodSelection, podSearchValue, setPodSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                              : rule.resources.some(r => r === 'secrets' || r === 'configmaps')
+                                                                ? renderResourceDropdown(role, MOCK_ENV_VARS, ALL_ENV_VARS_VALUE, 'All environment variables', 'Find by name', 'Select an environment variable', getEnvVarSelectionForRole(role.id), setRoleEnvVarSelection, envVarSearchValue, setEnvVarSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                                : rule.resources.some(r => r === 'hardwareprofiles')
+                                                                  ? renderResourceDropdown(role, MOCK_HARDWARE_PROFILES, ALL_HARDWARE_PROFILES_VALUE, 'All hardware profiles', 'Find by profile name', 'Select a hardware profile', getHardwareProfileSelectionForRole(role.id), setRoleHardwareProfileSelection, hardwareProfileSearchValue, setHardwareProfileSearchValue, !role.currentlyAssigned, `${role.id}-${ruleIndex}`)
+                                                                  : (rule.resourceNames?.join(', ') || '-')
+                                                    : ruleIndex === 0 && isPipelineResourceRole(role)
                                                       ? renderResourceDropdown(role, MOCK_PIPELINES, ALL_PIPELINES_VALUE, 'All pipelines', 'Find by pipeline name', 'Select a pipeline', getPipelineSelectionForRole(role.id), setRolePipelineSelection, pipelineSearchValue, setPipelineSearchValue, !role.currentlyAssigned)
-                                                      : renderResourceDropdown(role, MOCK_DEPLOYMENTS, ALL_DEPLOYMENTS_VALUE, 'All deployments', 'Find by deployment name', 'Select a deployment', getDeploymentSelectionForRole(role.id), setRoleDeploymentSelection, deploymentSearchValue, setDeploymentSearchValue, !role.currentlyAssigned)
-                                                  : (rule.resourceNames?.join(', ') || '-')}
+                                                      : ruleIndex === 0 && isDeploymentResourceRole(role)
+                                                        ? renderResourceDropdown(role, MOCK_DEPLOYMENTS, ALL_DEPLOYMENTS_VALUE, 'All deployments', 'Find by deployment name', 'Select a deployment', getDeploymentSelectionForRole(role.id), setRoleDeploymentSelection, deploymentSearchValue, setDeploymentSearchValue, !role.currentlyAssigned)
+                                                        : (rule.resourceNames?.join(', ') || '-')}
                                             </Td>
                                         </Tr>
                                         ))
@@ -1955,14 +1992,10 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span id="role-rules-modal-title">{selectedRoleForModal?.name}</span>
-              {selectedRoleForModal?.roleType === 'openshift-default' && (
-                <Label color="grey" variant="outline">OpenShift default role</Label>
-              )}
-              {selectedRoleForModal?.roleType === 'openshift-custom' && (
-                <Label color="grey" variant="outline">OpenShift custom role</Label>
-              )}
+              <span style={{ fontWeight: 'normal' }}>{selectedRoleForModal && renderRoleTypeLabels(selectedRoleForModal)}</span>
             </div>
           }
+          description={selectedRoleForModal?.description}
         />
         <ModalBody>
           <Tabs
@@ -2115,8 +2148,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
           setPendingSubject(undefined);
           setPendingSubjectType(undefined);
           setShouldPreserveRoles(false);
-          setTypeaheadInputValue(''); // Clear input to revert to original selection
-          setTypeaheadKey(prev => prev + 1); // Force TypeaheadSelect to re-render with original value
+          setTypeaheadInputValue('');
         }}
         variant="small"
         aria-labelledby="discard-changes-modal-title"
@@ -2174,8 +2206,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                   setPendingSubject(undefined);
                   setPendingSubjectType(undefined);
                   setShouldPreserveRoles(false);
-                  setTypeaheadInputValue(''); // Clear input to revert to original selection
-                  setTypeaheadKey(prev => prev + 1); // Force TypeaheadSelect to re-render with original value
+                  setTypeaheadInputValue('');
                 }}
               >
                 Cancel
@@ -2224,7 +2255,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         color="grey" 
                         variant="outline" 
                         isCompact
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
                       >
                         <svg
                           className="pf-v6-svg"
@@ -2263,7 +2294,7 @@ const RoleAssignmentPage: React.FunctionComponent = () => {
                         color="grey" 
                         variant="outline" 
                         isCompact
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', height: '18px' }}
                       >
                         <svg
                           className="pf-v6-svg"
