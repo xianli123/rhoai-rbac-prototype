@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addSharedRole } from './sharedRolesData';
 import { TypeaheadSelect, TypeaheadSelectOption, SimpleDropdown } from '@patternfly/react-templates';
 import {
   PageSection,
@@ -780,7 +781,13 @@ ${ruleBlocks.join('\n')}
   }, [roleName, description, rules]);
 
   const handleSubmit = () => {
-    // Handle form submission
+    addSharedRole({
+      name: roleName || 'my-custom-role',
+      openshiftName: roleName || 'my-custom-role',
+      description: description || '',
+      category: category || 'Custom',
+      roleType: 'openshift-custom',
+    });
     navigate('/settings/user-management/roles');
   };
 

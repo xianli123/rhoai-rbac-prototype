@@ -591,6 +591,19 @@ interface User {
 
 ## Latest Session Updates (Current)
 
+1. **Settings – Roles Page: Newly Created Role Appears After Saving:**
+   - **New shared data file** `src/app/Settings/UserManagement/sharedRolesData.ts` created (same pattern as `sharedPermissionsData.ts`)
+     - Exports `SharedRole` interface (id, name, openshiftName, description, category, roleType)
+     - Exports mutable `sharedRoles` array (moved from `Roles.tsx`) as module-level `let`
+     - Exports `addSharedRole()` function that appends a new role with an auto-generated id
+   - **`Roles.tsx`**: Removed local `mockRoles` constant and `Role` interface; now imports `sharedRoles` and `SharedRole` from the shared file; `filteredRoles` reads from `sharedRoles`
+   - **`CreateRole.tsx`**: Imports `addSharedRole`; `handleSubmit` now calls `addSharedRole({ name, openshiftName, description, category, roleType: 'openshift-custom' })` before navigating back to the Roles page — the newly created role is tagged `'openshift-custom'` and gets a `category` from the form (defaults to `'Custom'` if empty)
+   - When the Roles page re-mounts after navigation, it reads the updated `sharedRoles` array and shows the new role immediately
+
+---
+
+## Previous Latest Session Updates
+
 1. **Permissions Tab – Kebab Menu Opens to the Left:**
    - Added `popperProps={{ position: 'end' }}` to both Users and Groups kebab `Dropdown` components in `ProjectDetail.tsx`
    - The dropdown panel's right edge now aligns with the toggle's right edge, so the menu extends leftward instead of rightward
